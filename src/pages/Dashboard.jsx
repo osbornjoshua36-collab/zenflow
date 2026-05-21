@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import LeadsPipeline from '@/components/LeadsPipeline';
+import AppointmentCalendar from '@/components/AppointmentCalendar';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -105,6 +106,9 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      {/* Appointment Calendar */}
+      <AppointmentCalendar />
 
       {/* Leads Pipeline */}
       <LeadsPipeline />
