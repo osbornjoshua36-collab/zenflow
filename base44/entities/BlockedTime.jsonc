@@ -1,0 +1,31 @@
+{
+  "name": "BlockedTime",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string"
+    },
+    "calendar_profile_id": {
+      "type": "string",
+      "description": "Optional \u2014 specific person's calendar"
+    },
+    "title": {
+      "type": "string",
+      "description": "Reason for block (e.g. Lunch, Vacation)"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "business_id",
+    "title",
+    "start_time",
+    "end_time"
+  ]
+}

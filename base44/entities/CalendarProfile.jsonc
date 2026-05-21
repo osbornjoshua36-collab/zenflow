@@ -1,0 +1,32 @@
+{
+  "name": "CalendarProfile",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Calendar label (e.g. John's Schedule)"
+    },
+    "technician_name": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string",
+      "enum": [
+        "blue",
+        "green",
+        "purple",
+        "orange",
+        "red",
+        "pink"
+      ],
+      "description": "Color for this calendar"
+    }
+  },
+  "required": [
+    "business_id",
+    "name"
+  ]
+}
