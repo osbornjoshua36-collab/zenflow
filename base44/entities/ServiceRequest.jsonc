@@ -1,0 +1,71 @@
+{
+  "name": "ServiceRequest",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "What the customer needs"
+    },
+    "description": {
+      "type": "string",
+      "description": "More detail about the job"
+    },
+    "industry": {
+      "type": "string",
+      "enum": [
+        "HVAC",
+        "Plumbing",
+        "Electrical",
+        "Salon",
+        "Real Estate",
+        "Cleaning",
+        "Landscaping",
+        "Other"
+      ],
+      "description": "Type of service needed"
+    },
+    "location": {
+      "type": "string",
+      "description": "City or area"
+    },
+    "budget": {
+      "type": "string",
+      "description": "Rough budget range"
+    },
+    "urgency": {
+      "type": "string",
+      "enum": [
+        "ASAP",
+        "This Week",
+        "This Month",
+        "Flexible"
+      ],
+      "description": "How soon they need help"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Open",
+        "In Progress",
+        "Closed"
+      ],
+      "default": "Open"
+    }
+  },
+  "required": [
+    "title",
+    "industry",
+    "contact_name",
+    "contact_phone",
+    "status"
+  ]
+}
