@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import NewJobDialog from '@/components/NewJobDialog';
+import AppointmentCalendar from '@/components/AppointmentCalendar';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -69,6 +70,7 @@ export default function Scheduling() {
 
   return (
     <div className="space-y-6">
+      <AppointmentCalendar />
       <Tabs defaultValue="scheduled" className="w-full">
         <TabsList>
           <TabsTrigger value="scheduled">Scheduled ({scheduled.length})</TabsTrigger>
