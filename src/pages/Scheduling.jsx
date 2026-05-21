@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import NewJobDialog from '@/components/NewJobDialog';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,27 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export default function Scheduling() {
   const [jobs, setJobs] = useState([]);
   const [customers, setCustomers] = useState({});
+  const [showNewJob, setShowNewJob] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const jobsData = await base44.entities.Job.list('-scheduled_date', 50);
-        const customersData = await base44.entities.Customer.list('-created_date', 100);
-        
-        const customersMap = {};
-        customersData.forEach(c => {
-          customersMap[c.id] = c;
-        });
+  const fetchData = async () => {
+    const jobsData = await base44.entities.Job.list('-scheduled_date', 50);
+    const customersData = await base44.entities.Customer.list('-created_date', 100);
+    const customersMap = {};
+    customersData.forEach(c => { customersMap[c.id] = c; });
+    setJobs(jobsData);
+    setCustomers(customersMap);
+  };
 
-        setJobs(jobsData);
-        setCustomers(customersMap);
-      } catch (error) {
-        console.error('Error fetching jobs:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const scheduled = jobs.filter(j => j.status === 'Scheduled');
   const inProgress = jobs.filter(j => j.status === 'In Progress');
@@ -68,12 +60,8 @@ export default function Scheduling() {
           </div>
         </div>
         <div className="mt-4 flex gap-2">
-          <Button size="sm" variant="outline">
-            Update Status
-          </Button>
-          <Button size="sm" variant="outline">
-            Send Reminder
-          </Button>
+          <Button size="sm" variant="outline">Update Status</Button>
+          <Button size="sm" variant="outline">Send Reminder</Button>
         </div>
       </CardContent>
     </Card>
@@ -113,9 +101,16 @@ export default function Scheduling() {
         </TabsContent>
       </Tabs>
 
-      <Button className="w-full bg-blue-600 hover:bg-blue-700">
+      <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => setShowNewJob(true)}>
         Schedule New Job
       </Button>
+
+      <NewJobDialog
+        open={showNewJob}
+        onClose={() => setShowNewJob(false)}
+        customers={customers}
+        onJobCreated={fetchData}
+      />
     </div>
   );
 }
