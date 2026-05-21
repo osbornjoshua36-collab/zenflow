@@ -13,6 +13,7 @@ import PostJob from '@/pages/PostJob';
 import Reputation from '@/pages/Reputation';
 import Invoicing from '@/pages/Invoicing';
 import Hiring from '@/pages/Hiring';
+import CommunityHub from '@/pages/CommunityHub';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -48,6 +49,7 @@ const AuthenticatedApp = () => {
           <Route path="/reputation" element={<Reputation />} />
           <Route path="/invoicing" element={<Invoicing />} />
           <Route path="/hiring" element={<Hiring />} />
+          <Route path="/community" element={<CommunityHub />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>
