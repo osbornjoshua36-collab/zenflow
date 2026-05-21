@@ -1,0 +1,65 @@
+{
+  "name": "Job",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "Foreign key to Business"
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "Foreign key to Customer"
+    },
+    "title": {
+      "type": "string",
+      "description": "Job title/service type"
+    },
+    "description": {
+      "type": "string",
+      "description": "Job details"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Scheduled",
+        "In Progress",
+        "Completed",
+        "Cancelled",
+        "No-Show"
+      ],
+      "description": "Job status"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled appointment time"
+    },
+    "estimated_duration_hours": {
+      "type": "number",
+      "description": "Estimated duration in hours"
+    },
+    "technician_name": {
+      "type": "string",
+      "description": "Assigned technician"
+    },
+    "estimated_cost": {
+      "type": "number",
+      "description": "Estimated cost"
+    },
+    "actual_cost": {
+      "type": "number",
+      "description": "Actual cost after completion"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Internal notes"
+    }
+  },
+  "required": [
+    "business_id",
+    "customer_id",
+    "title",
+    "status",
+    "scheduled_date"
+  ]
+}

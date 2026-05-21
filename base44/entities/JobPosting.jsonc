@@ -1,0 +1,46 @@
+{
+  "name": "JobPosting",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "Foreign key to Business"
+    },
+    "title": {
+      "type": "string",
+      "description": "Job title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Job description"
+    },
+    "requirements": {
+      "type": "string",
+      "description": "Required qualifications"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Active",
+        "Paused",
+        "Closed"
+      ],
+      "description": "Job posting status"
+    },
+    "posted_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When posting went live"
+    },
+    "applicant_count": {
+      "type": "integer",
+      "description": "Number of applicants"
+    }
+  },
+  "required": [
+    "business_id",
+    "title",
+    "status"
+  ]
+}

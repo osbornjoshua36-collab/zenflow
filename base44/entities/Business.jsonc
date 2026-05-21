@@ -1,0 +1,66 @@
+{
+  "name": "Business",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Business name"
+    },
+    "industry": {
+      "type": "string",
+      "enum": [
+        "HVAC",
+        "Plumbing",
+        "Electrical",
+        "Salon",
+        "Real Estate",
+        "Cleaning",
+        "Landscaping",
+        "Other"
+      ],
+      "description": "Service business type"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Business phone number for SMS"
+    },
+    "ai_tone": {
+      "type": "string",
+      "enum": [
+        "Professional",
+        "Friendly",
+        "Casual",
+        "Formal"
+      ],
+      "description": "AI persona tone for messages"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Owner's email for notifications"
+    },
+    "timezone": {
+      "type": "string",
+      "description": "Business timezone (e.g., America/New_York)"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Business logo URL"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Paused",
+        "Setup"
+      ],
+      "description": "Business account status"
+    }
+  },
+  "required": [
+    "name",
+    "industry",
+    "phone",
+    "owner_email",
+    "timezone"
+  ]
+}

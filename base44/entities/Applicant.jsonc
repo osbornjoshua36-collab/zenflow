@@ -1,0 +1,64 @@
+{
+  "name": "Applicant",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "Foreign key to Business"
+    },
+    "job_posting_id": {
+      "type": "string",
+      "description": "Foreign key to JobPosting"
+    },
+    "name": {
+      "type": "string",
+      "description": "Applicant name"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Applicant phone number"
+    },
+    "experience_level": {
+      "type": "string",
+      "enum": [
+        "Entry Level",
+        "Mid Level",
+        "Senior",
+        "Unknown"
+      ],
+      "description": "Experience level"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "New",
+        "Screening",
+        "Qualified",
+        "Interview Scheduled",
+        "Rejected",
+        "Hired"
+      ],
+      "description": "Application status"
+    },
+    "ai_assessment": {
+      "type": "string",
+      "description": "AI screening notes"
+    },
+    "interview_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled interview time"
+    },
+    "conversation_id": {
+      "type": "string",
+      "description": "Link to SMS conversation thread"
+    }
+  },
+  "required": [
+    "business_id",
+    "job_posting_id",
+    "name",
+    "phone",
+    "status"
+  ]
+}

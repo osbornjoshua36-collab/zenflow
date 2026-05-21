@@ -1,0 +1,62 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "Foreign key to Business"
+    },
+    "conversation_id": {
+      "type": "string",
+      "description": "Conversation thread ID"
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "Foreign key to Customer"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "Inbound",
+        "Outbound"
+      ],
+      "description": "Message direction"
+    },
+    "sender": {
+      "type": "string",
+      "description": "Sender name or email"
+    },
+    "content": {
+      "type": "string",
+      "description": "Message text"
+    },
+    "ai_drafted": {
+      "type": "boolean",
+      "description": "Whether AI drafted this message"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Email of person who approved/sent"
+    },
+    "is_read": {
+      "type": "boolean",
+      "description": "Whether message has been read"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "SMS",
+        "Email",
+        "Voice"
+      ],
+      "description": "Communication channel"
+    }
+  },
+  "required": [
+    "business_id",
+    "customer_id",
+    "direction",
+    "content",
+    "channel"
+  ]
+}

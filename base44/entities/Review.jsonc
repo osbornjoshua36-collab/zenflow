@@ -1,0 +1,59 @@
+{
+  "name": "Review",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "Foreign key to Business"
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "Foreign key to Customer"
+    },
+    "job_id": {
+      "type": "string",
+      "description": "Foreign key to Job"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "Google",
+        "Yelp",
+        "Facebook",
+        "Internal"
+      ],
+      "description": "Review platform"
+    },
+    "rating": {
+      "type": "integer",
+      "description": "Star rating 1-5"
+    },
+    "text": {
+      "type": "string",
+      "description": "Review text"
+    },
+    "public_url": {
+      "type": "string",
+      "description": "Link to review on platform"
+    },
+    "ai_response_draft": {
+      "type": "string",
+      "description": "AI-drafted response"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Responded",
+        "Ignored"
+      ],
+      "description": "Response status"
+    }
+  },
+  "required": [
+    "business_id",
+    "customer_id",
+    "platform",
+    "rating"
+  ]
+}

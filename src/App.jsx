@@ -5,7 +5,14 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-// Add page imports here
+import Layout from '@/components/Layout';
+import Dashboard from '@/pages/Dashboard';
+import Leads from '@/pages/Leads';
+import Scheduling from '@/pages/Scheduling';
+import PostJob from '@/pages/PostJob';
+import Reputation from '@/pages/Reputation';
+import Invoicing from '@/pages/Invoicing';
+import Hiring from '@/pages/Hiring';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -31,12 +38,20 @@ const AuthenticatedApp = () => {
   }
 
   // Render the main app
-  return (
-    <Routes>
-      {/* Add your page Route elements here */}
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
-  );
+    return (
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/leads" element={<Leads />} />
+          <Route path="/scheduling" element={<Scheduling />} />
+          <Route path="/post-job" element={<PostJob />} />
+          <Route path="/reputation" element={<Reputation />} />
+          <Route path="/invoicing" element={<Invoicing />} />
+          <Route path="/hiring" element={<Hiring />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Route>
+      </Routes>
+    );
 };
 
 

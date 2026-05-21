@@ -1,0 +1,49 @@
+{
+  "name": "Customer",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "Foreign key to Business"
+    },
+    "name": {
+      "type": "string",
+      "description": "Customer name"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Customer phone number"
+    },
+    "email": {
+      "type": "string",
+      "description": "Customer email"
+    },
+    "address": {
+      "type": "string",
+      "description": "Service address"
+    },
+    "preferred_contact": {
+      "type": "string",
+      "enum": [
+        "SMS",
+        "Email",
+        "Phone"
+      ],
+      "description": "Preferred communication channel"
+    },
+    "total_spent": {
+      "type": "number",
+      "description": "Total lifetime spend"
+    },
+    "last_service_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last service completion date"
+    }
+  },
+  "required": [
+    "business_id",
+    "name",
+    "phone"
+  ]
+}

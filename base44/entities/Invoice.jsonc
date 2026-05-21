@@ -1,0 +1,69 @@
+{
+  "name": "Invoice",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "Foreign key to Business"
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "Foreign key to Customer"
+    },
+    "job_id": {
+      "type": "string",
+      "description": "Foreign key to Job"
+    },
+    "invoice_number": {
+      "type": "string",
+      "description": "Unique invoice number"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Invoice total"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Sent",
+        "Viewed",
+        "Paid",
+        "Overdue",
+        "Cancelled"
+      ],
+      "description": "Invoice status"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Payment due date"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date payment received"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "Stripe",
+        "Cash",
+        "Check",
+        "Bank Transfer"
+      ],
+      "description": "How payment was made"
+    },
+    "description": {
+      "type": "string",
+      "description": "Invoice line items"
+    }
+  },
+  "required": [
+    "business_id",
+    "customer_id",
+    "invoice_number",
+    "amount",
+    "status"
+  ]
+}
