@@ -59,7 +59,7 @@ export default function CommunityHub() {
       <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white px-6 py-12 text-center">
         <div className="flex items-center justify-center gap-2 mb-3">
           <Globe className="w-7 h-7" />
-          <h1 className="text-3xl font-bold">ConnectOS Community Hub</h1>
+          <h1 className="text-3xl font-bold">Sphere — Community Hub</h1>
         </div>
         <p className="text-blue-100 text-lg max-w-xl mx-auto">
           Find trusted local service businesses, post what you need, and book directly.
