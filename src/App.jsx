@@ -17,6 +17,7 @@ import CommunityHub from '@/pages/CommunityHub';
 import SellerListings from '@/pages/SellerListings';
 import SellerStorefront from '@/pages/SellerStorefront';
 import SellerAds from '@/pages/SellerAds';
+import SellerBilling from '@/pages/SellerBilling';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -56,6 +57,7 @@ const AuthenticatedApp = () => {
           <Route path="/seller/listings" element={<SellerListings />} />
           <Route path="/seller/:businessId" element={<SellerStorefront />} />
           <Route path="/seller/ads" element={<SellerAds />} />
+          <Route path="/seller/billing" element={<SellerBilling />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>
