@@ -1,0 +1,151 @@
+import { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Search, Globe, ClipboardList, LayoutGrid } from 'lucide-react';
+import ListingCard from '@/components/ListingCard';
+import ServiceRequestBoard from '@/components/ServiceRequestBoard';
+
+const CATEGORIES = ['All', 'Home & Garden', 'Lessons & Tutoring', 'Events & Photography', 'Tech & Repairs', 'Creative Services', 'Wellness & Fitness', 'Pet Services', 'Business Services', 'HVAC', 'Plumbing', 'Electrical', 'Salon', 'Real Estate', 'Cleaning', 'Landscaping', 'Other'];
+
+export default function CommunityHub() {
+  const [listings, setListings] = useState([]);
+  const [businesses, setBusinesses] = useState({});
+  const [reviews, setReviews] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('All');
+  const [priceFilter, setPriceFilter] = useState('All');
+  const [loading, setLoading] = useState(true);
+
+  const loadData = async () => {
+    const [listingsData, bizData, reviewsData, reqsData] = await Promise.all([
+      base44.entities.Listing.filter({ status: 'Active' }, '-created_date', 200),
+      base44.entities.Business.list('-created_date', 100),
+      base44.entities.Review.list('-created_date', 500),
+      base44.entities.ServiceRequest.list('-created_date', 200),
+    ]);
+    const bizMap = {};
+    bizData.forEach(b => { bizMap[b.id] = b; });
+    setListings(listingsData);
+    setBusinesses(bizMap);
+    setReviews(reviewsData);
+    setRequests(reqsData);
+    setLoading(false);
+  };
+
+  useEffect(() => { loadData(); }, []);
+
+  const getStats = (businessId) => {
+    const bReviews = reviews.filter(r => r.business_id === businessId);
+    const avg = bReviews.length > 0 ? bReviews.reduce((a, r) => a + r.rating, 0) / bReviews.length : 0;
+    return { avgRating: avg, reviewCount: bReviews.length };
+  };
+
+  const filteredListings = listings.filter(l => {
+    const matchSearch = !search || l.title?.toLowerCase().includes(search.toLowerCase()) ||
+      l.description?.toLowerCase().includes(search.toLowerCase()) ||
+      businesses[l.business_id]?.name?.toLowerCase().includes(search.toLowerCase());
+    const matchCategory = category === 'All' || l.category === category;
+    const matchPrice = priceFilter === 'All' ||
+      (priceFilter === 'Free Quote' && l.price_type === 'Free Quote') ||
+      (priceFilter === 'Paid' && l.price_type !== 'Free Quote');
+    return matchSearch && matchCategory && matchPrice;
+  });
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Hero */}
+      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white px-6 py-12 text-center">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <Globe className="w-7 h-7" />
+          <h1 className="text-3xl font-bold">Sphere — Community Hub</h1>
+        </div>
+        <p className="text-blue-100 text-lg max-w-xl mx-auto mb-6">
+          Find trusted local service providers, post what you need, and get quotes instantly.
+        </p>
+        {/* Search bar */}
+        <div className="max-w-xl mx-auto relative">
+          <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+          <input
+            className="w-full pl-12 pr-4 py-3 rounded-xl text-slate-900 text-base shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+            placeholder="Search services, providers, categories..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <Tabs defaultValue="browse">
+          <TabsList className="mb-6 bg-white border shadow-sm">
+            <TabsTrigger value="browse" className="gap-2"><LayoutGrid className="w-4 h-4" /> Browse Services</TabsTrigger>
+            <TabsTrigger value="requests" className="gap-2"><ClipboardList className="w-4 h-4" /> Service Requests</TabsTrigger>
+          </TabsList>
+
+          {/* BROWSE TAB */}
+          <TabsContent value="browse">
+            {/* Filters row */}
+            <div className="bg-white rounded-xl shadow-sm p-3 flex flex-col sm:flex-row gap-3 mb-6">
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="w-full sm:w-56"><SelectValue placeholder="Category" /></SelectTrigger>
+                <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+              </Select>
+              <Select value={priceFilter} onValueChange={setPriceFilter}>
+                <SelectTrigger className="w-full sm:w-44"><SelectValue placeholder="Pricing" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Pricing</SelectItem>
+                  <SelectItem value="Free Quote">Free Quote</SelectItem>
+                  <SelectItem value="Paid">Has Listed Price</SelectItem>
+                </SelectContent>
+              </Select>
+              {(search || category !== 'All' || priceFilter !== 'All') && (
+                <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setSearch(''); setCategory('All'); setPriceFilter('All'); }}>
+                  Clear filters
+                </Button>
+              )}
+            </div>
+
+            {loading ? (
+              <div className="text-center text-slate-500 py-16">Loading...</div>
+            ) : filteredListings.length === 0 ? (
+              <div className="text-center text-slate-500 py-16">
+                <p>No listings found.</p>
+                {(search || category !== 'All') && <p className="text-sm mt-1">Try adjusting your search or filters.</p>}
+              </div>
+            ) : (
+              <>
+                <p className="text-sm text-slate-500 mb-4">{filteredListings.length} listing{filteredListings.length !== 1 ? 's' : ''} found</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {filteredListings.map(l => {
+                    const { avgRating, reviewCount } = getStats(l.business_id);
+                    return (
+                      <ListingCard
+                        key={l.id}
+                        listing={l}
+                        business={businesses[l.business_id]}
+                        avgRating={avgRating}
+                        reviewCount={reviewCount}
+                      />
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </TabsContent>
+
+          {/* SERVICE REQUESTS TAB */}
+          <TabsContent value="requests">
+            {loading ? (
+              <div className="text-center text-slate-500 py-16">Loading...</div>
+            ) : (
+              <ServiceRequestBoard requests={requests} onRefresh={loadData} />
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
