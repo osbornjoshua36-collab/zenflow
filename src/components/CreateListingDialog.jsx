@@ -12,7 +12,7 @@ const CATEGORIES = ['Home & Garden', 'Lessons & Tutoring', 'Events & Photography
 const STEPS = ['Basics', 'Details', 'Pricing', 'Publish'];
 
 export default function CreateListingDialog({ open, onClose, onCreated, businessId, existing }) {
-  const empty = { title: '', category: '', description: '', price_type: 'Free Quote', price: '', location: '', service_area_miles: 25, city: '', state: '', zip_code: '', service_radius_miles: 25, seller_about: '', years_experience: '', certifications: '', tags: [], status: 'Active' };
+  const empty = { title: '', category: '', description: '', price_type: 'Free Quote', price: '', location: '', service_area_miles: 25, city: '', state: '', zip_code: '', service_radius_miles: 25, seller_about: '', years_experience: '', certifications: '', tags: [], images: [], status: 'Active' };
   const [form, setForm] = useState(existing || empty);
   const [step, setStep] = useState(0);
   const [tagInput, setTagInput] = useState('');
@@ -34,6 +34,22 @@ export default function CreateListingDialog({ open, onClose, onCreated, business
     }
     set('photos', [...(form.photos || []), ...urls]);
     setPhotoFiles([]);
+  };
+
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const handleImageUpload = async (files) => {
+    const current = form.images || [];
+    const slots = 8 - current.length;
+    if (slots <= 0) return;
+    setUploadingImages(true);
+    const toUpload = Array.from(files).slice(0, slots);
+    const urls = [];
+    for (const file of toUpload) {
+      const res = await base44.integrations.Core.UploadFile({ file });
+      urls.push(res.file_url);
+    }
+    set('images', [...current, ...urls]);
+    setUploadingImages(false);
   };
 
   const handleSave = async () => {
@@ -71,6 +87,30 @@ export default function CreateListingDialog({ open, onClose, onCreated, business
         <textarea className="w-full border rounded-md px-3 py-2 text-sm min-h-[100px] resize-none focus:outline-none focus:ring-1 focus:ring-ring"
           placeholder="Describe your service in detail..."
           value={form.description} onChange={e => set('description', e.target.value)} />
+      </div>
+      {/* Photos */}
+      <div>
+        <p className="text-sm font-semibold text-slate-700 mb-0.5">Photos <span className="font-normal text-slate-400">(optional — up to 8 images)</span></p>
+        <p className="text-xs text-slate-400 mb-2">Photos significantly increase buyer interest</p>
+        {(form.images || []).length < 8 && (
+          <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-slate-200 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+            <span className="text-xs text-slate-400">{uploadingImages ? 'Uploading…' : '+ Add photos (jpg, png, webp)'}</span>
+            <input type="file" multiple accept="image/jpeg,image/png,image/webp" className="hidden"
+              disabled={uploadingImages}
+              onChange={e => handleImageUpload(Array.from(e.target.files))} />
+          </label>
+        )}
+        {(form.images || []).length > 0 && (
+          <div className="grid grid-cols-4 gap-2 mt-2">
+            {form.images.map((url, i) => (
+              <div key={i} className="relative aspect-square">
+                <img src={url} className="w-full h-full object-cover rounded-lg" />
+                <button type="button" onClick={() => set('images', form.images.filter((_, j) => j !== i))}
+                  className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center shadow">×</button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       {/* Service Location */}
       <div className="pt-1">
@@ -128,18 +168,6 @@ export default function CreateListingDialog({ open, onClose, onCreated, business
             <Badge key={t} variant="secondary" className="gap-1">{t}
               <X className="w-3 h-3 cursor-pointer" onClick={() => set('tags', form.tags.filter(x => x !== t))} />
             </Badge>
-          ))}
-        </div>
-      </div>
-      <div>
-        <Label>Photos</Label>
-        <Input type="file" multiple accept="image/*" onChange={e => handlePhotoUpload(Array.from(e.target.files))} className="text-sm" />
-        <div className="flex flex-wrap gap-2 mt-2">
-          {(form.photos || []).map((url, i) => (
-            <div key={i} className="relative w-16 h-16">
-              <img src={url} className="w-full h-full object-cover rounded" />
-              <button onClick={() => set('photos', form.photos.filter((_, j) => j !== i))} className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center">×</button>
-            </div>
           ))}
         </div>
       </div>

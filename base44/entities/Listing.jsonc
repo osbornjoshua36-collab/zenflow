@@ -50,12 +50,19 @@
       "type": "number",
       "description": "Starting price (0 if free quote)"
     },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Uploaded listing photo URLs (max 8)"
+    },
     "photos": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Array of image URLs"
+      "description": "Array of image URLs (legacy)"
     },
     "location": {
       "type": "string",

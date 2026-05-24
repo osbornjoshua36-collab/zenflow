@@ -12,15 +12,18 @@ export default function ListingCard({ listing, business, avgRating, reviewCount,
   const card = (
     <div className="bg-white rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden group">
       {/* Photo */}
-      {listing.photos?.length > 0 ? (
-        <div className="h-40 overflow-hidden">
-          <img src={listing.photos[0]} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-        </div>
-      ) : (
-        <div className="h-40 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-          <span className="text-3xl">🛠️</span>
-        </div>
-      )}
+      {(() => {
+        const thumb = listing.images?.[0] || listing.photos?.[0];
+        return thumb ? (
+          <div className="aspect-[4/3] overflow-hidden">
+            <img src={thumb} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          </div>
+        ) : (
+          <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+            <span className="text-sm font-medium text-slate-400 text-center px-3">{listing.category}</span>
+          </div>
+        );
+      })()}
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-1">
           <h3 className="font-semibold text-slate-900 text-sm leading-tight line-clamp-2">{listing.title}</h3>
