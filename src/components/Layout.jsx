@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag, Megaphone, CreditCard } from 'lucide-react';
+import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag, Megaphone, CreditCard, Settings } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function Layout() {
@@ -17,6 +17,7 @@ export default function Layout() {
     { path: '/seller/listings', icon: Tag, label: 'My Listings' },
     { path: '/seller/ads', icon: Megaphone, label: 'Ad Manager' },
     { path: '/seller/billing', icon: CreditCard, label: 'Billing' },
+    { path: '/seller/settings', icon: Settings, label: 'Settings' },
   ];
 
   const handleLogout = async () => {

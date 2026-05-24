@@ -22,7 +22,12 @@
     },
     "phone": {
       "type": "string",
-      "description": "Business phone number for SMS"
+      "description": "Business phone number \u2014 used for identity verification, not shown publicly"
+    },
+    "phone_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether phone number has been verified"
     },
     "ai_tone": {
       "type": "string",
@@ -59,7 +64,6 @@
   "required": [
     "name",
     "industry",
-    "phone",
     "owner_email",
     "timezone"
   ]

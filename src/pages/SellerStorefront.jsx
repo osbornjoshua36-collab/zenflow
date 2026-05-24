@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Phone, Star, Clock, ChevronLeft } from 'lucide-react';
+import { MapPin, Phone, Star, Clock, ChevronLeft, CheckCircle2 } from 'lucide-react';
 import ListingCard from '@/components/ListingCard';
 import QuoteRequestDialog from '@/components/QuoteRequestDialog';
 import ReportDialog from '@/components/ReportDialog';
@@ -59,6 +59,11 @@ export default function SellerStorefront() {
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2xl font-bold">{business.name}</h1>
               {business.status === 'Active' && <Badge className="bg-green-500 text-white border-0">Active</Badge>}
+              {business.phone_verified && (
+                <span className="inline-flex items-center gap-1 text-xs text-green-300 bg-green-900/40 border border-green-700/50 px-2 py-0.5 rounded-full">
+                  <CheckCircle2 className="w-3 h-3" /> Phone verified
+                </span>
+              )}
             </div>
             <p className="text-slate-300 mt-1">{business.industry}</p>
             <div className="flex flex-wrap gap-4 mt-3 text-sm text-slate-300">

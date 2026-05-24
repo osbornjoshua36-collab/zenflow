@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Clock, Star, DollarSign } from 'lucide-react';
+import { MapPin, Clock, Star, DollarSign, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function ListingCard({ listing, business, avgRating, reviewCount, onClick, onReport }) {
@@ -30,7 +30,14 @@ export default function ListingCard({ listing, business, avgRating, reviewCount,
           <Badge variant="secondary" className="text-xs shrink-0">{listing.category}</Badge>
         </div>
         {business && (
-          <p className="text-xs text-slate-500 mb-2">{business.name}</p>
+          <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+            <p className="text-xs text-slate-500">{business.name}</p>
+            {business.phone_verified && (
+              <span className="inline-flex items-center gap-0.5 text-xs text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full">
+                <CheckCircle2 className="w-3 h-3" /> Phone verified
+              </span>
+            )}
+          </div>
         )}
         <p className="text-xs text-slate-600 line-clamp-2 mb-3">{listing.description}</p>
         <div className="flex items-center justify-between text-xs text-slate-500">
