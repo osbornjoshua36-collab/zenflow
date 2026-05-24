@@ -118,17 +118,7 @@ export default function SellerSettings() {
             </Select>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1">Status</label>
-            <Select value={form.status} onValueChange={v => set('status', v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Paused">Paused</SelectItem>
-                <SelectItem value="Setup">Setup</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+
         </CardContent>
       </Card>
 
