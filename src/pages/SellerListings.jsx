@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Eye, Edit, Archive, MessageSquare, DollarSign, CheckCircle, Clock, ArrowRight, Zap } from 'lucide-react';
 import BoostListingDialog from '@/components/BoostListingDialog';
+import StarRating from '@/components/StarRating';
 import { Link } from 'react-router-dom';
 import CreateListingDialog from '@/components/CreateListingDialog';
 import QuoteRespondDialog from '@/components/QuoteRespondDialog';
@@ -36,6 +37,7 @@ export default function SellerListings() {
   const [loading, setLoading] = useState(true);
   const [acceptedJob, setAcceptedJob] = useState(null); // { id, quoteId }
   const [boostListing, setBoostListing] = useState(null);
+  const [myReviews, setMyReviews] = useState([]);
 
   const loadData = async () => {
     const [bizList, listingsData, quotesData] = await Promise.all([
@@ -43,9 +45,14 @@ export default function SellerListings() {
       base44.entities.Listing.list('-created_date', 100),
       base44.entities.Quote.list('-created_date', 200),
     ]);
-    setBusiness(bizList[0] || null);
+    const biz = bizList[0] || null;
+    setBusiness(biz || null);
     setListings(listingsData);
     setQuotes(quotesData);
+    if (biz) {
+      const reviewsData = await base44.entities.Review.filter({ business_id: biz.id });
+      setMyReviews(reviewsData.filter(r => r.verified === true));
+    }
     setLoading(false);
   };
 
@@ -80,6 +87,9 @@ export default function SellerListings() {
 
   const pendingQuotes = quotes.filter(q => q.status === 'Pending');
   const activeListings = listings.filter(l => l.status === 'Active');
+  const avgRating = myReviews.length > 0
+    ? Math.round((myReviews.reduce((a, r) => a + r.rating, 0) / myReviews.length) * 10) / 10
+    : null;
 
   return (
     <div className="space-y-6">
@@ -104,6 +114,14 @@ export default function SellerListings() {
           </Card>
         ))}
       </div>
+
+      {/* Rating summary */}
+      {myReviews.length >= 0 && (
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <span className="font-medium">Your rating:</span>
+          <StarRating avgRating={avgRating} reviewCount={myReviews.length} size="sm" />
+        </div>
+      )}
 
       <Tabs defaultValue="listings">
         <div className="flex items-center justify-between mb-4">

@@ -51,7 +51,7 @@ export default function CommunityHub() {
   useEffect(() => { loadData(); }, []);
 
   const getStats = (businessId) => {
-    const bReviews = reviews.filter(r => r.business_id === businessId);
+    const bReviews = reviews.filter(r => r.business_id === businessId && r.verified === true);
     const avg = bReviews.length > 0 ? bReviews.reduce((a, r) => a + r.rating, 0) / bReviews.length : 0;
     return { avgRating: avg, reviewCount: bReviews.length };
   };

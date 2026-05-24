@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Clock, Star, DollarSign, CheckCircle2 } from 'lucide-react';
+import { MapPin, DollarSign, CheckCircle2 } from 'lucide-react';
+import StarRating from '@/components/StarRating';
 import { Link } from 'react-router-dom';
 
 export default function ListingCard({ listing, business, avgRating, reviewCount, onClick, onReport, featured }) {
@@ -49,12 +50,9 @@ export default function ListingCard({ listing, business, avgRating, reviewCount,
           <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{listing.location || 'Location TBD'}</span>
           <span className="flex items-center gap-1 font-semibold text-slate-800"><DollarSign className="w-3 h-3" />{priceLabel}</span>
         </div>
-        {(avgRating > 0 || reviewCount > 0) && (
-          <div className="flex items-center gap-1 mt-2 text-xs text-amber-600">
-            <Star className="w-3 h-3 fill-amber-400 stroke-amber-400" />
-            <span>{avgRating?.toFixed(1)} ({reviewCount} reviews)</span>
-          </div>
-        )}
+        <div className="mt-2">
+          <StarRating avgRating={avgRating} reviewCount={reviewCount} size="sm" />
+        </div>
         {onReport && (
           <div className="mt-2 text-right">
             <button
