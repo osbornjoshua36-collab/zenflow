@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { LISTING_CATEGORIES } from '@/lib/categories';
 import { X } from 'lucide-react';
 
-const CATEGORIES = ['Home & Garden', 'Lessons & Tutoring', 'Events & Photography', 'Tech & Repairs', 'Creative Services', 'Wellness & Fitness', 'Pet Services', 'Business Services', 'HVAC', 'Plumbing', 'Electrical', 'Salon', 'Real Estate', 'Cleaning', 'Landscaping', 'Other'];
+const CATEGORIES = LISTING_CATEGORIES;
 const STEPS = ['Basics', 'Details', 'Pricing', 'Publish'];
 
 export default function CreateListingDialog({ open, onClose, onCreated, businessId, existing }) {
@@ -81,6 +82,9 @@ export default function CreateListingDialog({ open, onClose, onCreated, business
           <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
           <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
         </Select>
+        {existing && form.category && !CATEGORIES.includes(form.category) && (
+          <p className="text-xs text-amber-600 mt-1">⚠ Please update category to a standard value.</p>
+        )}
       </div>
       <div>
         <Label>Description*</Label>

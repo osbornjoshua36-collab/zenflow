@@ -6,11 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Search, Globe, ClipboardList, LayoutGrid } from 'lucide-react';
 import ListingCard from '@/components/ListingCard';
+import { LISTING_CATEGORIES } from '@/lib/categories';
 import AdBanner from '@/components/AdBanner';
 import ServiceRequestBoard from '@/components/ServiceRequestBoard';
 import ReportDialog from '@/components/ReportDialog';
 
-const CATEGORIES = ['All', 'Home & Garden', 'Lessons & Tutoring', 'Events & Photography', 'Tech & Repairs', 'Creative Services', 'Wellness & Fitness', 'Pet Services', 'Business Services', 'HVAC', 'Plumbing', 'Electrical', 'Salon', 'Real Estate', 'Cleaning', 'Landscaping', 'Other'];
+
 
 export default function CommunityHub() {
   const [listings, setListings] = useState([]);
@@ -158,7 +159,13 @@ export default function CommunityHub() {
             <div className="bg-white rounded-xl shadow-sm p-3 flex flex-col sm:flex-row gap-3 mb-6">
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="w-full sm:w-56"><SelectValue placeholder="Category" /></SelectTrigger>
-                <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                <SelectContent>
+                  <SelectItem value="All">All categories ({listings.length})</SelectItem>
+                  {LISTING_CATEGORIES.map(c => {
+                    const count = listings.filter(l => l.category === c).length;
+                    return <SelectItem key={c} value={c}>{c} ({count})</SelectItem>;
+                  })}
+                </SelectContent>
               </Select>
               <Select value={priceFilter} onValueChange={setPriceFilter}>
                 <SelectTrigger className="w-full sm:w-44"><SelectValue placeholder="Pricing" /></SelectTrigger>
