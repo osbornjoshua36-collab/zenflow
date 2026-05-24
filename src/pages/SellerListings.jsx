@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Eye, Edit, Archive, MessageSquare, DollarSign, CheckCircle, Clock } from 'lucide-react';
+import { Plus, Eye, Edit, Archive, MessageSquare, DollarSign, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import CreateListingDialog from '@/components/CreateListingDialog';
 import QuoteRespondDialog from '@/components/QuoteRespondDialog';
 
@@ -32,6 +33,7 @@ export default function SellerListings() {
   const [editListing, setEditListing] = useState(null);
   const [respondQuote, setRespondQuote] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [acceptedJob, setAcceptedJob] = useState(null); // { id, quoteId }
 
   const loadData = async () => {
     const [bizList, listingsData, quotesData] = await Promise.all([
@@ -54,6 +56,22 @@ export default function SellerListings() {
 
   const handleToggle = async (listing) => {
     await base44.entities.Listing.update(listing.id, { status: listing.status === 'Active' ? 'Paused' : 'Active' });
+    loadData();
+  };
+
+  const handleAcceptQuote = async (q) => {
+    const listing = listings.find(l => l.id === q.listing_id);
+    const newJob = await base44.entities.Job.create({
+      business_id: q.business_id,
+      customer_id: null,
+      title: 'Job: ' + (listing?.title || 'Service'),
+      status: 'Scheduled',
+      scheduled_date: null,
+      actual_cost: q.seller_price,
+      notes: 'Created from quote #' + q.id,
+    });
+    await base44.entities.Quote.update(q.id, { status: 'Accepted', converted_job_id: newJob.id });
+    setAcceptedJob({ id: newJob.id, quoteId: q.id });
     loadData();
   };
 
@@ -180,9 +198,19 @@ export default function SellerListings() {
                           </Button>
                         )}
                         {q.status === 'Quoted' && (
-                          <div className="text-right shrink-0">
+                          <div className="flex flex-col items-end gap-1.5 shrink-0">
                             <p className="text-sm font-semibold text-slate-900">${q.seller_price}</p>
-                            <p className="text-xs text-slate-400">Awaiting buyer</p>
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700 gap-1" onClick={() => handleAcceptQuote(q)}>
+                              <CheckCircle className="w-3 h-3" /> Accept &amp; Book
+                            </Button>
+                          </div>
+                        )}
+                        {q.status === 'Accepted' && q.converted_job_id && acceptedJob?.quoteId === q.id && (
+                          <div className="text-right shrink-0 text-xs">
+                            <p className="text-green-700 font-medium">Quote accepted — a new job has been created in Scheduling.</p>
+                            <Link to="/scheduling" className="text-blue-600 hover:underline flex items-center gap-0.5 justify-end mt-0.5">
+                              View job in Scheduling <ArrowRight className="w-3 h-3" />
+                            </Link>
                           </div>
                         )}
                       </div>
