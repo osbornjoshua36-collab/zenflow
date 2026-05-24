@@ -1,0 +1,39 @@
+{
+  "name": "SupportTicket",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "General question",
+        "Billing issue",
+        "Report a problem",
+        "Technical issue",
+        "Verification question"
+      ]
+    },
+    "message": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved"
+      ],
+      "default": "open"
+    }
+  },
+  "required": [
+    "email",
+    "message",
+    "status"
+  ]
+}

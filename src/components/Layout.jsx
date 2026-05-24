@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag, Megaphone, CreditCard, Settings, Search, Briefcase, UserCircle, Layers, LineChart } from 'lucide-react';
+import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag, Megaphone, CreditCard, Settings, Search, Briefcase, UserCircle, Layers, LineChart, HelpCircle } from 'lucide-react';
 import PastDueBanner from '@/components/PastDueBanner';
 import { base44 } from '@/api/base44Client';
 
@@ -140,6 +140,19 @@ export default function Layout() {
           </div>
         )}
 
+        {/* Help link */}
+        <div className="px-4 pb-2">
+          <Link
+            to="/support"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors"
+            style={{ color: 'var(--nav-text-muted)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--nav-hover)'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--nav-text-muted)'; }}
+          >
+            <HelpCircle className="w-4 h-4" />
+            Help & Support
+          </Link>
+        </div>
         <div className="p-4" style={{ borderTop: '1px solid var(--nav-border)' }}>
           <button
             onClick={handleLogout}
