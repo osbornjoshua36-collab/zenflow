@@ -1,0 +1,31 @@
+{
+  "name": "BuyerProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Links to the authenticated User's id"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Buyer's display name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Buyer's email address"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Buyer's phone number (optional)"
+    },
+    "zip_code": {
+      "type": "string",
+      "description": "Default location for local search"
+    }
+  },
+  "required": [
+    "user_id",
+    "display_name",
+    "email"
+  ]
+}
