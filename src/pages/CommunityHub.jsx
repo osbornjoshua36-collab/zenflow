@@ -20,6 +20,9 @@ export default function CommunityHub() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [priceFilter, setPriceFilter] = useState('All');
+  const [zipInput, setZipInput] = useState('');
+  const [appliedZip, setAppliedZip] = useState('');
+  const [radius, setRadius] = useState('any');
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
@@ -56,7 +59,8 @@ export default function CommunityHub() {
     const matchPrice = priceFilter === 'All' ||
       (priceFilter === 'Free Quote' && l.price_type === 'Free Quote') ||
       (priceFilter === 'Paid' && l.price_type !== 'Free Quote');
-    return matchSearch && matchCategory && matchPrice;
+    const matchLocation = !appliedZip || radius === 'any' || !l.zip_code || l.zip_code === appliedZip;
+    return matchSearch && matchCategory && matchPrice && matchLocation;
   });
 
   return (
@@ -99,6 +103,38 @@ export default function CommunityHub() {
                 ))}
               </div>
             )}
+            {/* Location filter bar */}
+            <div className="bg-white rounded-xl shadow-sm p-3 flex flex-col sm:flex-row gap-3 mb-3 items-end">
+              <div className="flex-1">
+                <p className="text-xs font-medium text-slate-500 mb-1">Your zip code</p>
+                <Input
+                  placeholder="e.g. 78701"
+                  value={zipInput}
+                  onChange={e => setZipInput(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div className="w-full sm:w-44">
+                <p className="text-xs font-medium text-slate-500 mb-1">Radius</p>
+                <Select value={radius} onValueChange={setRadius}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any distance</SelectItem>
+                    <SelectItem value="5">5 miles</SelectItem>
+                    <SelectItem value="10">10 miles</SelectItem>
+                    <SelectItem value="25">25 miles</SelectItem>
+                    <SelectItem value="50">50 miles</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={() => setAppliedZip(zipInput.trim())} style={{ background: '#1E3245', color: '#fff' }}>
+                Search
+              </Button>
+            </div>
+            {appliedZip && radius !== 'any' && (
+              <p className="text-sm text-slate-500 mb-3">Showing {filteredListings.length} listing{filteredListings.length !== 1 ? 's' : ''} near {appliedZip}</p>
+            )}
+
             {/* Filters row */}
             <div className="bg-white rounded-xl shadow-sm p-3 flex flex-col sm:flex-row gap-3 mb-6">
               <Select value={category} onValueChange={setCategory}>

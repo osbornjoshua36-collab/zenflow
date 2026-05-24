@@ -12,7 +12,7 @@ const CATEGORIES = ['Home & Garden', 'Lessons & Tutoring', 'Events & Photography
 const STEPS = ['Basics', 'Details', 'Pricing', 'Publish'];
 
 export default function CreateListingDialog({ open, onClose, onCreated, businessId, existing }) {
-  const empty = { title: '', category: '', description: '', price_type: 'Free Quote', price: '', location: '', service_area_miles: 25, seller_about: '', years_experience: '', certifications: '', tags: [], status: 'Active' };
+  const empty = { title: '', category: '', description: '', price_type: 'Free Quote', price: '', location: '', service_area_miles: 25, city: '', state: '', zip_code: '', service_radius_miles: 25, seller_about: '', years_experience: '', certifications: '', tags: [], status: 'Active' };
   const [form, setForm] = useState(existing || empty);
   const [step, setStep] = useState(0);
   const [tagInput, setTagInput] = useState('');
@@ -71,6 +71,30 @@ export default function CreateListingDialog({ open, onClose, onCreated, business
         <textarea className="w-full border rounded-md px-3 py-2 text-sm min-h-[100px] resize-none focus:outline-none focus:ring-1 focus:ring-ring"
           placeholder="Describe your service in detail..."
           value={form.description} onChange={e => set('description', e.target.value)} />
+      </div>
+      {/* Service Location */}
+      <div className="pt-1">
+        <p className="text-sm font-semibold text-slate-700 mb-2">Service Location</p>
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <Label>City</Label>
+            <Input placeholder="e.g. Austin" value={form.city} onChange={e => set('city', e.target.value)} />
+          </div>
+          <div>
+            <Label>State</Label>
+            <Input placeholder="e.g. TX" maxLength={2} value={form.state} onChange={e => set('state', e.target.value.toUpperCase())} />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label>Zip Code</Label>
+            <Input placeholder="e.g. 78701" value={form.zip_code} onChange={e => set('zip_code', e.target.value)} />
+          </div>
+          <div>
+            <Label>Service radius (miles)</Label>
+            <Input type="number" placeholder="25" value={form.service_radius_miles} onChange={e => set('service_radius_miles', parseInt(e.target.value) || 25)} />
+          </div>
+        </div>
       </div>
     </div>,
 
