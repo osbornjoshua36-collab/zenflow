@@ -1,0 +1,73 @@
+{
+  "name": "Quote",
+  "type": "object",
+  "properties": {
+    "listing_id": {
+      "type": "string",
+      "description": "FK to Listing"
+    },
+    "business_id": {
+      "type": "string",
+      "description": "FK to Business (seller)"
+    },
+    "buyer_name": {
+      "type": "string"
+    },
+    "buyer_email": {
+      "type": "string"
+    },
+    "buyer_phone": {
+      "type": "string"
+    },
+    "service_description": {
+      "type": "string",
+      "description": "What the buyer needs"
+    },
+    "location": {
+      "type": "string"
+    },
+    "preferred_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "budget_range": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Quoted",
+        "Accepted",
+        "Declined",
+        "Expired",
+        "Converted"
+      ],
+      "default": "Pending"
+    },
+    "seller_price": {
+      "type": "number"
+    },
+    "seller_timeline": {
+      "type": "string"
+    },
+    "seller_notes": {
+      "type": "string"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "converted_job_id": {
+      "type": "string",
+      "description": "Set when quote converts to a Job"
+    }
+  },
+  "required": [
+    "listing_id",
+    "business_id",
+    "buyer_name",
+    "buyer_email",
+    "status"
+  ]
+}

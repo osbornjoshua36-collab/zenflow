@@ -14,6 +14,8 @@ import Reputation from '@/pages/Reputation';
 import Invoicing from '@/pages/Invoicing';
 import Hiring from '@/pages/Hiring';
 import CommunityHub from '@/pages/CommunityHub';
+import SellerListings from '@/pages/SellerListings';
+import SellerStorefront from '@/pages/SellerStorefront';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -50,6 +52,8 @@ const AuthenticatedApp = () => {
           <Route path="/invoicing" element={<Invoicing />} />
           <Route path="/hiring" element={<Hiring />} />
           <Route path="/community" element={<CommunityHub />} />
+          <Route path="/seller/listings" element={<SellerListings />} />
+          <Route path="/seller/:businessId" element={<SellerStorefront />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>

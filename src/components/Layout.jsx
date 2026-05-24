@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe } from 'lucide-react';
+import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function Layout() {
@@ -14,6 +14,7 @@ export default function Layout() {
     { path: '/invoicing', icon: DollarSign, label: 'Invoicing' },
     { path: '/hiring', icon: Users, label: 'Hiring' },
     { path: '/community', icon: Globe, label: 'Community Hub' },
+    { path: '/seller/listings', icon: Tag, label: 'My Listings' },
   ];
 
   const handleLogout = async () => {

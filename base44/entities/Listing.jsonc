@@ -1,0 +1,105 @@
+{
+  "name": "Listing",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "FK to Business (the seller)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Listing headline"
+    },
+    "description": {
+      "type": "string",
+      "description": "Full service description"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Home & Garden",
+        "Lessons & Tutoring",
+        "Events & Photography",
+        "Tech & Repairs",
+        "Creative Services",
+        "Wellness & Fitness",
+        "Pet Services",
+        "Business Services",
+        "HVAC",
+        "Plumbing",
+        "Electrical",
+        "Salon",
+        "Real Estate",
+        "Cleaning",
+        "Landscaping",
+        "Other"
+      ]
+    },
+    "subcategory": {
+      "type": "string"
+    },
+    "price_type": {
+      "type": "string",
+      "enum": [
+        "Flat Rate",
+        "Hourly",
+        "Free Quote"
+      ]
+    },
+    "price": {
+      "type": "number",
+      "description": "Starting price (0 if free quote)"
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of image URLs"
+    },
+    "location": {
+      "type": "string",
+      "description": "City or area served"
+    },
+    "service_area_miles": {
+      "type": "number",
+      "description": "Radius the seller will travel"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Draft",
+        "Paused",
+        "Archived"
+      ],
+      "default": "Draft"
+    },
+    "view_count": {
+      "type": "integer",
+      "default": 0
+    },
+    "seller_about": {
+      "type": "string",
+      "description": "Seller story for this listing"
+    },
+    "years_experience": {
+      "type": "integer"
+    },
+    "certifications": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "business_id",
+    "title",
+    "category",
+    "status"
+  ]
+}
