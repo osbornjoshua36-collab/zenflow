@@ -24,6 +24,8 @@ import BuyerDashboard from '@/pages/BuyerDashboard';
 import BuyerMessages from '@/pages/BuyerMessages';
 import AdminDashboard from '@/pages/AdminDashboard';
 import SellerSubscription from '@/pages/SellerSubscription';
+import PaymentSuccess from '@/pages/PaymentSuccess';
+import PaymentFailure from '@/pages/PaymentFailure';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
 
 const AuthenticatedApp = () => {
@@ -56,6 +58,8 @@ const AuthenticatedApp = () => {
           <Route path="/admin" element={<AdminDashboard />} />
         </Route>
         <Route path="/register" element={<BuyerRegister />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failure" element={<PaymentFailure />} />
         <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
         <Route path="/buyer/jobs" element={<BuyerDashboard />} />
         <Route path="/buyer/messages" element={<BuyerMessages />} />

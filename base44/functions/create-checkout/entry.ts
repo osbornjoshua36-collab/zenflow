@@ -38,7 +38,8 @@ Deno.serve(async (req) => {
             },
             callbackUrls: {
               postFlowUrl: `${origin}/seller/subscription`,
-              thankYouPageUrl: `${origin}/seller/subscription?status=success`,
+              thankYouPageUrl: `${origin}/payment-success?plan_type=subscription`,
+              errorUrl: `${origin}/payment-failure?reason=declined`,
             },
           }),
         }
@@ -79,7 +80,8 @@ Deno.serve(async (req) => {
             },
             callbackUrls: {
               postFlowUrl: `${origin}/seller/listings`,
-              thankYouPageUrl: `${origin}/seller/listings?boost_success=1`,
+              thankYouPageUrl: `${origin}/payment-success?plan_type=boost`,
+              errorUrl: `${origin}/payment-failure?reason=declined`,
             },
           }),
         }
@@ -137,7 +139,8 @@ Deno.serve(async (req) => {
           },
           callbackUrls: {
             postFlowUrl: `${origin}/seller/ads`,
-            thankYouPageUrl: `${origin}/seller/ads?status=success`,
+            thankYouPageUrl: `${origin}/payment-success?plan_type=${tier.toLowerCase()}`,
+            errorUrl: `${origin}/payment-failure?reason=declined`,
           },
         }),
       }
