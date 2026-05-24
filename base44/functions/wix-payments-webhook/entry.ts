@@ -125,6 +125,25 @@ Deno.serve(async (req) => {
         }
       }
 
+      // Check for listing boost purchase (name format: Boost|tier|listingId)
+      const boostItem = order.lineItems.find(item =>
+        item.productName?.original?.startsWith('Boost|')
+      );
+      if (boostItem) {
+        const parts = boostItem.productName.original.split('|');
+        const boostTier = parts[1];
+        const listingId = parts[2];
+        const daysToAdd = boostTier === '7day' ? 7 : 30;
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + daysToAdd);
+        await base44.asServiceRole.entities.Listing.update(listingId, {
+          boosted: true,
+          boost_tier: boostTier,
+          boost_expires_at: expiresAt.toISOString(),
+        });
+        console.log(`Listing ${listingId} boosted (${boostTier}), expires: ${expiresAt.toISOString()}`);
+      }
+
       return new Response('OK', { status: 200 });
     } else if (envelope.eventType === 'wix.ecom.subscription_contracts.v1.subscription_contract_canceled') {
       const subscriptionContract = eventData.actionEvent.body.subscriptionContract;

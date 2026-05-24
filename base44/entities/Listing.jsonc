@@ -118,6 +118,24 @@
     },
     "certifications": {
       "type": "string"
+    },
+    "boosted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this listing is currently boosted"
+    },
+    "boost_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the boost expires"
+    },
+    "boost_tier": {
+      "type": "string",
+      "enum": [
+        "7day",
+        "30day"
+      ],
+      "description": "Selected boost duration tier"
     }
   },
   "required": [

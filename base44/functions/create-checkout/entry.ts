@@ -52,6 +52,47 @@ Deno.serve(async (req) => {
       return Response.json({ redirectUrl: data.checkoutSession.redirectUrl });
     }
 
+    // ── Boost checkout path ────────────────────────────────────────────────────
+    if (checkout_type === 'boost') {
+      const { listing_id, boost_tier } = body;
+      if (!listing_id || !boost_tier) {
+        return Response.json({ error: 'Missing listing_id or boost_tier' }, { status: 400 });
+      }
+      const boostPrice = boost_tier === '7day' ? '15.00' : '39.00';
+      const origin = req.headers.get('origin') || 'https://sphere.base44.app';
+      const checkoutResponse = await fetch(
+        'https://www.wixapis.com/payments/platform/v1/checkout-sessions/construct',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': Deno.env.get('WIX_PAYMENTS_API_KEY'),
+            'wix-site-id': Deno.env.get('WIX_PAYMENTS_SITE_ID'),
+          },
+          body: JSON.stringify({
+            cart: {
+              items: [{
+                name: `Boost|${boost_tier}|${listing_id}`,
+                quantity: 1,
+                price: boostPrice,
+              }],
+            },
+            callbackUrls: {
+              postFlowUrl: `${origin}/seller/listings`,
+              thankYouPageUrl: `${origin}/seller/listings?boost_success=1`,
+            },
+          }),
+        }
+      );
+      if (!checkoutResponse.ok) {
+        const err = await checkoutResponse.json();
+        console.error('Boost checkout error:', err);
+        return Response.json({ error: 'Checkout creation failed' }, { status: 500 });
+      }
+      const data = await checkoutResponse.json();
+      return Response.json({ redirectUrl: data.checkoutSession.redirectUrl });
+    }
+
     // ── Ad checkout path (existing) ──────────────────────────────────────────
     // Tier pricing
     const pricing = {

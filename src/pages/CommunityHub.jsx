@@ -66,6 +66,12 @@ export default function CommunityHub() {
       return matchSearch && matchCategory && matchPrice && matchLocation;
     })
     .sort((a, b) => {
+      // Boosted (non-expired) listings always sort first
+      const now = new Date();
+      const aBoosted = a.boosted && a.boost_expires_at && new Date(a.boost_expires_at) > now;
+      const bBoosted = b.boosted && b.boost_expires_at && new Date(b.boost_expires_at) > now;
+      if (aBoosted && !bBoosted) return -1;
+      if (!aBoosted && bBoosted) return 1;
       if (sortBy === 'newest') return new Date(b.created_date) - new Date(a.created_date);
       if (sortBy === 'price_asc') {
         const pa = a.price_type === 'Free Quote' ? Infinity : (a.price ?? Infinity);
@@ -212,6 +218,7 @@ export default function CommunityHub() {
                         avgRating={avgRating}
                         reviewCount={reviewCount}
                         onReport={setReportListing}
+                        featured={!!(l.boosted && l.boost_expires_at && new Date(l.boost_expires_at) > new Date())}
                       />
                     );
                   })}

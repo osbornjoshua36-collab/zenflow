@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Eye, Edit, Archive, MessageSquare, DollarSign, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { Plus, Eye, Edit, Archive, MessageSquare, DollarSign, CheckCircle, Clock, ArrowRight, Zap } from 'lucide-react';
+import BoostListingDialog from '@/components/BoostListingDialog';
 import { Link } from 'react-router-dom';
 import CreateListingDialog from '@/components/CreateListingDialog';
 import QuoteRespondDialog from '@/components/QuoteRespondDialog';
@@ -34,6 +35,7 @@ export default function SellerListings() {
   const [respondQuote, setRespondQuote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [acceptedJob, setAcceptedJob] = useState(null); // { id, quoteId }
+  const [boostListing, setBoostListing] = useState(null);
 
   const loadData = async () => {
     const [bizList, listingsData, quotesData] = await Promise.all([
@@ -146,9 +148,17 @@ export default function SellerListings() {
                           <p className="text-xs text-slate-500 mt-0.5">{l.category} · {l.price_type === 'Free Quote' ? 'Free Quote' : `$${l.price}${l.price_type === 'Hourly' ? '/hr' : ''}`} · {l.location}</p>
                           <p className="text-sm text-slate-600 mt-1 line-clamp-1">{l.description}</p>
                           <p className="text-xs text-slate-400 mt-1">{quotes.filter(q => q.listing_id === l.id).length} quote request(s)</p>
+                          {l.boosted && l.boost_expires_at && new Date(l.boost_expires_at) > new Date() && (
+                            <p className="text-xs font-medium text-amber-600 mt-1 flex items-center gap-1">
+                              <Zap className="w-3 h-3" /> Boosted until {new Date(l.boost_expires_at).toLocaleDateString()}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2 shrink-0">
+                        <Button variant="outline" size="sm" className="text-amber-600 border-amber-200 hover:bg-amber-50" onClick={() => setBoostListing(l)}>
+                          <Zap className="w-3 h-3 mr-1" /> Boost
+                        </Button>
                         <Button variant="outline" size="sm" onClick={() => { setEditListing(l); setShowCreate(true); }}>
                           <Edit className="w-3 h-3 mr-1" /> Edit
                         </Button>
@@ -230,6 +240,13 @@ export default function SellerListings() {
         businessId={business?.id || 'default'}
         existing={editListing}
       />
+
+      {boostListing && (
+        <BoostListingDialog
+          listing={boostListing}
+          onClose={() => setBoostListing(null)}
+        />
+      )}
 
       {respondQuote && (
         <QuoteRespondDialog

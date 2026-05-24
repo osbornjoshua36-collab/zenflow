@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Star, DollarSign, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export default function ListingCard({ listing, business, avgRating, reviewCount, onClick, onReport }) {
+export default function ListingCard({ listing, business, avgRating, reviewCount, onClick, onReport, featured }) {
   const priceLabel = listing.price_type === 'Free Quote'
     ? 'Free Quote'
     : listing.price_type === 'Hourly'
@@ -10,7 +10,12 @@ export default function ListingCard({ listing, business, avgRating, reviewCount,
       : `$${listing.price}`;
 
   const card = (
-    <div className="bg-white rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden group">
+    <div className="bg-white rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden group relative">
+      {featured && (
+        <span className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-terracotta text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm">
+          <span>⭐</span> Featured
+        </span>
+      )}
       {/* Photo */}
       {(() => {
         const thumb = listing.images?.[0] || listing.photos?.[0];
