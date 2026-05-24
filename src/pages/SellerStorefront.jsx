@@ -65,6 +65,18 @@ export default function SellerStorefront() {
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2xl font-bold">{business.name}</h1>
               {business.status === 'Active' && <Badge className="bg-green-500 text-white border-0">Active</Badge>}
+              {business.is_verified && (
+                <span
+                  title="This seller has been verified by the platform."
+                  className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full cursor-default"
+                  style={{ background: '#E4F5EC', color: '#276048', border: '1px solid #5BAA7E55' }}
+                >
+                  ✓ Verified
+                </span>
+              )}
+              {!business.is_verified && business.verification_status === 'pending' && (
+                <span className="text-xs text-slate-400 italic">Verification pending</span>
+              )}
               {business.phone_verified && (
                 <span className="inline-flex items-center gap-1 text-xs text-green-300 bg-green-900/40 border border-green-700/50 px-2 py-0.5 rounded-full">
                   <CheckCircle2 className="w-3 h-3" /> Phone verified

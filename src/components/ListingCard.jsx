@@ -17,6 +17,14 @@ export default function ListingCard({ listing, business, avgRating, reviewCount,
           <span>⭐</span> Featured
         </span>
       )}
+      {business?.is_verified && (
+        <span
+          className="absolute z-10 flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm"
+          style={{ top: featured ? '2rem' : '0.5rem', left: '0.5rem', background: '#E4F5EC', color: '#276048', border: '1px solid #5BAA7E66' }}
+        >
+          ✓ Verified
+        </span>
+      )}
       {/* Photo */}
       {(() => {
         const thumb = listing.images?.[0] || listing.photos?.[0];

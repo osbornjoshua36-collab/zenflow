@@ -93,6 +93,31 @@
       "type": "string",
       "format": "date-time",
       "description": "Current billing period end / cancellation revert date"
+    },
+    "is_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this business has been verified by the platform admin"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "unverified",
+        "pending",
+        "verified",
+        "suspended"
+      ],
+      "default": "unverified",
+      "description": "Current verification state of the business"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when verification was granted"
+    },
+    "verification_note": {
+      "type": "string",
+      "description": "Internal admin note about verification"
     }
   },
   "required": [

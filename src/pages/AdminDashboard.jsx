@@ -24,6 +24,8 @@ export default function AdminDashboard() {
   const [metrics, setMetrics] = useState(null);
   const [reportFilter, setReportFilter] = useState('all');
   const [listingSearch, setListingSearch] = useState('');
+  const [sellerSearch, setSellerSearch] = useState('');
+  const [bizList, setBizList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
@@ -40,6 +42,7 @@ export default function AdminDashboard() {
     setReports(rpts);
     setListings(lstgs);
     setBusinesses(bizMap);
+    setBizList(biz);
     setMetrics({
       businesses: biz.length,
       activeListings: lstgs.filter(l => l.status === 'Active').length,
@@ -77,6 +80,11 @@ export default function AdminDashboard() {
     setListings(prev => prev.map(l => l.id === id ? { ...l, status } : l));
   };
 
+  const updateVerification = async (id, updates) => {
+    await base44.entities.Business.update(id, updates);
+    setBizList(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
+  };
+
   const filteredReports = reportFilter === 'all' ? reports : reports.filter(r => r.status === reportFilter);
   const filteredListings = listings.filter(l =>
     !listingSearch || l.title?.toLowerCase().includes(listingSearch.toLowerCase())
@@ -106,6 +114,7 @@ export default function AdminDashboard() {
               )}
             </TabsTrigger>
             <TabsTrigger value="listings">Listings</TabsTrigger>
+            <TabsTrigger value="sellers">Sellers</TabsTrigger>
             <TabsTrigger value="metrics">Platform Metrics</TabsTrigger>
           </TabsList>
 
@@ -230,6 +239,96 @@ export default function AdminDashboard() {
                             Reactivate
                           </button>
                         )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </TabsContent>
+
+          {/* TAB: Sellers */}
+          <TabsContent value="sellers">
+            {/* Status counts */}
+            <div className="flex gap-4 mb-4 text-sm">
+              {[
+                { label: 'Verified', count: bizList.filter(b => b.verification_status === 'verified').length, color: 'text-green-700' },
+                { label: 'Pending', count: bizList.filter(b => b.verification_status === 'pending').length, color: 'text-amber-600' },
+                { label: 'Suspended', count: bizList.filter(b => b.verification_status === 'suspended').length, color: 'text-red-600' },
+                { label: 'Unverified', count: bizList.filter(b => !b.verification_status || b.verification_status === 'unverified').length, color: 'text-slate-500' },
+              ].map(s => (
+                <span key={s.label} className="text-slate-500">{s.label}: <strong className={s.color}>{s.count}</strong></span>
+              ))}
+            </div>
+            <div className="mb-4">
+              <Input
+                placeholder="Search by business name..."
+                value={sellerSearch}
+                onChange={e => setSellerSearch(e.target.value)}
+                className="max-w-xs"
+              />
+            </div>
+            <div className="bg-white rounded-xl border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 border-b">
+                  <tr>
+                    <th className="text-left px-4 py-3 text-slate-600 font-medium">Business</th>
+                    <th className="text-left px-4 py-3 text-slate-600 font-medium">Owner Email</th>
+                    <th className="text-left px-4 py-3 text-slate-600 font-medium">Phone</th>
+                    <th className="text-left px-4 py-3 text-slate-600 font-medium">Verification</th>
+                    <th className="text-left px-4 py-3 text-slate-600 font-medium">Verified At</th>
+                    <th className="text-left px-4 py-3 text-slate-600 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bizList
+                    .filter(b => !sellerSearch || b.name?.toLowerCase().includes(sellerSearch.toLowerCase()))
+                    .map(b => (
+                    <tr key={b.id} className="border-b last:border-0 hover:bg-slate-50">
+                      <td className="px-4 py-3 font-medium">{b.name}</td>
+                      <td className="px-4 py-3 text-slate-500 text-xs">{b.owner_email || '—'}</td>
+                      <td className="px-4 py-3">
+                        {b.phone_verified
+                          ? <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700">✓ Verified</span>
+                          : <span className="text-xs text-slate-400">—</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                          b.verification_status === 'verified' ? 'bg-green-100 text-green-700' :
+                          b.verification_status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                          b.verification_status === 'suspended' ? 'bg-red-100 text-red-700' :
+                          'bg-slate-100 text-slate-500'
+                        }`}>
+                          {b.verification_status || 'unverified'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-slate-400 text-xs">
+                        {b.verified_at ? new Date(b.verified_at).toLocaleDateString() : '—'}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1 flex-wrap">
+                          {b.verification_status !== 'verified' && (
+                            <button
+                              onClick={() => updateVerification(b.id, { is_verified: true, verification_status: 'verified', verified_at: new Date().toISOString() })}
+                              className="text-xs px-2 py-1 rounded border border-green-200 text-green-700 hover:bg-green-50 transition-colors">
+                              Verify
+                            </button>
+                          )}
+                          {b.verification_status !== 'pending' && (
+                            <button
+                              onClick={() => updateVerification(b.id, { is_verified: false, verification_status: 'pending' })}
+                              className="text-xs px-2 py-1 rounded border border-amber-200 text-amber-700 hover:bg-amber-50 transition-colors">
+                              Mark Pending
+                            </button>
+                          )}
+                          {b.verification_status !== 'suspended' && (
+                            <button
+                              onClick={() => updateVerification(b.id, { is_verified: false, verification_status: 'suspended' })}
+                              className="text-xs px-2 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
+                              Suspend
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
