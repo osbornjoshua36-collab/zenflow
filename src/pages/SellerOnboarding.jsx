@@ -16,8 +16,13 @@ const STEPS = [
 const INDUSTRIES = ['HVAC', 'Plumbing', 'Electrical', 'Salon', 'Real Estate', 'Cleaning', 'Landscaping', 'Other'];
 const TONES = ['Professional', 'Friendly', 'Casual', 'Formal'];
 const TIMEZONES = [
-  'America/New_York', 'America/Chicago', 'America/Denver',
-  'America/Los_Angeles', 'America/Phoenix', 'Pacific/Honolulu', 'America/Anchorage',
+  { id: 'America/New_York', label: 'Eastern Time (EST/EDT)', short: 'EST' },
+  { id: 'America/Chicago', label: 'Central Time (CST/CDT)', short: 'CST' },
+  { id: 'America/Denver', label: 'Mountain Time (MST/MDT)', short: 'MST' },
+  { id: 'America/Los_Angeles', label: 'Pacific Time (PST/PDT)', short: 'PST' },
+  { id: 'America/Phoenix', label: 'Arizona (MST)', short: 'MST' },
+  { id: 'Pacific/Honolulu', label: 'Hawaii-Aleutian (HST)', short: 'HST' },
+  { id: 'America/Anchorage', label: 'Alaska (AKST/AKDT)', short: 'AKST' },
 ];
 
 export default function SellerOnboarding() {
@@ -187,7 +192,7 @@ export default function SellerOnboarding() {
                 <Select value={form.timezone} onValueChange={v => set('timezone', v)}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {TIMEZONES.map(tz => <SelectItem key={tz} value={tz}>{tz.replace('America/', '').replace('_', ' ')}</SelectItem>)}
+                    {TIMEZONES.map(tz => <SelectItem key={tz.id} value={tz.id}>{tz.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -286,7 +291,7 @@ export default function SellerOnboarding() {
                   {form.logo_url && <img src={form.logo_url} alt="logo" className="w-10 h-10 rounded-lg object-cover" />}
                   <div>
                     <p className="font-semibold text-slate-800">{form.name}</p>
-                    <p className="text-slate-500">{form.industry} · {form.timezone.replace('America/', '')}</p>
+                    <p className="text-slate-500">{form.industry} · {TIMEZONES.find(tz => tz.id === form.timezone)?.short}</p>
                   </div>
                 </div>
               </div>
