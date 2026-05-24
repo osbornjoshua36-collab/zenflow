@@ -1,24 +1,66 @@
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag, Megaphone, CreditCard, Settings } from 'lucide-react';
+import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag, Megaphone, CreditCard, Settings, Search, Briefcase, UserCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+
+const SELLER_NAV = [
+  { path: '/', icon: BarChart3, label: 'Dashboard' },
+  { path: '/leads', icon: MessageSquare, label: 'Leads' },
+  { path: '/scheduling', icon: Calendar, label: 'Scheduling' },
+  { path: '/post-job', icon: CheckCircle, label: 'Post-Job' },
+  { path: '/reputation', icon: Star, label: 'Reputation' },
+  { path: '/invoicing', icon: DollarSign, label: 'Invoicing' },
+  { path: '/hiring', icon: Users, label: 'Hiring' },
+  { path: '/community', icon: Globe, label: 'Community Hub' },
+  { path: '/seller/listings', icon: Tag, label: 'My Listings' },
+  { path: '/seller/ads', icon: Megaphone, label: 'Ad Manager' },
+  { path: '/seller/billing', icon: CreditCard, label: 'Billing' },
+  { path: '/seller/settings', icon: Settings, label: 'Settings' },
+];
+
+const BUYER_NAV = [
+  { path: '/community', icon: Search, label: 'Browse Services' },
+  { path: '/buyer/jobs', icon: Briefcase, label: 'My Jobs' },
+  { path: '/buyer/messages', icon: MessageSquare, label: 'Messages' },
+  { path: '/buyer/account', icon: UserCircle, label: 'Account' },
+];
 
 export default function Layout() {
   const location = useLocation();
-  const modules = [
-    { path: '/', icon: BarChart3, label: 'Dashboard' },
-    { path: '/leads', icon: MessageSquare, label: 'Leads' },
-    { path: '/scheduling', icon: Calendar, label: 'Scheduling' },
-    { path: '/post-job', icon: CheckCircle, label: 'Post-Job' },
-    { path: '/reputation', icon: Star, label: 'Reputation' },
-    { path: '/invoicing', icon: DollarSign, label: 'Invoicing' },
-    { path: '/hiring', icon: Users, label: 'Hiring' },
-    { path: '/community', icon: Globe, label: 'Community Hub' },
-    { path: '/seller/listings', icon: Tag, label: 'My Listings' },
-    { path: '/seller/ads', icon: Megaphone, label: 'Ad Manager' },
-    { path: '/seller/billing', icon: CreditCard, label: 'Billing' },
-    { path: '/seller/settings', icon: Settings, label: 'Settings' },
-  ];
+  const [isSeller, setIsSeller] = useState(false);
+  const [isBuyer, setIsBuyer] = useState(false);
+  const [roleView, setRoleView] = useState('buying');
+  const [roleLoaded, setRoleLoaded] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const authed = await base44.auth.isAuthenticated();
+      if (!authed) { setRoleLoaded(true); return; }
+      const me = await base44.auth.me();
+      const [businesses, buyerProfiles] = await Promise.all([
+        base44.entities.Business.filter({ owner_email: me.email }),
+        base44.entities.BuyerProfile.filter({ user_id: me.id }),
+      ]);
+      const seller = businesses.length > 0;
+      const buyer = buyerProfiles.length > 0;
+      setIsSeller(seller);
+      setIsBuyer(buyer);
+      setRoleView(seller && !buyer ? 'selling' : 'buying');
+      setRoleLoaded(true);
+    })();
+  }, []);
+
+  const isDual = isSeller && isBuyer;
+  let modules;
+  if (!isSeller && !isBuyer) {
+    modules = [{ path: '/community', icon: Globe, label: 'Browse Services' }];
+  } else if (isDual) {
+    modules = roleView === 'selling' ? SELLER_NAV : BUYER_NAV;
+  } else if (isSeller) {
+    modules = SELLER_NAV;
+  } else {
+    modules = BUYER_NAV;
+  }
 
   const handleLogout = async () => {
     await base44.auth.logout();
@@ -32,7 +74,7 @@ export default function Layout() {
           <h1 className="text-xl font-bold text-white" style={{ fontFamily: 'var(--font-fraunces)' }}>Sphere</h1>
           <p className="text-xs mt-1" style={{ color: 'var(--nav-text-muted)' }}>AI Communication Platform</p>
         </div>
-        
+
         <nav className="flex-1 overflow-y-auto p-4">
           {modules.map((mod) => {
             const Icon = mod.icon;
@@ -55,6 +97,28 @@ export default function Layout() {
             );
           })}
         </nav>
+
+        {/* Dual-role switcher */}
+        {isDual && (
+          <div className="px-4 pb-3">
+            <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--nav-border)' }}>
+              <button
+                onClick={() => setRoleView('buying')}
+                className="flex-1 text-xs py-2 font-medium transition-colors"
+                style={roleView === 'buying'
+                  ? { background: 'var(--nav-active)', color: 'var(--nav-active-text)' }
+                  : { color: 'var(--nav-text-muted)' }}
+              >Buying</button>
+              <button
+                onClick={() => setRoleView('selling')}
+                className="flex-1 text-xs py-2 font-medium transition-colors"
+                style={roleView === 'selling'
+                  ? { background: 'var(--nav-active)', color: 'var(--nav-active-text)' }
+                  : { color: 'var(--nav-text-muted)' }}
+              >Selling</button>
+            </div>
+          </div>
+        )}
 
         <div className="p-4" style={{ borderTop: '1px solid var(--nav-border)' }}>
           <button
