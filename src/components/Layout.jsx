@@ -98,6 +98,21 @@ export default function Layout() {
           })}
         </nav>
 
+        {/* Become a Seller CTA — shown only to buyer-only users */}
+        {isBuyer && !isSeller && (
+          <div className="px-4 pb-3">
+            <Link
+              to="/seller/settings"
+              className="block w-full text-center text-xs px-3 py-2 rounded-lg font-medium transition-colors"
+              style={{ background: 'var(--nav-hover)', color: 'var(--nav-text-muted)' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--nav-text-muted)'; }}
+            >
+              List your services — become a seller →
+            </Link>
+          </div>
+        )}
+
         {/* Dual-role switcher */}
         {isDual && (
           <div className="px-4 pb-3">
