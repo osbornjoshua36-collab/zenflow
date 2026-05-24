@@ -29,6 +29,7 @@ import Support from '@/pages/Support';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import PaymentFailure from '@/pages/PaymentFailure';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
+import SellerOnboarding from '@/pages/SellerOnboarding';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -74,6 +75,7 @@ const AuthenticatedApp = () => {
           <Route path="/invoicing" element={<Invoicing />} />
           <Route path="/hiring" element={<Hiring />} />
           <Route path="/community" element={<CommunityHub />} />
+          <Route path="/seller/onboarding" element={<SellerOnboarding />} />
           <Route path="/seller/listings" element={<SellerListings />} />
           <Route path="/seller/:businessId" element={<SellerStorefront />} />
           <Route path="/seller/ads" element={<SellerAds />} />
