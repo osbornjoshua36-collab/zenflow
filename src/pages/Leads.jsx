@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import PastDueBanner from '@/components/PastDueBanner';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,13 +12,18 @@ export default function Leads() {
   const [customers, setCustomers] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [business, setBusiness] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const msgs = await base44.entities.Message.list('-created_date', 50);
-        const customersData = await base44.entities.Customer.list('-created_date', 100);
-        
+        const [msgs, customersData, bizList] = await Promise.all([
+          base44.entities.Message.list('-created_date', 50),
+          base44.entities.Customer.list('-created_date', 100),
+          base44.entities.Business.list('-created_date', 1),
+        ]);
+        setBusiness(bizList[0] || null);
+
         const customersMap = {};
         customersData.forEach(c => {
           customersMap[c.id] = c;
@@ -40,6 +47,7 @@ export default function Leads() {
 
   return (
     <div className="space-y-6">
+      <PastDueBanner status={business?.subscription_status} />
       <Tabs defaultValue="all" className="w-full">
         <TabsList>
           <TabsTrigger value="all">All Leads ({inboundMessages.length})</TabsTrigger>
@@ -91,14 +99,17 @@ export default function Leads() {
                   <p className="text-xs text-slate-600 font-semibold mb-1">Draft Message:</p>
                   <p className="text-slate-900 p-3 bg-white rounded border">{msg.content}</p>
                 </div>
-                <div className="flex gap-2">
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                    Approve
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    Edit
-                  </Button>
-                </div>
+                {(business?.subscription_plan === 'pro' || business?.subscription_plan === 'business') ? (
+                  <div className="flex gap-2">
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700">Approve</Button>
+                    <Button size="sm" variant="outline">Edit</Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2">
+                    <span className="text-sm text-slate-500">AI message drafting requires Pro plan.</span>
+                    <Link to="/seller/subscription" className="text-sm text-terracotta font-medium underline">Upgrade →</Link>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

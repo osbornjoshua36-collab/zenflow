@@ -59,6 +59,40 @@
         "Setup"
       ],
       "description": "Business account status"
+    },
+    "subscription_plan": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "pro",
+        "business"
+      ],
+      "default": "starter",
+      "description": "Current SaaS subscription plan"
+    },
+    "subscription_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "trialing",
+        "past_due",
+        "canceled"
+      ],
+      "default": "active",
+      "description": "Subscription billing status"
+    },
+    "subscription_plan_id": {
+      "type": "string",
+      "description": "Base44 Payments plan identifier (e.g. pro_monthly)"
+    },
+    "base44_subscription_id": {
+      "type": "string",
+      "description": "Unique subscription contract ID from Base44 Payments"
+    },
+    "subscription_end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Current billing period end / cancellation revert date"
     }
   },
   "required": [

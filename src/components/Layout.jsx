@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag, Megaphone, CreditCard, Settings, Search, Briefcase, UserCircle } from 'lucide-react';
+import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag, Megaphone, CreditCard, Settings, Search, Briefcase, UserCircle, Layers } from 'lucide-react';
+import PastDueBanner from '@/components/PastDueBanner';
 import { base44 } from '@/api/base44Client';
 
 const SELLER_NAV = [
@@ -16,6 +17,7 @@ const SELLER_NAV = [
   { path: '/seller/ads', icon: Megaphone, label: 'Ad Manager' },
   { path: '/seller/billing', icon: CreditCard, label: 'Billing' },
   { path: '/seller/settings', icon: Settings, label: 'Settings' },
+  { path: '/seller/subscription', icon: Layers, label: 'Subscription' },
 ];
 
 const BUYER_NAV = [
@@ -31,6 +33,7 @@ export default function Layout() {
   const [isBuyer, setIsBuyer] = useState(false);
   const [roleView, setRoleView] = useState('buying');
   const [roleLoaded, setRoleLoaded] = useState(false);
+  const [subStatus, setSubStatus] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -43,6 +46,7 @@ export default function Layout() {
       ]);
       const seller = businesses.length > 0;
       const buyer = buyerProfiles.length > 0;
+      if (businesses[0]) setSubStatus(businesses[0].subscription_status || null);
       setIsSeller(seller);
       setIsBuyer(buyer);
       setRoleView(seller && !buyer ? 'selling' : 'buying');
@@ -157,6 +161,7 @@ export default function Layout() {
           </h2>
         </div>
         <div className="flex-1 overflow-y-auto p-8" style={{ background: '#FAFCFF' }}>
+          {isSeller && <PastDueBanner status={subStatus} />}
           <Outlet />
         </div>
       </div>

@@ -23,6 +23,7 @@ import BuyerRegister from '@/pages/BuyerRegister';
 import BuyerDashboard from '@/pages/BuyerDashboard';
 import BuyerMessages from '@/pages/BuyerMessages';
 import AdminDashboard from '@/pages/AdminDashboard';
+import SellerSubscription from '@/pages/SellerSubscription';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
 
 const AuthenticatedApp = () => {
@@ -72,6 +73,7 @@ const AuthenticatedApp = () => {
           <Route path="/seller/ads" element={<SellerAds />} />
           <Route path="/seller/billing" element={<SellerBilling />} />
           <Route path="/seller/settings" element={<SellerSettings />} />
+          <Route path="/seller/subscription" element={<SellerSubscription />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>

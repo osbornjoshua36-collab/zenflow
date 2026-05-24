@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -21,7 +22,7 @@ function StarRow({ rating, max = 5 }) {
   );
 }
 
-function ReviewCard({ review, custMap, onUpdated }) {
+function ReviewCard({ review, custMap, onUpdated, plan }) {
   const [draft, setDraft] = useState(review.ai_response_draft || '');
   const [posting, setPosting] = useState(false);
   const customer = custMap[review.customer_id];
@@ -69,19 +70,28 @@ function ReviewCard({ review, custMap, onUpdated }) {
       {!review.response_posted && review.ai_response_draft && (
         <div className="space-y-2 pt-1">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">AI Response Draft</p>
-          <textarea
-            className="w-full border rounded-lg px-3 py-2 text-sm min-h-[80px] resize-none focus:outline-none focus:ring-1 focus:ring-ring bg-blue-50 border-blue-100 text-slate-800"
-            value={draft}
-            onChange={e => setDraft(e.target.value)}
-          />
-          <div className="flex gap-2">
-            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" disabled={posting} onClick={handlePost}>
-              {posting ? 'Posting...' : 'Post Response'}
-            </Button>
-            <Button size="sm" variant="outline" disabled={posting} onClick={handleEditPost}>
-              Edit &amp; Post
-            </Button>
-          </div>
+          {(plan === 'pro' || plan === 'business') ? (
+            <>
+              <textarea
+                className="w-full border rounded-lg px-3 py-2 text-sm min-h-[80px] resize-none focus:outline-none focus:ring-1 focus:ring-ring bg-blue-50 border-blue-100 text-slate-800"
+                value={draft}
+                onChange={e => setDraft(e.target.value)}
+              />
+              <div className="flex gap-2">
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" disabled={posting} onClick={handlePost}>
+                  {posting ? 'Posting...' : 'Post Response'}
+                </Button>
+                <Button size="sm" variant="outline" disabled={posting} onClick={handleEditPost}>
+                  Edit &amp; Post
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2">
+              <span className="text-sm text-slate-500">AI response drafting requires Pro plan.</span>
+              <Link to="/seller/subscription" className="text-sm text-terracotta font-medium underline">Upgrade →</Link>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -91,6 +101,7 @@ function ReviewCard({ review, custMap, onUpdated }) {
 export default function Reputation() {
   const [reviews, setReviews] = useState([]);
   const [custMap, setCustMap] = useState({});
+  const [subPlan, setSubPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPlatform, setFilterPlatform] = useState('all');
@@ -104,6 +115,7 @@ export default function Reputation() {
       base44.entities.Business.list('-created_date', 1),
     ]);
     const biz = bizList[0] || null;
+    setSubPlan(biz?.subscription_plan || 'starter');
     const map = Object.fromEntries(custData.map(c => [c.id, c]));
     setCustMap(map);
     setReviews(biz ? revData.filter(r => r.business_id === biz.id) : revData);
@@ -205,7 +217,7 @@ export default function Reputation() {
       ) : (
         <div className="space-y-3">
           {filtered.map(r => (
-            <ReviewCard key={r.id} review={r} custMap={custMap} onUpdated={loadData} />
+            <ReviewCard key={r.id} review={r} custMap={custMap} onUpdated={loadData} plan={subPlan} />
           ))}
         </div>
       )}

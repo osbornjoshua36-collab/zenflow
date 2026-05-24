@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, Plus, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronLeft, Plus, Users, ChevronDown, ChevronUp, Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const POSTING_STATUS_COLORS = {
   Active: 'bg-green-100 text-green-700',
@@ -109,6 +110,20 @@ export default function Hiring() {
   if (!business) return (
     <div className="text-center py-16 text-slate-500">
       <p>No business profile found. Please set up your business in Settings first.</p>
+    </div>
+  );
+
+  const plan = business.subscription_plan || 'starter';
+  if (plan !== 'business') return (
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-5">
+        <Lock className="w-6 h-6 text-slate-400" />
+      </div>
+      <h3 className="text-xl font-semibold text-slate-800 mb-2">Hiring requires the Business plan</h3>
+      <p className="text-sm text-slate-500 mb-6 max-w-sm">Upgrade to Business to unlock hiring, applicant tracking, AI screening, and interview scheduling.</p>
+      <Link to="/seller/subscription" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-navy text-white text-sm font-medium hover:bg-navy-light transition-colors">
+        View Plans &amp; Upgrade
+      </Link>
     </div>
   );
 

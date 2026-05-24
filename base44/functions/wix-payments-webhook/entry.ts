@@ -88,19 +88,40 @@ Deno.serve(async (req) => {
 
       console.log(`Processing order ${order.id} - checkout ${order.checkoutId}`);
 
-      // Store subscription info for recurring ads
-      for (const lineItem of order.lineItems) {
-        if (lineItem.subscriptionInfo?.id) {
-          const subscriptionId = lineItem.subscriptionInfo.id;
-          console.log(`Subscription created: ${subscriptionId}`);
+      // Check if this is a SaaS plan purchase (Pro/Business)
+      const saasItem = order.lineItems.find(item =>
+        item.productName?.original?.includes('Plan Monthly')
+      );
 
-          // You can optionally store this in your database for future reference
-          // e.g., await base44.entities.AdSubscription.create({
-          //   subscription_id: subscriptionId,
-          //   order_id: order.id,
-          //   amount: order.priceSummary.total.amount,
-          //   buyer_email: order.buyerInfo.email,
-          // });
+      if (saasItem) {
+        // SaaS subscription — activate on the matching Business by buyer email
+        const buyerEmail = order.buyerInfo?.email;
+        console.log(`SaaS subscription order for: ${buyerEmail}`);
+        if (buyerEmail) {
+          const businesses = await base44.asServiceRole.entities.Business.filter({ owner_email: buyerEmail });
+          if (businesses.length > 0) {
+            const planMap = {
+              'Pro Plan Monthly': 'pro',
+              'Business Plan Monthly': 'business',
+            };
+            const plan = planMap[saasItem.productName.original] || 'pro';
+            const subscriptionId = saasItem.subscriptionInfo?.id;
+            await base44.asServiceRole.entities.Business.update(businesses[0].id, {
+              subscription_plan: plan,
+              subscription_plan_id: plan + '_monthly',
+              base44_subscription_id: subscriptionId || null,
+              subscription_status: 'active',
+            });
+            console.log(`SaaS ${plan} plan activated for business: ${businesses[0].id}`);
+          }
+        }
+      } else {
+        // Ad subscription — existing logic
+        for (const lineItem of order.lineItems) {
+          if (lineItem.subscriptionInfo?.id) {
+            const subscriptionId = lineItem.subscriptionInfo.id;
+            console.log(`Ad subscription created: ${subscriptionId}`);
+          }
         }
       }
 
@@ -108,23 +129,40 @@ Deno.serve(async (req) => {
     } else if (envelope.eventType === 'wix.ecom.subscription_contracts.v1.subscription_contract_canceled') {
       const subscriptionContract = eventData.actionEvent.body.subscriptionContract;
       const base44 = createClientFromRequest(req);
+      const subscriptionId = subscriptionContract.id;
+      console.log(`Subscription canceled: ${subscriptionId}`);
 
-      console.log(`Subscription canceled: ${subscriptionContract.id}`);
-
-      // Handle subscription cancellation
-      // Mark ads associated with this subscription as paused/expired
-      // e.g., await base44.entities.Ad.filter({ subscription_id: subscriptionContract.id })
-      // then update status to 'Paused' or 'Expired'
+      // Check if this is a SaaS subscription cancellation
+      const saasBusinesses = await base44.asServiceRole.entities.Business.filter({ base44_subscription_id: subscriptionId });
+      if (saasBusinesses.length > 0) {
+        await base44.asServiceRole.entities.Business.update(saasBusinesses[0].id, {
+          subscription_status: 'canceled',
+          subscription_plan: 'starter',
+        });
+        console.log(`SaaS subscription canceled for business: ${saasBusinesses[0].id}`);
+      } else {
+        // Ad subscription canceled — no active handler yet
+        console.log(`Ad subscription canceled: ${subscriptionId}`);
+      }
 
       return new Response('OK', { status: 200 });
     } else if (envelope.eventType === 'wix.ecom.subscription_contracts.v1.subscription_contract_expired') {
       const subscriptionContract = eventData.actionEvent.body.subscriptionContract;
       const base44 = createClientFromRequest(req);
+      const subscriptionId = subscriptionContract.id;
+      console.log(`Subscription expired: ${subscriptionId}`);
 
-      console.log(`Subscription expired: ${subscriptionContract.id}`);
-
-      // Handle subscription expiration
-      // Mark ads associated with this subscription as expired
+      // Check if this is a SaaS subscription expiry
+      const saasBusinesses = await base44.asServiceRole.entities.Business.filter({ base44_subscription_id: subscriptionId });
+      if (saasBusinesses.length > 0) {
+        await base44.asServiceRole.entities.Business.update(saasBusinesses[0].id, {
+          subscription_status: 'canceled',
+          subscription_plan: 'starter',
+        });
+        console.log(`SaaS subscription expired for business: ${saasBusinesses[0].id}`);
+      } else {
+        console.log(`Ad subscription expired: ${subscriptionId}`);
+      }
 
       return new Response('OK', { status: 200 });
     }
