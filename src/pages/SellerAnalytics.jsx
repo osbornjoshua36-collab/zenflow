@@ -1,225 +1,235 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { TrendingUp, Eye, MessageSquare, DollarSign, Star, ArrowUpRight, ArrowDownRight, Zap } from 'lucide-react';
-import { format, subDays, startOfDay } from 'date-fns';
+import { Link } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { TrendingUp, Eye, MessageSquare, DollarSign, Megaphone } from 'lucide-react';
 
-const StatCard = ({ icon: Icon, label, value, sub, color, trend }) => (
-  <div className="rounded-2xl p-5" style={{ background: '#fff', border: '1px solid rgba(30,50,69,0.08)', boxShadow: '0 2px 10px rgba(30,50,69,0.05)' }}>
-    <div className="flex items-start justify-between mb-3">
-      <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: color + '20' }}>
-        <Icon className="w-4 h-4" style={{ color }} />
+function MetricCard({ label, value, icon: Icon, color }) {
+  return (
+    <div className="bg-white rounded-xl border p-5 flex items-start gap-4">
+      <div className={`p-2 rounded-lg ${color}`}>
+        <Icon className="w-5 h-5 text-white" />
       </div>
-      {trend !== undefined && (
-        <span className="flex items-center gap-0.5 text-xs font-semibold" style={{ color: trend >= 0 ? '#276048' : '#C06060' }}>
-          {trend >= 0 ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
-          {Math.abs(trend)}%
-        </span>
-      )}
+      <div>
+        <p className="text-sm text-slate-500 mb-0.5">{label}</p>
+        <p className="text-2xl font-bold text-slate-800">{value}</p>
+      </div>
     </div>
-    <div className="text-2xl font-bold mb-0.5" style={{ color: '#1E3245', fontFamily: 'var(--font-fraunces)' }}>{value}</div>
-    <div className="text-xs font-medium" style={{ color: '#4A6580' }}>{label}</div>
-    {sub && <div className="text-xs mt-1" style={{ color: '#8DAFC8' }}>{sub}</div>}
-  </div>
-);
+  );
+}
+
+function getMonthName(date) {
+  return date.toLocaleString('default', { month: 'short', year: '2-digit' });
+}
+
+function getLast6Months() {
+  const months = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ label: getMonthName(d), year: d.getFullYear(), month: d.getMonth() });
+  }
+  return months;
+}
 
 export default function SellerAnalytics() {
+  const [business, setBusiness] = useState(null);
   const [listings, setListings] = useState([]);
   const [quotes, setQuotes] = useState([]);
-  const [ads, setAds] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [businesses, setBusinesses] = useState([]);
+  const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedBiz, setSelectedBiz] = useState('all');
 
   useEffect(() => {
-    Promise.all([
-      base44.entities.Listing.list('-created_date', 200),
-      base44.entities.Quote.list('-created_date', 500),
-      base44.entities.Ad.list('-created_date', 100),
-      base44.entities.Review.list('-created_date', 200),
-      base44.entities.Business.list('-created_date', 50),
-    ]).then(([l, q, a, r, b]) => {
-      setListings(l);
-      setQuotes(q);
-      setAds(a);
-      setReviews(r);
-      setBusinesses(b);
+    (async () => {
+      const me = await base44.auth.me();
+      const bizList = await base44.entities.Business.filter({ owner_email: me.email });
+      if (!bizList.length) { setLoading(false); return; }
+      const biz = bizList[0];
+      setBusiness(biz);
+
+      const [listingsData, quotesData, jobsData, reviewsData, adsData] = await Promise.all([
+        base44.entities.Listing.filter({ business_id: biz.id }, '-view_count', 100),
+        base44.entities.Quote.filter({ business_id: biz.id }, '-created_date', 500),
+        base44.entities.Job.filter({ business_id: biz.id, status: 'Completed' }, '-created_date', 500),
+        base44.entities.Review.filter({ business_id: biz.id }, '-created_date', 500),
+        base44.entities.Ad.filter({ business_id: biz.id, status: 'Active' }, '-created_date', 20),
+      ]);
+      setListings(listingsData);
+      setQuotes(quotesData);
+      setJobs(jobsData);
+      setReviews(reviewsData);
+      setAds(adsData);
       setLoading(false);
-    });
+    })();
   }, []);
 
-  const filterByBiz = (arr, key = 'business_id') =>
-    selectedBiz === 'all' ? arr : arr.filter(x => x[key] === selectedBiz);
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+    </div>
+  );
 
-  const filteredListings = filterByBiz(listings);
-  const filteredQuotes = filterByBiz(quotes);
-  const filteredAds = filterByBiz(ads);
-  const filteredReviews = filterByBiz(reviews);
+  if (!business) return (
+    <div className="text-center text-slate-500 py-16">No business found.</div>
+  );
 
-  const totalViews = filteredListings.reduce((s, l) => s + (l.view_count || 0), 0);
-  const totalQuotes = filteredQuotes.length;
-  const acceptedQuotes = filteredQuotes.filter(q => q.status === 'Accepted' || q.status === 'Converted').length;
-  const conversionRate = totalQuotes > 0 ? Math.round((acceptedQuotes / totalQuotes) * 100) : 0;
-  const avgRating = filteredReviews.length > 0
-    ? (filteredReviews.reduce((s, r) => s + (r.rating || 0), 0) / filteredReviews.length).toFixed(1)
-    : '—';
-  const activeAds = filteredAds.filter(a => a.status === 'Active').length;
-  const totalAdImpressions = filteredAds.reduce((s, a) => s + (a.impressions || 0), 0);
-  const totalAdClicks = filteredAds.reduce((s, a) => s + (a.clicks || 0), 0);
+  const now = new Date();
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  // Quote trend: last 7 days
-  const quoteTrend = Array.from({ length: 7 }, (_, i) => {
-    const day = subDays(new Date(), 6 - i);
-    const dayStr = format(day, 'MMM d');
-    const count = filteredQuotes.filter(q => {
-      const d = new Date(q.created_date);
-      return format(d, 'MMM d') === dayStr;
-    }).length;
-    return { day: format(day, 'EEE'), count };
+  // Section 1 — metrics
+  const totalViews = listings.reduce((a, l) => a + (l.view_count || 0), 0);
+  const quotesThisMonth = quotes.filter(q => q.created_date && new Date(q.created_date) >= thisMonthStart);
+  const totalQuotesThisMonth = quotesThisMonth.length;
+  const acceptedQuotes = quotes.filter(q => q.status === 'Accepted');
+  const conversionRate = quotes.length > 0 ? Math.round((acceptedQuotes.length / quotes.length) * 100) : 0;
+  const revenueThisMonth = jobs
+    .filter(j => j.created_date && new Date(j.created_date) >= thisMonthStart)
+    .reduce((a, j) => a + (j.actual_cost || 0), 0);
+
+  // Section 2 — listing performance table
+  const listingPerformance = listings.map(l => {
+    const lQuotes = quotes.filter(q => q.listing_id === l.id);
+    const lAccepted = lQuotes.filter(q => q.status === 'Accepted');
+    const lReviews = reviews.filter(r => r.verified === true);
+    // business-level avg rating per listing isn't tracked per listing in entity, use business-level
+    const avgRating = lReviews.length > 0
+      ? (lReviews.reduce((a, r) => a + r.rating, 0) / lReviews.length).toFixed(1)
+      : null;
+    const conv = lQuotes.length > 0 ? Math.round((lAccepted.length / lQuotes.length) * 100) : 0;
+    return { ...l, quoteCount: lQuotes.length, convRate: conv, avgRating };
+  }).sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+
+  const topListingId = listingPerformance[0]?.id;
+
+  // Section 3 — monthly chart
+  const months = getLast6Months();
+  const chartData = months.map(m => {
+    const mQuotes = quotes.filter(q => {
+      const d = q.created_date ? new Date(q.created_date) : null;
+      return d && d.getFullYear() === m.year && d.getMonth() === m.month;
+    });
+    const mConverted = mQuotes.filter(q => q.status === 'Accepted');
+    return { name: m.label, Received: mQuotes.length, Converted: mConverted.length };
   });
 
-  // Listing performance
-  const topListings = [...filteredListings]
-    .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
-    .slice(0, 5);
-
-  // Quote status breakdown
-  const quoteStatusData = ['Pending', 'Quoted', 'Accepted', 'Declined', 'Converted'].map(s => ({
-    status: s,
-    count: filteredQuotes.filter(q => q.status === s).length,
-  })).filter(d => d.count > 0);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-terracotta rounded-full animate-spin" style={{ borderTopColor: '#E8945A' }} />
-      </div>
-    );
-  }
+  // Section 4 — ad performance
+  const activeAds = ads;
 
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold" style={{ color: '#1E3245', fontFamily: 'var(--font-fraunces)' }}>Seller Analytics</h1>
-          <p className="text-sm mt-0.5" style={{ color: '#4A6580' }}>Track your listings, quotes, and ad performance</p>
-        </div>
-        <select
-          className="text-sm px-3 py-2 rounded-lg border"
-          style={{ borderColor: 'rgba(30,50,69,0.15)', color: '#1E3245', background: '#fff' }}
-          value={selectedBiz}
-          onChange={e => setSelectedBiz(e.target.value)}
-        >
-          <option value="all">All Businesses</option>
-          {businesses.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-        </select>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800 mb-1">Analytics</h1>
+        <p className="text-sm text-slate-500">Performance overview for {business.name}</p>
       </div>
 
-      {/* KPI row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard icon={Eye} label="Total Listing Views" value={totalViews.toLocaleString()} color="#E8945A" />
-        <StatCard icon={MessageSquare} label="Quote Requests" value={totalQuotes} sub={`${acceptedQuotes} accepted`} color="#7A6AAA" />
-        <StatCard icon={TrendingUp} label="Conversion Rate" value={`${conversionRate}%`} sub="quotes → accepted" color="#5BAA7E" />
-        <StatCard icon={Star} label="Avg. Rating" value={avgRating} sub={`${filteredReviews.length} reviews`} color="#D4A03A" />
+      {/* Section 1 — Summary cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard label="Listing Views (all time)" value={totalViews.toLocaleString()} icon={Eye} color="bg-blue-500" />
+        <MetricCard label="Quote Requests (this month)" value={totalQuotesThisMonth} icon={MessageSquare} color="bg-amber-500" />
+        <MetricCard label="Conversion Rate" value={`${conversionRate}%`} icon={TrendingUp} color="bg-sage" />
+        <MetricCard label="Revenue This Month" value={`$${revenueThisMonth.toLocaleString()}`} icon={DollarSign} color="bg-green-600" />
       </div>
 
-      {/* Charts row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
-        {/* Quote trend */}
-        <div className="rounded-2xl p-5" style={{ background: '#fff', border: '1px solid rgba(30,50,69,0.08)', boxShadow: '0 2px 10px rgba(30,50,69,0.05)' }}>
-          <h3 className="font-semibold text-sm mb-4" style={{ color: '#1E3245', fontFamily: 'var(--font-fraunces)' }}>Quote Requests — Last 7 Days</h3>
-          <ResponsiveContainer width="100%" height={180}>
-            <LineChart data={quoteTrend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(30,50,69,0.06)" />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#8DAFC8' }} axisLine={false} tickLine={false} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#8DAFC8' }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', fontSize: 12 }} />
-              <Line type="monotone" dataKey="count" stroke="#7A6AAA" strokeWidth={2.5} dot={{ fill: '#7A6AAA', r: 4 }} name="Quotes" />
-            </LineChart>
-          </ResponsiveContainer>
+      {/* Section 2 — Listing performance table */}
+      <div className="bg-white rounded-xl border overflow-hidden">
+        <div className="px-6 py-4 border-b">
+          <h2 className="font-semibold text-slate-800">Listing Performance</h2>
         </div>
-
-        {/* Quote status breakdown */}
-        <div className="rounded-2xl p-5" style={{ background: '#fff', border: '1px solid rgba(30,50,69,0.08)', boxShadow: '0 2px 10px rgba(30,50,69,0.05)' }}>
-          <h3 className="font-semibold text-sm mb-4" style={{ color: '#1E3245', fontFamily: 'var(--font-fraunces)' }}>Quote Status Breakdown</h3>
-          {quoteStatusData.length === 0 ? (
-            <div className="flex items-center justify-center h-40 text-sm" style={{ color: '#8DAFC8' }}>No quote data yet</div>
-          ) : (
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={quoteStatusData} barSize={28}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(30,50,69,0.06)" />
-                <XAxis dataKey="status" tick={{ fontSize: 10, fill: '#8DAFC8' }} axisLine={false} tickLine={false} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#8DAFC8' }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', fontSize: 12 }} />
-                <Bar dataKey="count" fill="#E8945A" radius={[4, 4, 0, 0]} name="Quotes" />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-
-      {/* Bottom row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Top listings */}
-        <div className="rounded-2xl p-5" style={{ background: '#fff', border: '1px solid rgba(30,50,69,0.08)', boxShadow: '0 2px 10px rgba(30,50,69,0.05)' }}>
-          <h3 className="font-semibold text-sm mb-4" style={{ color: '#1E3245', fontFamily: 'var(--font-fraunces)' }}>Top Listings by Views</h3>
-          {topListings.length === 0 ? (
-            <p className="text-sm text-center py-8" style={{ color: '#8DAFC8' }}>No listings yet</p>
-          ) : (
-            <div className="space-y-3">
-              {topListings.map((l, i) => {
-                const max = topListings[0]?.view_count || 1;
-                const pct = Math.round(((l.view_count || 0) / max) * 100);
-                return (
-                  <div key={l.id}>
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="font-medium truncate max-w-[70%]" style={{ color: '#1E3245' }}>{l.title}</span>
-                      <span style={{ color: '#4A6580' }}>{l.view_count || 0} views</span>
-                    </div>
-                    <div className="h-2 rounded-full" style={{ background: '#EEF3F8' }}>
-                      <div className="h-2 rounded-full transition-all" style={{ width: `${pct}%`, background: i === 0 ? '#E8945A' : '#8DAFC8' }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Ad performance */}
-        <div className="rounded-2xl p-5" style={{ background: '#fff', border: '1px solid rgba(30,50,69,0.08)', boxShadow: '0 2px 10px rgba(30,50,69,0.05)' }}>
-          <h3 className="font-semibold text-sm mb-4" style={{ color: '#1E3245', fontFamily: 'var(--font-fraunces)' }}>Ad Performance</h3>
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            {[
-              { label: 'Active Ads', value: activeAds, color: '#5BAA7E' },
-              { label: 'Impressions', value: totalAdImpressions.toLocaleString(), color: '#7A6AAA' },
-              { label: 'Clicks', value: totalAdClicks.toLocaleString(), color: '#E8945A' },
-            ].map(s => (
-              <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: s.color + '12' }}>
-                <div className="text-lg font-bold" style={{ color: s.color, fontFamily: 'var(--font-fraunces)' }}>{s.value}</div>
-                <div className="text-xs mt-0.5" style={{ color: '#4A6580' }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-          {filteredAds.length === 0 ? (
-            <p className="text-xs text-center py-4" style={{ color: '#8DAFC8' }}>No active ads yet</p>
-          ) : (
-            <div className="space-y-2">
-              {filteredAds.slice(0, 4).map(ad => (
-                <div key={ad.id} className="flex items-center justify-between text-xs py-1.5 border-b last:border-0" style={{ borderColor: 'rgba(30,50,69,0.06)' }}>
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-3 h-3" style={{ color: '#D4A03A' }} />
-                    <span className="font-medium truncate max-w-[140px]" style={{ color: '#1E3245' }}>{ad.headline}</span>
-                    <span className="px-1.5 py-0.5 rounded-full text-xs" style={{ background: '#EEE8FF', color: '#3D2E70' }}>{ad.tier}</span>
-                  </div>
-                  <span style={{ color: '#4A6580' }}>{ad.clicks || 0} clicks</span>
-                </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 border-b">
+              <tr>
+                <th className="text-left px-4 py-3 text-slate-500 font-medium">Title</th>
+                <th className="text-left px-4 py-3 text-slate-500 font-medium">Category</th>
+                <th className="text-left px-4 py-3 text-slate-500 font-medium">Views</th>
+                <th className="text-left px-4 py-3 text-slate-500 font-medium">Quotes</th>
+                <th className="text-left px-4 py-3 text-slate-500 font-medium">Conv. Rate</th>
+                <th className="text-left px-4 py-3 text-slate-500 font-medium">Avg Rating</th>
+                <th className="text-left px-4 py-3 text-slate-500 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {listingPerformance.length === 0 ? (
+                <tr><td colSpan={7} className="text-center py-10 text-slate-400">No listings yet.</td></tr>
+              ) : listingPerformance.map(l => (
+                <tr
+                  key={l.id}
+                  className="border-b last:border-0 hover:bg-slate-50"
+                  style={l.id === topListingId ? { borderLeft: '3px solid #D4A03A' } : {}}
+                >
+                  <td className="px-4 py-3 font-medium text-slate-800 max-w-[180px] truncate">
+                    {l.id === topListingId && <span className="text-amber-500 mr-1">★</span>}
+                    {l.title}
+                  </td>
+                  <td className="px-4 py-3 text-slate-500 text-xs">{l.category}</td>
+                  <td className="px-4 py-3 text-slate-700 font-medium">{l.view_count || 0}</td>
+                  <td className="px-4 py-3 text-slate-700">{l.quoteCount}</td>
+                  <td className="px-4 py-3 text-slate-700">{l.convRate}%</td>
+                  <td className="px-4 py-3 text-slate-500">
+                    {l.avgRating ? `⭐ ${l.avgRating}` : '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      l.status === 'Active' ? 'bg-green-100 text-green-700' :
+                      l.status === 'Paused' ? 'bg-orange-100 text-orange-700' :
+                      'bg-slate-100 text-slate-500'
+                    }`}>{l.status}</span>
+                  </td>
+                </tr>
               ))}
-            </div>
-          )}
+            </tbody>
+          </table>
         </div>
+      </div>
+
+      {/* Section 3 — Monthly quotes chart */}
+      <div className="bg-white rounded-xl border p-6">
+        <h2 className="font-semibold text-slate-800 mb-4">Quote Activity — Last 6 Months</h2>
+        <ResponsiveContainer width="100%" height={220}>
+          <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+            <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+            <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13 }} />
+            <Legend wrapperStyle={{ paddingTop: 12, fontSize: 13 }} />
+            <Line type="monotone" dataKey="Received" stroke="#D4A03A" strokeWidth={2.5} dot={{ r: 4, fill: '#D4A03A' }} />
+            <Line type="monotone" dataKey="Converted" stroke="#5BAA7E" strokeWidth={2.5} dot={{ r: 4, fill: '#5BAA7E' }} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Section 4 — Ad performance */}
+      <div className="bg-white rounded-xl border p-6">
+        <h2 className="font-semibold text-slate-800 mb-4">Ad Performance</h2>
+        {activeAds.length === 0 ? (
+          <div className="text-center py-8 text-slate-500">
+            <Megaphone className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+            <p className="font-medium">No active ad campaigns</p>
+            <p className="text-sm mt-1">Boost your listings to reach more buyers.</p>
+            <Link to="/seller/ads" className="inline-block mt-3 text-sm text-blue-600 hover:underline">
+              Go to Ad Manager →
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {activeAds.map(ad => {
+              const ctr = ad.impressions > 0 ? ((ad.clicks / ad.impressions) * 100).toFixed(2) : '0.00';
+              return (
+                <div key={ad.id} className="border rounded-xl p-4 space-y-2">
+                  <p className="font-semibold text-slate-700 truncate">{ad.headline}</p>
+                  <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">{ad.tier}</span>
+                  <div className="grid grid-cols-2 gap-2 pt-1 text-sm">
+                    <div><p className="text-slate-400 text-xs">Impressions</p><p className="font-semibold text-slate-700">{(ad.impressions || 0).toLocaleString()}</p></div>
+                    <div><p className="text-slate-400 text-xs">Clicks</p><p className="font-semibold text-slate-700">{(ad.clicks || 0).toLocaleString()}</p></div>
+                    <div><p className="text-slate-400 text-xs">CTR</p><p className="font-semibold text-slate-700">{ctr}%</p></div>
+                    <div><p className="text-slate-400 text-xs">Budget</p><p className="font-semibold text-slate-700">${ad.budget?.toLocaleString() || '—'}</p></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

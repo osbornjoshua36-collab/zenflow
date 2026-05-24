@@ -24,6 +24,7 @@ import BuyerDashboard from '@/pages/BuyerDashboard';
 import BuyerMessages from '@/pages/BuyerMessages';
 import AdminDashboard from '@/pages/AdminDashboard';
 import SellerSubscription from '@/pages/SellerSubscription';
+import SellerAnalytics from '@/pages/SellerAnalytics';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import PaymentFailure from '@/pages/PaymentFailure';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
@@ -78,6 +79,7 @@ const AuthenticatedApp = () => {
           <Route path="/seller/billing" element={<SellerBilling />} />
           <Route path="/seller/settings" element={<SellerSettings />} />
           <Route path="/seller/subscription" element={<SellerSubscription />} />
+          <Route path="/seller/analytics" element={<SellerAnalytics />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>

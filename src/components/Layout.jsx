@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag, Megaphone, CreditCard, Settings, Search, Briefcase, UserCircle, Layers } from 'lucide-react';
+import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag, Megaphone, CreditCard, Settings, Search, Briefcase, UserCircle, Layers, LineChart } from 'lucide-react';
 import PastDueBanner from '@/components/PastDueBanner';
 import { base44 } from '@/api/base44Client';
 
@@ -18,6 +18,7 @@ const SELLER_NAV = [
   { path: '/seller/billing', icon: CreditCard, label: 'Billing' },
   { path: '/seller/settings', icon: Settings, label: 'Settings' },
   { path: '/seller/subscription', icon: Layers, label: 'Subscription' },
+  { path: '/seller/analytics', icon: LineChart, label: 'Analytics' },
 ];
 
 const BUYER_NAV = [
