@@ -1,0 +1,59 @@
+{
+  "name": "Report",
+  "type": "object",
+  "properties": {
+    "reporter_email": {
+      "type": "string",
+      "description": "Email of the person who submitted the report"
+    },
+    "target_type": {
+      "type": "string",
+      "enum": [
+        "listing",
+        "seller"
+      ],
+      "description": "What is being reported"
+    },
+    "target_id": {
+      "type": "string",
+      "description": "The listing id or business id being reported"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "Spam",
+        "Scam or fraud",
+        "Illegal service",
+        "Misleading price",
+        "Inappropriate content",
+        "Wrong category"
+      ],
+      "description": "Reason for report"
+    },
+    "details": {
+      "type": "string",
+      "description": "Optional additional details"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "reviewed",
+        "dismissed"
+      ],
+      "default": "open",
+      "description": "Admin review status"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the report was submitted"
+    }
+  },
+  "required": [
+    "target_type",
+    "target_id",
+    "reason",
+    "status"
+  ]
+}

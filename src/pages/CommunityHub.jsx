@@ -8,6 +8,7 @@ import { Search, Globe, ClipboardList, LayoutGrid } from 'lucide-react';
 import ListingCard from '@/components/ListingCard';
 import AdBanner from '@/components/AdBanner';
 import ServiceRequestBoard from '@/components/ServiceRequestBoard';
+import ReportDialog from '@/components/ReportDialog';
 
 const CATEGORIES = ['All', 'Home & Garden', 'Lessons & Tutoring', 'Events & Photography', 'Tech & Repairs', 'Creative Services', 'Wellness & Fitness', 'Pet Services', 'Business Services', 'HVAC', 'Plumbing', 'Electrical', 'Salon', 'Real Estate', 'Cleaning', 'Landscaping', 'Other'];
 
@@ -24,6 +25,7 @@ export default function CommunityHub() {
   const [appliedZip, setAppliedZip] = useState('');
   const [radius, setRadius] = useState('any');
   const [loading, setLoading] = useState(true);
+  const [reportListing, setReportListing] = useState(null);
 
   const loadData = async () => {
     const [listingsData, bizData, reviewsData, reqsData, adsData] = await Promise.all([
@@ -176,6 +178,7 @@ export default function CommunityHub() {
                         business={businesses[l.business_id]}
                         avgRating={avgRating}
                         reviewCount={reviewCount}
+                        onReport={setReportListing}
                       />
                     );
                   })}
@@ -194,6 +197,14 @@ export default function CommunityHub() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <ReportDialog
+        open={!!reportListing}
+        onClose={() => setReportListing(null)}
+        targetType="listing"
+        targetId={reportListing?.id}
+        targetLabel={reportListing?.title}
+      />
     </div>
   );
 }

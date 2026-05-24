@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { MapPin, Phone, Star, Shield, Clock, ChevronLeft } from 'lucide-react';
+import { MapPin, Phone, Star, Clock, ChevronLeft } from 'lucide-react';
 import ListingCard from '@/components/ListingCard';
 import QuoteRequestDialog from '@/components/QuoteRequestDialog';
+import ReportDialog from '@/components/ReportDialog';
 
 export default function SellerStorefront() {
   const { businessId } = useParams();
@@ -13,6 +13,7 @@ export default function SellerStorefront() {
   const [listings, setListings] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [selectedListing, setSelectedListing] = useState(null);
+  const [showReport, setShowReport] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -115,6 +116,16 @@ export default function SellerStorefront() {
             </div>
           </section>
         )}
+
+        {/* Report link */}
+        <div className="text-right pb-2">
+          <button
+            onClick={() => setShowReport(true)}
+            className="text-xs text-slate-400 hover:text-slate-600 transition-colors underline-offset-2 hover:underline"
+          >
+            Report this seller
+          </button>
+        </div>
       </div>
 
       {selectedListing && (
@@ -125,6 +136,14 @@ export default function SellerStorefront() {
           business={business}
         />
       )}
+
+      <ReportDialog
+        open={showReport}
+        onClose={() => setShowReport(false)}
+        targetType="seller"
+        targetId={businessId}
+        targetLabel={business?.name}
+      />
     </div>
   );
 }

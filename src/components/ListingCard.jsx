@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Star, DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export default function ListingCard({ listing, business, avgRating, reviewCount, onClick }) {
+export default function ListingCard({ listing, business, avgRating, reviewCount, onClick, onReport }) {
   const priceLabel = listing.price_type === 'Free Quote'
     ? 'Free Quote'
     : listing.price_type === 'Hourly'
@@ -41,6 +41,16 @@ export default function ListingCard({ listing, business, avgRating, reviewCount,
           <div className="flex items-center gap-1 mt-2 text-xs text-amber-600">
             <Star className="w-3 h-3 fill-amber-400 stroke-amber-400" />
             <span>{avgRating?.toFixed(1)} ({reviewCount} reviews)</span>
+          </div>
+        )}
+        {onReport && (
+          <div className="mt-2 text-right">
+            <button
+              onClick={e => { e.preventDefault(); e.stopPropagation(); onReport(listing); }}
+              className="text-xs text-slate-400 hover:text-slate-600 transition-colors underline-offset-2 hover:underline"
+            >
+              Report
+            </button>
           </div>
         )}
       </div>
