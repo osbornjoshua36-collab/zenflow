@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Eye, MousePointer, Zap, Pause, Play, Trash2 } from 'lucide-react';
+import { Plus, Eye, MousePointer, Zap, Pause, Play, Trash2, CreditCard } from 'lucide-react';
 
 const TIERS = [
   {
@@ -59,6 +59,7 @@ const STATUS_COLORS = {
   Active: { bg: '#E4F5EC', text: '#276048' },
   Paused: { bg: '#FFF8E4', text: '#7A5A10' },
   'Pending Review': { bg: '#EEE8FF', text: '#3D2E70' },
+  'Pending Payment': { bg: '#FFF3EA', text: '#A05028' },
   Expired: { bg: '#EEF3F8', text: '#4A6580' },
   Draft: { bg: '#EEF3F8', text: '#4A6580' },
 };
@@ -92,17 +93,39 @@ export default function SellerAds() {
 
   const handleCreate = async () => {
     setSaving(true);
-    await base44.entities.Ad.create({
+    
+    // Create the ad record first
+    const newAd = await base44.entities.Ad.create({
       ...form,
       budget: form.budget ? parseFloat(form.budget) : 0,
-      status: 'Pending Review',
+      status: 'Pending Payment',
       impressions: 0,
       clicks: 0,
     });
-    setSaving(false);
-    setShowCreate(false);
-    setForm({ business_id: '', listing_id: '', headline: '', tagline: '', image_url: '', cta_text: 'Learn More', tier: 'Featured', start_date: '', end_date: '', budget: '' });
-    loadData();
+    
+    // Then initiate payment
+    try {
+      const res = await base44.functions.invoke('create-checkout', {
+        tier: form.tier,
+        business_id: form.business_id,
+        headline: form.headline,
+        ad_id: newAd.id,
+      });
+      
+      if (res.data?.redirectUrl) {
+        // Redirect to Wix Payments checkout
+        window.location.href = res.data.redirectUrl;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error) {
+      console.error('Payment initiation failed:', error);
+      setSaving(false);
+      alert('Failed to initiate payment. Please try again.');
+      // Clean up: delete the ad if payment fails
+      await base44.entities.Ad.delete(newAd.id);
+      loadData();
+    }
   };
 
   const toggleStatus = async (ad) => {
@@ -346,8 +369,8 @@ export default function SellerAds() {
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setShowCreate(false)}>Cancel</Button>
-              <Button onClick={handleCreate} disabled={saving || !form.headline || !form.business_id} style={{ background: '#E8945A', color: '#fff' }}>
-                {saving ? 'Submitting...' : 'Submit for Review'}
+              <Button onClick={handleCreate} disabled={saving || !form.headline || !form.business_id} style={{ background: '#E8945A', color: '#fff' }} className="gap-2">
+                {saving ? 'Processing...' : <><CreditCard className="w-4 h-4" /> Proceed to Payment</> }
               </Button>
             </div>
           </div>
