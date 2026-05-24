@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2, Phone } from 'lucide-react';
+import ImportContactsCard from '@/components/ImportContactsCard';
 
 const INDUSTRIES = ['HVAC', 'Plumbing', 'Electrical', 'Salon', 'Real Estate', 'Cleaning', 'Landscaping', 'Other'];
-const AI_TONES = ['Professional', 'Friendly', 'Casual', 'Formal'];
+
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver',
   'America/Los_Angeles', 'America/Phoenix', 'Pacific/Honolulu', 'America/Anchorage',
@@ -105,10 +106,7 @@ export default function SellerSettings() {
             </Select>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1">Logo URL <span className="text-slate-400 font-normal">(optional)</span></label>
-            <Input value={form.logo_url || ''} onChange={e => set('logo_url', e.target.value)} placeholder="https://..." />
-          </div>
+
 
 
 
@@ -154,6 +152,8 @@ export default function SellerSettings() {
           )}
         </CardContent>
       </Card>
+
+      <ImportContactsCard businessId={business?.id} />
 
       <div className="flex items-center gap-3">
         <Button onClick={handleSave} disabled={saving || !form.name || !form.industry}>
