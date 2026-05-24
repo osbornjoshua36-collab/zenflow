@@ -21,6 +21,7 @@ import SellerBilling from '@/pages/SellerBilling';
 import SellerSettings from '@/pages/SellerSettings';
 import BuyerRegister from '@/pages/BuyerRegister';
 import BuyerDashboard from '@/pages/BuyerDashboard';
+import BuyerMessages from '@/pages/BuyerMessages';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -51,6 +52,7 @@ const AuthenticatedApp = () => {
         <Route path="/register" element={<BuyerRegister />} />
         <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
         <Route path="/buyer/jobs" element={<BuyerDashboard />} />
+        <Route path="/buyer/messages" element={<BuyerMessages />} />
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/leads" element={<Leads />} />
