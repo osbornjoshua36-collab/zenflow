@@ -26,6 +26,26 @@ export default function BuyerDashboard() {
   const [listings, setListings] = useState({});
   const [reviews, setReviews] = useState({});
   const [loading, setLoading] = useState(true);
+  const [selectedDates, setSelectedDates] = useState({});
+
+  const confirmDate = async (job, date) => {
+    await base44.entities.Job.update(job.id, {
+      confirmed_date: new Date(date).toISOString(),
+      scheduled_date: new Date(date).toISOString(),
+      scheduling_status: 'confirmed',
+    });
+    await base44.entities.Notification.create({
+      business_id: job.business_id,
+      message: 'Buyer confirmed appointment for "' + job.title + '" on ' + new Date(date).toLocaleDateString() + '.',
+      type: 'job_update',
+      related_entity_id: job.id,
+    });
+    setActiveJobs(prev => prev.map(j =>
+      j.id === job.id
+        ? { ...j, scheduling_status: 'confirmed', confirmed_date: new Date(date).toISOString(), scheduled_date: new Date(date).toISOString() }
+        : j
+    ));
+  };
 
   useEffect(() => {
     (async () => {
@@ -163,22 +183,67 @@ export default function BuyerDashboard() {
         ) : (
           <div className="space-y-3">
             {activeJobs.map(j => (
-              <div key={j.id} className="bg-white border rounded-xl p-4 flex items-center gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-slate-900 truncate">{j.title}</p>
-                  <p className="text-sm text-slate-500">
-                    {businesses[j.business_id]?.name || '—'} · {j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString() : 'No date'}
-                  </p>
+              <div key={j.id} className="bg-white border rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-slate-900 truncate">{j.title}</p>
+                    <p className="text-sm text-slate-500">
+                      {businesses[j.business_id]?.name || '—'} ·{' '}
+                      {j.scheduling_status === 'confirmed' && j.confirmed_date
+                        ? new Date(j.confirmed_date).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+                        : j.scheduled_date ? new Date(j.scheduled_date).toLocaleDateString() : 'Pending scheduling'}
+                    </p>
+                  </div>
+                  {j.scheduling_status === 'awaiting_proposal' && (
+                    <span className="text-xs px-2 py-1 rounded-full font-medium bg-amber-100 text-amber-700">Awaiting seller's times</span>
+                  )}
+                  {j.scheduling_status === 'proposed' && (
+                    <span className="text-xs px-2 py-1 rounded-full font-medium bg-blue-100 text-blue-700">Times proposed — choose one</span>
+                  )}
+                  {j.scheduling_status === 'confirmed' && (
+                    <span className="text-xs px-2 py-1 rounded-full font-medium bg-green-100 text-green-700">Confirmed ✓</span>
+                  )}
+                  {!j.scheduling_status && (
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[j.status] || 'bg-slate-100 text-slate-600'}`}>{j.status}</span>
+                  )}
+                  {(j.status === 'Completed' || j.scheduling_status === 'confirmed') && (
+                    <Link to={'/post-job?job_id=' + j.id} className="text-sm text-blue-600 hover:underline whitespace-nowrap">Mark complete</Link>
+                  )}
                 </div>
-                <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[j.status] || 'bg-slate-100 text-slate-600'}`}>
-                  {j.status}
-                </span>
-                <Link
-                  to={`/post-job?job_id=${j.id}`}
-                  className="text-sm text-blue-600 hover:underline whitespace-nowrap"
-                >
-                  Mark complete
-                </Link>
+
+                {/* Proposed date selection for buyer */}
+                {j.scheduling_status === 'proposed' && j.proposed_dates?.length > 0 && (
+                  <div className="border-t pt-3 space-y-2">
+                    <p className="text-sm font-semibold text-slate-700">Pick a time that works for you:</p>
+                    <div className="space-y-2">
+                      {j.proposed_dates.map((d, i) => (
+                        <label
+                          key={i}
+                          className={'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ' + (selectedDates[j.id] === d ? 'border-navy bg-navy/5' : 'border-slate-200 hover:border-slate-300')}
+                        >
+                          <input
+                            type="radio"
+                            name={'date-' + j.id}
+                            value={d}
+                            checked={selectedDates[j.id] === d}
+                            onChange={() => setSelectedDates(prev => ({ ...prev, [j.id]: d }))}
+                            className="accent-navy"
+                          />
+                          <span className="text-sm text-slate-700">
+                            {new Date(d).toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                    <button
+                      className={'mt-1 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ' + (selectedDates[j.id] ? 'bg-navy hover:bg-navy-light cursor-pointer' : 'bg-slate-300 cursor-not-allowed')}
+                      disabled={!selectedDates[j.id]}
+                      onClick={() => confirmDate(j, selectedDates[j.id])}
+                    >
+                      Confirm this time
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

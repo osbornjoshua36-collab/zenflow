@@ -53,6 +53,29 @@
     "notes": {
       "type": "string",
       "description": "Internal notes"
+    },
+    "proposed_dates": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "description": "Proposed appointment time slots from seller"
+    },
+    "confirmed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Buyer-confirmed appointment date"
+    },
+    "scheduling_status": {
+      "type": "string",
+      "enum": [
+        "awaiting_proposal",
+        "proposed",
+        "confirmed",
+        "completed"
+      ],
+      "description": "Scheduling negotiation state"
     }
   },
   "required": [

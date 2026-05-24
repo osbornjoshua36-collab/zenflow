@@ -71,6 +71,7 @@ export default function SellerListings() {
       scheduled_date: null,
       actual_cost: q.seller_price,
       notes: 'Created from quote #' + q.id,
+      scheduling_status: 'awaiting_proposal',
     });
     await base44.entities.Quote.update(q.id, { status: 'Accepted', converted_job_id: newJob.id });
     setAcceptedJob({ id: newJob.id, quoteId: q.id });
