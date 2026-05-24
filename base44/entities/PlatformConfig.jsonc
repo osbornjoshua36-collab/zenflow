@@ -1,0 +1,35 @@
+{
+  "name": "PlatformConfig",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Unique config key, e.g. commission_rate"
+    },
+    "value": {
+      "type": "string",
+      "description": "Config value (stored as string, parsed by consumer)"
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable label for admin UI"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "payments",
+        "leads",
+        "guarantee",
+        "general"
+      ],
+      "default": "general"
+    }
+  },
+  "required": [
+    "key",
+    "value"
+  ]
+}

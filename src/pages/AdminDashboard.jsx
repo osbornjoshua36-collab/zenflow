@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Shield } from 'lucide-react';
+import { Shield, Download } from 'lucide-react';
 
 const STATUS_COLORS = {
   open: 'bg-red-100 text-red-700',
@@ -27,15 +27,19 @@ export default function AdminDashboard() {
   const [sellerSearch, setSellerSearch] = useState('');
   const [bizList, setBizList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [transactions, setTransactions] = useState([]);
+  const [txnStatusFilter, setTxnStatusFilter] = useState('all');
+  const [txnSearchSeller, setTxnSearchSeller] = useState('');
 
   const loadData = async () => {
-    const [rpts, lstgs, biz, quotes, jobs, reviews] = await Promise.all([
+    const [rpts, lstgs, biz, quotes, jobs, reviews, txns] = await Promise.all([
       base44.entities.Report.list('-created_date', 500),
       base44.entities.Listing.list('-created_date', 500),
       base44.entities.Business.list('-created_date', 500),
       base44.entities.Quote.list('-created_date', 1),
       base44.entities.Job.list('-created_date', 1),
       base44.entities.Review.filter({ verified: true }, '-created_date', 1),
+      base44.entities.Transaction.list('-created_date', 500),
     ]);
     const bizMap = {};
     biz.forEach(b => { bizMap[b.id] = b; });
@@ -43,15 +47,15 @@ export default function AdminDashboard() {
     setListings(lstgs);
     setBusinesses(bizMap);
     setBizList(biz);
+    setTransactions(txns);
     setMetrics({
       businesses: biz.length,
       activeListings: lstgs.filter(l => l.status === 'Active').length,
-      quotes: quotes.length > 0 ? null : 0,
-      jobs: jobs.length > 0 ? null : 0,
-      reviews: reviews.length > 0 ? null : 0,
+      quotes: 0,
+      jobs: 0,
+      reviews: 0,
       openReports: rpts.filter(r => r.status === 'open').length,
     });
-    // Get real counts via separate queries for metrics
     const [allQuotes, allJobs, allVerifiedReviews] = await Promise.all([
       base44.entities.Quote.list('-created_date', 9999),
       base44.entities.Job.list('-created_date', 9999),
@@ -116,6 +120,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="listings">Listings</TabsTrigger>
             <TabsTrigger value="sellers">Sellers</TabsTrigger>
             <TabsTrigger value="metrics">Platform Metrics</TabsTrigger>
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
           </TabsList>
 
           {/* TAB 1 — Reports */}
@@ -335,6 +340,102 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
             </div>
+          </TabsContent>
+
+          {/* TAB — Transactions */}
+          <TabsContent value="transactions">
+            {(() => {
+              const filteredTxns = transactions.filter(t => {
+                const matchStatus = txnStatusFilter === 'all' || t.status === txnStatusFilter;
+                const sellerBiz = businesses[t.seller_business_id];
+                const matchSeller = !txnSearchSeller || sellerBiz?.name?.toLowerCase().includes(txnSearchSeller.toLowerCase());
+                return matchStatus && matchSeller;
+              });
+              const totalGross = filteredTxns.reduce((s, t) => s + (t.gross_amount || 0), 0);
+              const totalCommission = filteredTxns.reduce((s, t) => s + (t.commission_amount || 0), 0);
+
+              const exportCSV = () => {
+                const header = 'Date,Buyer,Seller,Job ID,Gross,Commission,Net,Status';
+                const rows = filteredTxns.map(t => [
+                  new Date(t.created_date).toLocaleDateString(),
+                  t.buyer_email || '',
+                  businesses[t.seller_business_id]?.name || '',
+                  t.job_id || '',
+                  t.gross_amount?.toFixed(2) || '0',
+                  t.commission_amount?.toFixed(2) || '0',
+                  t.net_amount?.toFixed(2) || '0',
+                  t.status || '',
+                ].join(','));
+                const csv = [header, ...rows].join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'transactions.csv'; a.click();
+                URL.revokeObjectURL(url);
+              };
+
+              return (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center gap-3 mb-2">
+                    <div className="flex gap-2">
+                      {['all', 'completed', 'refunded', 'partially_refunded', 'disputed'].map(s => (
+                        <Button key={s} size="sm" variant={txnStatusFilter === s ? 'default' : 'outline'}
+                          onClick={() => setTxnStatusFilter(s)} className="capitalize">{s === 'all' ? 'All' : s.replace('_', ' ')}</Button>
+                      ))}
+                    </div>
+                    <Input placeholder="Search by seller..." value={txnSearchSeller}
+                      onChange={e => setTxnSearchSeller(e.target.value)} className="max-w-xs" />
+                    <Button size="sm" variant="outline" className="ml-auto gap-1" onClick={exportCSV}>
+                      <Download className="w-4 h-4" /> Export CSV
+                    </Button>
+                  </div>
+                  <div className="flex gap-6 text-sm text-slate-500 mb-2">
+                    <span>Transactions: <strong className="text-slate-900">{filteredTxns.length}</strong></span>
+                    <span>Gross: <strong className="text-slate-900">${totalGross.toFixed(2)}</strong></span>
+                    <span>Platform revenue: <strong className="text-green-700">${totalCommission.toFixed(2)}</strong></span>
+                  </div>
+                  <div className="bg-white rounded-xl border overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-slate-50 border-b">
+                        <tr>
+                          <th className="text-left px-4 py-3 text-slate-600 font-medium">Date</th>
+                          <th className="text-left px-4 py-3 text-slate-600 font-medium">Buyer</th>
+                          <th className="text-left px-4 py-3 text-slate-600 font-medium">Seller</th>
+                          <th className="text-left px-4 py-3 text-slate-600 font-medium">Job ID</th>
+                          <th className="text-right px-4 py-3 text-slate-600 font-medium">Gross</th>
+                          <th className="text-right px-4 py-3 text-slate-600 font-medium">Fee</th>
+                          <th className="text-right px-4 py-3 text-slate-600 font-medium">Net</th>
+                          <th className="text-left px-4 py-3 text-slate-600 font-medium">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredTxns.length === 0 ? (
+                          <tr><td colSpan={8} className="text-center py-10 text-slate-400">No transactions found.</td></tr>
+                        ) : filteredTxns.map(t => (
+                          <tr key={t.id} className="border-b last:border-0 hover:bg-slate-50">
+                            <td className="px-4 py-3 text-slate-500 text-xs">{new Date(t.created_date).toLocaleDateString()}</td>
+                            <td className="px-4 py-3 text-xs text-slate-600">{t.buyer_email || '—'}</td>
+                            <td className="px-4 py-3 text-xs text-slate-600">{businesses[t.seller_business_id]?.name || '—'}</td>
+                            <td className="px-4 py-3 text-xs font-mono text-slate-400">{t.job_id?.slice(0,8)}…</td>
+                            <td className="px-4 py-3 text-right font-medium text-slate-900">${t.gross_amount?.toFixed(2) || '0.00'}</td>
+                            <td className="px-4 py-3 text-right text-red-600 text-xs">${t.commission_amount?.toFixed(2) || '0.00'}</td>
+                            <td className="px-4 py-3 text-right text-green-700 font-medium">${t.net_amount?.toFixed(2) || '0.00'}</td>
+                            <td className="px-4 py-3">
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                                t.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                t.status === 'refunded' ? 'bg-red-100 text-red-700' :
+                                t.status === 'partially_refunded' ? 'bg-orange-100 text-orange-700' :
+                                'bg-slate-100 text-slate-500'
+                              }`}>{t.status}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })()}
           </TabsContent>
 
           {/* TAB 3 — Metrics */}

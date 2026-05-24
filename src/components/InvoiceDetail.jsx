@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Printer } from 'lucide-react';
+import { ChevronLeft, Printer, RotateCcw } from 'lucide-react';
 
 const STATUS_STYLES = {
   Draft:   'bg-slate-100 text-slate-600',
@@ -19,6 +19,50 @@ function parseLineItems(description) {
 
 export default function InvoiceDetail({ invoice, customers, onBack, onUpdated }) {
   const [marking, setMarking] = useState(false);
+  const [transaction, setTransaction] = useState(null);
+  const [refunding, setRefunding] = useState(false);
+  const [refundAmount, setRefundAmount] = useState('');
+  const [showRefund, setShowRefund] = useState(false);
+
+  useEffect(() => {
+    if (invoice.status === 'Paid') {
+      base44.entities.Transaction.filter({ invoice_id: invoice.id }).then(txns => {
+        if (txns.length > 0) setTransaction(txns[0]);
+      });
+    }
+  }, [invoice.id, invoice.status]);
+
+  const handleRefund = async () => {
+    const amt = parseFloat(refundAmount);
+    if (!amt || amt <= 0 || amt > invoice.amount) return;
+    setRefunding(true);
+    if (transaction) {
+      await base44.entities.Transaction.update(transaction.id, {
+        status: amt >= invoice.amount ? 'refunded' : 'partially_refunded',
+        refund_amount: amt,
+        refunded_at: new Date().toISOString(),
+        refund_reason: 'Seller-initiated refund',
+      });
+    }
+    await base44.entities.Invoice.update(invoice.id, { status: 'Cancelled' });
+    if (invoice.customer_id) {
+      await base44.entities.Notification.create({
+        business_id: invoice.business_id,
+        message: `Refund of $${amt.toFixed(2)} issued for invoice ${invoice.invoice_number}.`,
+        type: 'system',
+        related_entity_id: invoice.id,
+      });
+    }
+    setRefunding(false);
+    setShowRefund(false);
+    await onUpdated();
+    onBack();
+  };
+
+  const paidDaysAgo = invoice.paid_date
+    ? Math.floor((Date.now() - new Date(invoice.paid_date).getTime()) / 86400000)
+    : 999;
+  const canRefund = invoice.status === 'Paid' && paidDaysAgo <= 30;
   const custMap = Object.fromEntries(customers.map(c => [c.id, c]));
   const customer = custMap[invoice.customer_id];
   const lineItems = parseLineItems(invoice.description);
@@ -43,6 +87,11 @@ export default function InvoiceDetail({ invoice, customers, onBack, onUpdated })
           {invoice.status === 'Sent' && (
             <Button className="bg-green-600 hover:bg-green-700 text-white" disabled={marking} onClick={handleMarkPaid}>
               {marking ? 'Updating…' : 'Mark as Paid'}
+            </Button>
+          )}
+          {canRefund && !showRefund && (
+            <Button variant="outline" className="gap-2 text-red-600 border-red-200 hover:bg-red-50" onClick={() => { setRefundAmount(String(invoice.amount)); setShowRefund(true); }}>
+              <RotateCcw className="w-4 h-4" /> Issue Refund
             </Button>
           )}
           <Button variant="outline" className="gap-2" onClick={() => window.print()}>
@@ -103,6 +152,54 @@ export default function InvoiceDetail({ invoice, customers, onBack, onUpdated })
           <span className="font-semibold text-slate-700">Total</span>
           <span className="text-2xl font-bold text-slate-900">${(invoice.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
         </div>
+
+        {/* Transaction breakdown (Paid invoices) */}
+        {transaction && (
+          <div className="bg-slate-50 rounded-lg px-4 py-3 text-sm space-y-1">
+            <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Payment Breakdown</p>
+            <div className="flex justify-between">
+              <span className="text-slate-600">Gross amount</span>
+              <span className="font-medium text-slate-900">${transaction.gross_amount?.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-600">Platform fee ({transaction.commission_rate}%)</span>
+              <span className="text-red-600">−${transaction.commission_amount?.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between border-t pt-1 mt-1">
+              <span className="font-semibold text-slate-800">Your net payout</span>
+              <span className="font-bold text-green-700">${transaction.net_amount?.toFixed(2)}</span>
+            </div>
+            {transaction.payout_hold_until && new Date(transaction.payout_hold_until) > new Date() && (
+              <p className="text-xs text-amber-600 mt-1">Payout releases after {new Date(transaction.payout_hold_until).toLocaleDateString()}</p>
+            )}
+          </div>
+        )}
+
+        {/* Refund UI */}
+        {showRefund && (
+          <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-4 space-y-3">
+            <p className="text-sm font-semibold text-red-800">Issue a refund</p>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-600">$</span>
+              <input
+                type="number"
+                min="0.01"
+                max={invoice.amount}
+                step="0.01"
+                value={refundAmount}
+                onChange={e => setRefundAmount(e.target.value)}
+                className="w-32 h-8 px-2 rounded border border-red-200 text-sm focus:outline-none focus:ring-1 focus:ring-red-400"
+              />
+              <span className="text-xs text-slate-400">max ${invoice.amount?.toFixed(2)}</span>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white" disabled={refunding} onClick={handleRefund}>
+                {refunding ? 'Processing…' : 'Confirm refund'}
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setShowRefund(false)}>Cancel</Button>
+            </div>
+          </div>
+        )}
 
         {/* Notes */}
         {invoice.notes && (

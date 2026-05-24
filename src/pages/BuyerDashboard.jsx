@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Badge } from '@/components/ui/badge';
-import { Search, Briefcase, MessageSquare, UserCircle, Star, ChevronRight, BookmarkCheck } from 'lucide-react';
+import { Search, Briefcase, MessageSquare, UserCircle, Star, ChevronRight, BookmarkCheck, CreditCard } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const STATUS_COLORS = {
   Pending: 'bg-amber-100 text-amber-700',
@@ -27,6 +28,8 @@ export default function BuyerDashboard() {
   const [reviews, setReviews] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedDates, setSelectedDates] = useState({});
+  const [jobInvoices, setJobInvoices] = useState({});
+  const [payingJobId, setPayingJobId] = useState(null);
 
   const confirmDate = async (job, date) => {
     await base44.entities.Job.update(job.id, {
@@ -107,9 +110,37 @@ export default function BuyerDashboard() {
         setListings(lstMap);
       }
 
+      // Fetch invoices for all jobs
+      const allJobIds = completedJobIds;
+      if (allJobIds.length > 0) {
+        const invResults = await Promise.all(
+          allJobIds.map(id => base44.entities.Invoice.filter({ job_id: id }))
+        );
+        const invMap = {};
+        invResults.flat().forEach(inv => { invMap[inv.job_id] = inv; });
+        setJobInvoices(invMap);
+      }
+
       setLoading(false);
     })();
   }, []);
+
+  const handlePayInvoice = async (job) => {
+    const invoice = jobInvoices[job.id];
+    if (!invoice || invoice.status === 'Paid') return;
+    setPayingJobId(job.id);
+    const res = await base44.functions.invoke('create-checkout', {
+      checkout_type: 'job_payment',
+      job_id: job.id,
+      invoice_id: invoice.id,
+      amount: invoice.amount,
+      seller_business_id: job.business_id,
+    });
+    if (res.data?.redirectUrl) {
+      window.location.href = res.data.redirectUrl;
+    }
+    setPayingJobId(null);
+  };
 
   if (loading) {
     return (
@@ -208,6 +239,20 @@ export default function BuyerDashboard() {
                   )}
                   {(j.status === 'Completed' || j.scheduling_status === 'confirmed') && (
                     <Link to={'/post-job?job_id=' + j.id} className="text-sm text-blue-600 hover:underline whitespace-nowrap">Mark complete</Link>
+                  )}
+                  {jobInvoices[j.id] && jobInvoices[j.id].status !== 'Paid' && (
+                    <Button
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 text-white gap-1"
+                      disabled={payingJobId === j.id}
+                      onClick={() => handlePayInvoice(j)}
+                    >
+                      <CreditCard className="w-3 h-3" />
+                      {payingJobId === j.id ? 'Redirecting…' : `Pay $${jobInvoices[j.id].amount}`}
+                    </Button>
+                  )}
+                  {jobInvoices[j.id]?.status === 'Paid' && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 font-medium">Paid ✓</span>
                   )}
                 </div>
 

@@ -88,6 +88,60 @@ Deno.serve(async (req) => {
 
       console.log(`Processing order ${order.id} - checkout ${order.checkoutId}`);
 
+      // Check for job payment
+      const jobPaymentItem = order.lineItems.find(item =>
+        item.productName?.original?.startsWith('JobPayment|')
+      );
+      if (jobPaymentItem) {
+        const parts = jobPaymentItem.productName.original.split('|');
+        const jobId = parts[1];
+        const invoiceId = parts[2];
+        const sellerBusinessId = parts[3] || null;
+        const buyerEmail = order.buyerInfo?.email || null;
+        const grossAmount = parseFloat(order.priceSummary?.total?.amount || jobPaymentItem.price?.amount || 0);
+
+        // Fetch commission rate from PlatformConfig
+        let commissionRate = 0;
+        const configs = await base44.asServiceRole.entities.PlatformConfig.filter({ key: 'commission_rate' });
+        if (configs.length > 0) commissionRate = parseFloat(configs[0].value) || 0;
+
+        const commissionAmount = parseFloat((grossAmount * commissionRate / 100).toFixed(2));
+        const netAmount = parseFloat((grossAmount - commissionAmount).toFixed(2));
+
+        // Hold period (default 2 business days)
+        const holdConfigs = await base44.asServiceRole.entities.PlatformConfig.filter({ key: 'payout_hold_days' });
+        const holdDays = holdConfigs.length > 0 ? parseInt(holdConfigs[0].value) || 2 : 2;
+        const holdUntil = new Date();
+        holdUntil.setDate(holdUntil.getDate() + holdDays);
+
+        // Create Transaction record
+        await base44.asServiceRole.entities.Transaction.create({
+          job_id: jobId,
+          invoice_id: invoiceId,
+          buyer_email: buyerEmail,
+          seller_business_id: sellerBusinessId,
+          gross_amount: grossAmount,
+          commission_rate: commissionRate,
+          commission_amount: commissionAmount,
+          net_amount: netAmount,
+          status: 'completed',
+          wix_order_id: order.id,
+          payout_hold_until: holdUntil.toISOString(),
+        });
+
+        // Mark invoice as Paid
+        if (invoiceId) {
+          await base44.asServiceRole.entities.Invoice.update(invoiceId, {
+            status: 'Paid',
+            paid_date: new Date().toISOString(),
+            payment_method: 'Stripe',
+          });
+        }
+
+        console.log(`Job payment processed: job=${jobId} invoice=${invoiceId} gross=${grossAmount} commission=${commissionAmount} net=${netAmount}`);
+        return new Response('OK', { status: 200 });
+      }
+
       // Check if this is a SaaS plan purchase (Pro/Business)
       const saasItem = order.lineItems.find(item =>
         item.productName?.original?.includes('Plan Monthly')

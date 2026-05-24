@@ -1,0 +1,88 @@
+{
+  "name": "Transaction",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "FK to Job"
+    },
+    "invoice_id": {
+      "type": "string",
+      "description": "FK to Invoice"
+    },
+    "buyer_email": {
+      "type": "string"
+    },
+    "seller_business_id": {
+      "type": "string",
+      "description": "FK to Business"
+    },
+    "gross_amount": {
+      "type": "number",
+      "description": "Total amount charged to buyer"
+    },
+    "commission_rate": {
+      "type": "number",
+      "description": "Platform commission % applied at time of transaction"
+    },
+    "commission_amount": {
+      "type": "number",
+      "description": "Platform fee amount"
+    },
+    "net_amount": {
+      "type": "number",
+      "description": "Amount seller receives after commission"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "refunded",
+        "partially_refunded",
+        "disputed",
+        "held"
+      ],
+      "default": "pending"
+    },
+    "payment_method": {
+      "type": "string",
+      "description": "Card / etc"
+    },
+    "wix_order_id": {
+      "type": "string",
+      "description": "External payment order ID"
+    },
+    "payout_initiated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payout_hold_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Earliest date seller can be paid out"
+    },
+    "refund_amount": {
+      "type": "number",
+      "description": "Amount refunded (partial or full)"
+    },
+    "refund_reason": {
+      "type": "string"
+    },
+    "refunded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "guarantee_claim_id": {
+      "type": "string",
+      "description": "Linked guarantee claim if disputed"
+    }
+  },
+  "required": [
+    "job_id",
+    "buyer_email",
+    "seller_business_id",
+    "gross_amount",
+    "status"
+  ]
+}

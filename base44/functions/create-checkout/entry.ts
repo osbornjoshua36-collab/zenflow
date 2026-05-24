@@ -3,6 +3,47 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { checkout_type, tier, business_id, headline, subscription_plan_id } = body;
 
+    // ── Job payment checkout path ─────────────────────────────────────────────
+    if (checkout_type === 'job_payment') {
+      const { job_id, invoice_id, amount, seller_business_id } = body;
+      if (!job_id || !invoice_id || !amount) {
+        return Response.json({ error: 'Missing job_id, invoice_id or amount' }, { status: 400 });
+      }
+      const origin = req.headers.get('origin') || 'https://sphere.base44.app';
+      const checkoutResponse = await fetch(
+        'https://www.wixapis.com/payments/platform/v1/checkout-sessions/construct',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': Deno.env.get('WIX_PAYMENTS_API_KEY'),
+            'wix-site-id': Deno.env.get('WIX_PAYMENTS_SITE_ID'),
+          },
+          body: JSON.stringify({
+            cart: {
+              items: [{
+                name: `JobPayment|${job_id}|${invoice_id}|${seller_business_id || ''}`,
+                quantity: 1,
+                price: parseFloat(amount).toFixed(2),
+              }],
+            },
+            callbackUrls: {
+              postFlowUrl: `${origin}/buyer/dashboard`,
+              thankYouPageUrl: `${origin}/payment-success?plan_type=job&job_id=${job_id}&amount=${amount}`,
+              errorUrl: `${origin}/payment-failure?reason=declined`,
+            },
+          }),
+        }
+      );
+      if (!checkoutResponse.ok) {
+        const err = await checkoutResponse.json();
+        console.error('Job payment checkout error:', err);
+        return Response.json({ error: 'Checkout creation failed' }, { status: 500 });
+      }
+      const data = await checkoutResponse.json();
+      return Response.json({ redirectUrl: data.checkoutSession.redirectUrl });
+    }
+
     // ── Subscription checkout path ──────────────────────────────────────────
     if (checkout_type === 'subscription') {
       const SUBSCRIPTION_PLANS = {
