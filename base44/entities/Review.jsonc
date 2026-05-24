@@ -48,6 +48,11 @@
         "Ignored"
       ],
       "description": "Response status"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this review is from a verified completed job"
     }
   },
   "required": [

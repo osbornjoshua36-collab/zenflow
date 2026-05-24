@@ -1,0 +1,38 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "The business this notification targets"
+    },
+    "message": {
+      "type": "string",
+      "description": "Notification message content"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "job_update",
+        "review",
+        "message",
+        "system"
+      ],
+      "description": "Category of notification"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this notification has been read"
+    },
+    "related_entity_id": {
+      "type": "string",
+      "description": "ID of the related entity (e.g. job_id)"
+    }
+  },
+  "required": [
+    "business_id",
+    "message",
+    "type"
+  ]
+}
