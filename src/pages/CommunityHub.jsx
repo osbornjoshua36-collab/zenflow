@@ -25,6 +25,7 @@ export default function CommunityHub() {
   const [appliedZip, setAppliedZip] = useState('');
   const [radius, setRadius] = useState('any');
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState('newest');
   const [reportListing, setReportListing] = useState(null);
 
   const loadData = async () => {
@@ -53,17 +54,33 @@ export default function CommunityHub() {
     return { avgRating: avg, reviewCount: bReviews.length };
   };
 
-  const filteredListings = listings.filter(l => {
-    const matchSearch = !search || l.title?.toLowerCase().includes(search.toLowerCase()) ||
-      l.description?.toLowerCase().includes(search.toLowerCase()) ||
-      businesses[l.business_id]?.name?.toLowerCase().includes(search.toLowerCase());
-    const matchCategory = category === 'All' || l.category === category;
-    const matchPrice = priceFilter === 'All' ||
-      (priceFilter === 'Free Quote' && l.price_type === 'Free Quote') ||
-      (priceFilter === 'Paid' && l.price_type !== 'Free Quote');
-    const matchLocation = !appliedZip || radius === 'any' || !l.zip_code || l.zip_code === appliedZip;
-    return matchSearch && matchCategory && matchPrice && matchLocation;
-  });
+  const filteredListings = listings
+    .filter(l => {
+      const matchSearch = !search || l.title?.toLowerCase().includes(search.toLowerCase()) ||
+        l.description?.toLowerCase().includes(search.toLowerCase()) ||
+        businesses[l.business_id]?.name?.toLowerCase().includes(search.toLowerCase());
+      const matchCategory = category === 'All' || l.category === category;
+      const matchPrice = priceFilter === 'All' || l.price_type === priceFilter;
+      const matchLocation = !appliedZip || radius === 'any' || !l.zip_code || l.zip_code === appliedZip;
+      return matchSearch && matchCategory && matchPrice && matchLocation;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'newest') return new Date(b.created_date) - new Date(a.created_date);
+      if (sortBy === 'price_asc') {
+        const pa = a.price_type === 'Free Quote' ? Infinity : (a.price ?? Infinity);
+        const pb = b.price_type === 'Free Quote' ? Infinity : (b.price ?? Infinity);
+        return pa - pb;
+      }
+      if (sortBy === 'highest_rated') {
+        const ra = getStats(a.business_id).avgRating;
+        const rb = getStats(b.business_id).avgRating;
+        if (rb === 0 && ra === 0) return 0;
+        if (rb === 0) return -1;
+        if (ra === 0) return 1;
+        return rb - ra;
+      }
+      return 0;
+    });
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -146,13 +163,22 @@ export default function CommunityHub() {
               <Select value={priceFilter} onValueChange={setPriceFilter}>
                 <SelectTrigger className="w-full sm:w-44"><SelectValue placeholder="Pricing" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="All">All Pricing</SelectItem>
-                  <SelectItem value="Free Quote">Free Quote</SelectItem>
-                  <SelectItem value="Paid">Has Listed Price</SelectItem>
+                  <SelectItem value="All">All pricing</SelectItem>
+                  <SelectItem value="Flat Rate">Fixed price</SelectItem>
+                  <SelectItem value="Hourly">Hourly</SelectItem>
+                  <SelectItem value="Free Quote">Free quote</SelectItem>
                 </SelectContent>
               </Select>
-              {(search || category !== 'All' || priceFilter !== 'All') && (
-                <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setSearch(''); setCategory('All'); setPriceFilter('All'); }}>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full sm:w-44"><SelectValue placeholder="Sort by" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest first</SelectItem>
+                  <SelectItem value="price_asc">Lowest price</SelectItem>
+                  <SelectItem value="highest_rated">Highest rated</SelectItem>
+                </SelectContent>
+              </Select>
+              {(search || category !== 'All' || priceFilter !== 'All' || sortBy !== 'newest') && (
+                <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setSearch(''); setCategory('All'); setPriceFilter('All'); setSortBy('newest'); }}>
                   Clear filters
                 </Button>
               )}
@@ -162,12 +188,12 @@ export default function CommunityHub() {
               <div className="text-center text-slate-500 py-16">Loading...</div>
             ) : filteredListings.length === 0 ? (
               <div className="text-center text-slate-500 py-16">
-                <p>No listings found.</p>
-                {(search || category !== 'All') && <p className="text-sm mt-1">Try adjusting your search or filters.</p>}
+                <p className="font-medium">No listings found — try adjusting your filters.</p>
+                <p className="text-sm mt-1 text-slate-400">{listings.length} total listings available.</p>
               </div>
             ) : (
               <>
-                <p className="text-sm text-slate-500 mb-4">{filteredListings.length} listing{filteredListings.length !== 1 ? 's' : ''} found</p>
+                <p className="text-sm text-slate-500 mb-4">Showing {filteredListings.length} of {listings.length} listing{listings.length !== 1 ? 's' : ''}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredListings.map(l => {
                     const { avgRating, reviewCount } = getStats(l.business_id);
