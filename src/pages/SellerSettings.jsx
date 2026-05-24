@@ -110,13 +110,6 @@ export default function SellerSettings() {
             <Input value={form.logo_url || ''} onChange={e => set('logo_url', e.target.value)} placeholder="https://..." />
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1">AI Tone</label>
-            <Select value={form.ai_tone} onValueChange={v => set('ai_tone', v)}>
-              <SelectTrigger><SelectValue placeholder="Select tone" /></SelectTrigger>
-              <SelectContent>{AI_TONES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
 
 
         </CardContent>
