@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2, Phone } from 'lucide-react';
-import ImportContactsCard from '@/components/ImportContactsCard';
 
 const INDUSTRIES = ['HVAC', 'Plumbing', 'Electrical', 'Salon', 'Real Estate', 'Cleaning', 'Landscaping', 'Other'];
 
@@ -152,8 +151,6 @@ export default function SellerSettings() {
           )}
         </CardContent>
       </Card>
-
-      <ImportContactsCard businessId={business?.id} />
 
       <div className="flex items-center gap-3">
         <Button onClick={handleSave} disabled={saving || !form.name || !form.industry}>
