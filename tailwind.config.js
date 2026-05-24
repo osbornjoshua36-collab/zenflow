@@ -4,6 +4,10 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+  		fontFamily: {
+  			fraunces: ['var(--font-fraunces)'],
+  			'dm-sans': ['var(--font-dm-sans)'],
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
@@ -59,24 +63,56 @@ module.exports = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+  			navy: {
+  				DEFAULT: '#1E3245',
+  				light: '#2E4A65',
+  				hover: '#3D6080',
+  			},
+  			terracotta: {
+  				DEFAULT: '#E8945A',
+  				light: '#FFF3EA',
+  				dark: '#A05028',
+  			},
+  			sage: {
+  				DEFAULT: '#5BAA7E',
+  				light: '#E4F5EC',
+  				dark: '#276048',
+  			},
+  			sky: {
+  				DEFAULT: '#4CB8D4',
+  				light: '#E4F6FB',
+  				dark: '#1A5E70',
+  			},
+  			amber: {
+  				DEFAULT: '#D4A03A',
+  				light: '#FFF8E4',
+  				dark: '#7A5A10',
+  			},
+  			plum: {
+  				DEFAULT: '#7A6AAA',
+  				light: '#EEE8FF',
+  				dark: '#3D2E70',
+  			},
+  			rose: {
+  				DEFAULT: '#C06060',
+  				light: '#FDECEA',
+  				dark: '#7A2E2E',
+  			},
+  			surface: {
+  				page: '#FAFCFF',
+  				card: '#EEF3F8',
+  				white: '#FFFFFF',
+  			},
   		},
   		keyframes: {
   			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
+  				from: { height: '0' },
+  				to: { height: 'var(--radix-accordion-content-height)' }
   			},
   			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
+  				from: { height: 'var(--radix-accordion-content-height)' },
+  				to: { height: '0' }
   			}
   		},
   		animation: {
