@@ -1,0 +1,76 @@
+{
+  "name": "Ad",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "FK to Business (the advertiser)"
+    },
+    "listing_id": {
+      "type": "string",
+      "description": "Optional FK to a specific Listing being promoted"
+    },
+    "headline": {
+      "type": "string",
+      "description": "Ad headline text"
+    },
+    "tagline": {
+      "type": "string",
+      "description": "Short supporting text"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Ad creative image URL"
+    },
+    "cta_text": {
+      "type": "string",
+      "description": "Call-to-action button label"
+    },
+    "tier": {
+      "type": "string",
+      "enum": [
+        "Banner",
+        "Featured",
+        "Spotlight"
+      ],
+      "description": "Ad placement tier"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Pending Review",
+        "Active",
+        "Paused",
+        "Expired"
+      ],
+      "default": "Pending Review"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "budget": {
+      "type": "number",
+      "description": "Total ad spend budget"
+    },
+    "impressions": {
+      "type": "integer",
+      "default": 0
+    },
+    "clicks": {
+      "type": "integer",
+      "default": 0
+    }
+  },
+  "required": [
+    "business_id",
+    "headline",
+    "tier",
+    "status"
+  ]
+}

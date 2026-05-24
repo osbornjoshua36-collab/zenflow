@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Search, Globe, ClipboardList, LayoutGrid } from 'lucide-react';
 import ListingCard from '@/components/ListingCard';
+import AdBanner from '@/components/AdBanner';
 import ServiceRequestBoard from '@/components/ServiceRequestBoard';
 
 const CATEGORIES = ['All', 'Home & Garden', 'Lessons & Tutoring', 'Events & Photography', 'Tech & Repairs', 'Creative Services', 'Wellness & Fitness', 'Pet Services', 'Business Services', 'HVAC', 'Plumbing', 'Electrical', 'Salon', 'Real Estate', 'Cleaning', 'Landscaping', 'Other'];
@@ -14,6 +15,7 @@ export default function CommunityHub() {
   const [listings, setListings] = useState([]);
   const [businesses, setBusinesses] = useState({});
   const [reviews, setReviews] = useState([]);
+  const [ads, setAds] = useState([]);
   const [requests, setRequests] = useState([]);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
@@ -21,11 +23,12 @@ export default function CommunityHub() {
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
-    const [listingsData, bizData, reviewsData, reqsData] = await Promise.all([
+    const [listingsData, bizData, reviewsData, reqsData, adsData] = await Promise.all([
       base44.entities.Listing.filter({ status: 'Active' }, '-created_date', 200),
       base44.entities.Business.list('-created_date', 100),
       base44.entities.Review.list('-created_date', 500),
       base44.entities.ServiceRequest.list('-created_date', 200),
+      base44.entities.Ad.filter({ status: 'Active' }, '-created_date', 20),
     ]);
     const bizMap = {};
     bizData.forEach(b => { bizMap[b.id] = b; });
@@ -33,6 +36,7 @@ export default function CommunityHub() {
     setBusinesses(bizMap);
     setReviews(reviewsData);
     setRequests(reqsData);
+    setAds(adsData);
     setLoading(false);
   };
 
@@ -87,6 +91,14 @@ export default function CommunityHub() {
 
           {/* BROWSE TAB */}
           <TabsContent value="browse">
+            {/* Active Ads */}
+            {ads.length > 0 && (
+              <div className="mb-6 space-y-3">
+                {ads.map(ad => (
+                  <AdBanner key={ad.id} ad={ad} business={businesses[ad.business_id]} />
+                ))}
+              </div>
+            )}
             {/* Filters row */}
             <div className="bg-white rounded-xl shadow-sm p-3 flex flex-col sm:flex-row gap-3 mb-6">
               <Select value={category} onValueChange={setCategory}>
