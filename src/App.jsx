@@ -22,6 +22,8 @@ import SellerSettings from '@/pages/SellerSettings';
 import BuyerRegister from '@/pages/BuyerRegister';
 import BuyerDashboard from '@/pages/BuyerDashboard';
 import BuyerMessages from '@/pages/BuyerMessages';
+import AdminDashboard from '@/pages/AdminDashboard';
+import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -49,6 +51,9 @@ const AuthenticatedApp = () => {
   // Render the main app
     return (
       <Routes>
+        <Route element={<ProtectedAdminRoute />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Route>
         <Route path="/register" element={<BuyerRegister />} />
         <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
         <Route path="/buyer/jobs" element={<BuyerDashboard />} />
