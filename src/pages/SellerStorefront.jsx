@@ -19,6 +19,11 @@ export default function SellerStorefront() {
 
   useEffect(() => {
     const load = async () => {
+      // Guard against literal route template being used as a URL (e.g. editor preview)
+      if (!businessId || businessId.startsWith(':')) {
+        setLoading(false);
+        return;
+      }
       const [biz, allListings, allReviews] = await Promise.all([
         base44.entities.Business.filter({ id: businessId }),
         base44.entities.Listing.filter({ business_id: businessId, status: 'Active' }),
