@@ -8,9 +8,51 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Eye, MousePointer, Zap, Pause, Play, Trash2 } from 'lucide-react';
 
 const TIERS = [
-  { value: 'Banner', label: 'Banner', price: '$49 / month', desc: 'Full-width banner at the top of Community Hub' },
-  { value: 'Featured', label: 'Featured', price: '$29 / month', desc: 'Featured card in the Browse Services section' },
-  { value: 'Spotlight', label: 'Spotlight', price: '$19 / month', desc: 'Highlighted listing in search results' },
+  {
+    value: 'Banner',
+    label: 'Banner',
+    price: '$49 / month',
+    accentColor: '#E8945A',
+    accentBg: '#FFF3EA',
+    badge: 'Most Visible',
+    desc: 'Prime real estate — your ad loads as a full-width strip at the very top of Community Hub, before any listings appear.',
+    reach: [
+      'Seen by 100% of Community Hub visitors',
+      'Appears before any listings load',
+      'Includes image, headline & CTA button',
+      'Avg. 3–5× more clicks than organic listings',
+    ],
+  },
+  {
+    value: 'Featured',
+    label: 'Featured',
+    price: '$29 / month',
+    accentColor: '#7A6AAA',
+    accentBg: '#EEE8FF',
+    badge: 'Best Value',
+    desc: 'Your service card is pinned at the top of the Browse grid with a Featured badge — visible above all organic results.',
+    reach: [
+      'Pinned above all organic listings',
+      'Branded card with image & description',
+      'Visible across all category filter views',
+      'Avg. 2× more inquiries than standard',
+    ],
+  },
+  {
+    value: 'Spotlight',
+    label: 'Spotlight',
+    price: '$19 / month',
+    accentColor: '#D4A03A',
+    accentBg: '#FFF8E4',
+    badge: 'Entry Tier',
+    desc: 'A compact highlighted strip displayed just below the hub hero — great for brand awareness on a budget.',
+    reach: [
+      'Compact headline + tagline strip',
+      'Shown below the hero section',
+      'Budget-friendly brand awareness',
+      'Ideal for new businesses building presence',
+    ],
+  },
 ];
 
 const STATUS_COLORS = {
@@ -90,15 +132,119 @@ export default function SellerAds() {
       </div>
 
       {/* Tier cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <p className="text-sm font-semibold mb-3" style={{ color: '#8DAFC8' }}>Choose an ad tier that fits your goals</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
         {TIERS.map(t => (
-          <div key={t.value} className="rounded-xl p-4 border" style={{ background: '#EEF3F8', borderColor: 'rgba(30,50,69,0.10)' }}>
-            <div className="flex items-center gap-2 mb-1">
-              <Zap className="w-4 h-4" style={{ color: '#E8945A' }} />
-              <span className="font-semibold text-sm" style={{ color: '#1E3245' }}>{t.label}</span>
-              <span className="ml-auto text-xs font-bold" style={{ color: '#E8945A' }}>{t.price}</span>
+          <div key={t.value} className="rounded-2xl overflow-hidden flex flex-col" style={{ border: `1.5px solid ${t.accentColor}55`, boxShadow: '0 2px 14px rgba(30,50,69,0.07)' }}>
+
+            {/* Header */}
+            <div className="px-5 pt-5 pb-4" style={{ background: t.accentBg }}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ background: t.accentColor, color: '#fff' }}>{t.badge}</span>
+                <span className="text-sm font-bold" style={{ color: t.accentColor }}>{t.price}</span>
+              </div>
+              <h3 className="text-lg font-bold mb-1" style={{ fontFamily: 'var(--font-fraunces)', color: '#1E3245' }}>{t.label} Ad</h3>
+              <p className="text-xs leading-relaxed" style={{ color: '#4A6580' }}>{t.desc}</p>
             </div>
-            <p className="text-xs" style={{ color: '#4A6580' }}>{t.desc}</p>
+
+            {/* Community Hub preview mockup */}
+            <div className="px-4 py-3 border-t" style={{ borderColor: `${t.accentColor}33`, background: '#F0F4F8' }}>
+              <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#8DAFC8' }}>How it looks on Community Hub</p>
+              <div className="rounded-lg overflow-hidden" style={{ border: `1.5px solid ${t.accentColor}88`, background: '#fff' }}>
+                {/* Fake hub topbar */}
+                <div className="flex items-center gap-1.5 px-2 py-1.5" style={{ background: '#1E3245' }}>
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
+                  <div className="h-1 rounded bg-white/20 w-20" />
+                  <div className="ml-auto h-1 rounded bg-white/20 w-8" />
+                </div>
+
+                {t.value === 'Banner' && (
+                  <div>
+                    <div className="flex items-center gap-2 px-3 py-2.5" style={{ background: 'linear-gradient(90deg, #2E4A65, #1E3245)' }}>
+                      <div className="w-9 h-9 rounded-md flex-shrink-0" style={{ background: t.accentColor + '60' }} />
+                      <div className="flex-1">
+                        <div className="h-2 rounded mb-1 w-3/4" style={{ background: 'rgba(255,255,255,0.85)' }} />
+                        <div className="h-1.5 rounded w-1/2" style={{ background: 'rgba(255,255,255,0.4)' }} />
+                      </div>
+                      <div className="text-xs font-bold px-2.5 py-1 rounded-md flex-shrink-0" style={{ background: t.accentColor, color: '#fff' }}>Book Now</div>
+                    </div>
+                    <div className="px-3 py-1 flex items-center gap-1" style={{ background: t.accentBg }}>
+                      <Zap className="w-3 h-3" style={{ color: t.accentColor }} />
+                      <span className="text-xs font-medium" style={{ color: t.accentColor }}>Sponsored · Top of page</span>
+                    </div>
+                    <div className="px-3 py-1.5 grid grid-cols-3 gap-1.5">
+                      {[1,2,3].map(i => <div key={i} className="h-5 rounded" style={{ background: '#EEF3F8' }} />)}
+                    </div>
+                  </div>
+                )}
+
+                {t.value === 'Featured' && (
+                  <div className="px-3 py-2">
+                    <div className="h-1.5 rounded bg-slate-100 w-24 mb-2" />
+                    <div className="rounded-lg p-2 mb-1.5" style={{ border: `1.5px solid ${t.accentColor}`, background: t.accentBg }}>
+                      <div className="flex gap-2 items-start">
+                        <div className="w-10 h-10 rounded flex-shrink-0" style={{ background: t.accentColor + '50' }} />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-1 mb-1">
+                            <div className="h-2 rounded w-16" style={{ background: t.accentColor + 'AA' }} />
+                            <span className="text-xs px-1 rounded font-bold" style={{ background: t.accentColor, color: '#fff', fontSize: 8 }}>Featured</span>
+                          </div>
+                          <div className="h-1.5 rounded bg-slate-200 w-full mb-1" />
+                          <div className="h-1.5 rounded bg-slate-100 w-2/3" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1">
+                      {[1,2].map(i => <div key={i} className="h-8 rounded" style={{ background: '#EEF3F8' }} />)}
+                    </div>
+                  </div>
+                )}
+
+                {t.value === 'Spotlight' && (
+                  <div>
+                    <div className="px-3 py-2">
+                      <div className="h-4 rounded mb-1.5 w-3/4" style={{ background: '#EEF3F8' }} />
+                      <div className="h-3 rounded w-1/2" style={{ background: '#EEF3F8' }} />
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 mx-2 mb-2 rounded-lg" style={{ background: t.accentBg, border: `1px solid ${t.accentColor}66` }}>
+                      <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{ color: t.accentColor }} />
+                      <div className="flex-1">
+                        <div className="h-2 rounded w-2/3 mb-1" style={{ background: t.accentColor + '80' }} />
+                        <div className="h-1.5 rounded w-1/2 bg-slate-200" />
+                      </div>
+                      <div className="text-xs font-bold" style={{ color: t.accentColor }}>→</div>
+                    </div>
+                    <div className="px-3 pb-2 grid grid-cols-3 gap-1">
+                      {[1,2,3].map(i => <div key={i} className="h-4 rounded" style={{ background: '#EEF3F8' }} />)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Audience reach */}
+            <div className="px-5 py-4 flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#8DAFC8' }}>Audience reach</p>
+              <ul className="space-y-1.5">
+                {t.reach.map((r, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs" style={{ color: '#2E4A65' }}>
+                    <span className="font-bold mt-0.5" style={{ color: t.accentColor }}>✓</span>
+                    {r}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* CTA button */}
+            <div className="px-5 pb-5">
+              <button
+                onClick={() => { setForm(f => ({ ...f, tier: t.value })); setShowCreate(true); }}
+                className="w-full py-2 rounded-lg text-sm font-semibold transition-opacity hover:opacity-80"
+                style={{ background: t.accentColor, color: '#fff' }}
+              >
+                Create {t.label} Ad
+              </button>
+            </div>
           </div>
         ))}
       </div>
