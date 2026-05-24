@@ -4,7 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search, Globe, ClipboardList, LayoutGrid } from 'lucide-react';
+import { Search, Globe, ClipboardList, LayoutGrid, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import ListingCard from '@/components/ListingCard';
 import { LISTING_CATEGORIES } from '@/lib/categories';
 import AdBanner from '@/components/AdBanner';
@@ -93,6 +94,14 @@ export default function CommunityHub() {
     <div className="min-h-screen bg-slate-50">
       {/* Hero */}
       <div className="text-white px-6 py-12 text-center" style={{ background: 'linear-gradient(135deg, #1E3245 0%, #2E4A65 100%)' }}>
+        {/* Nav link for sellers */}
+        <div className="flex justify-end max-w-6xl mx-auto mb-4">
+          <Link to="/register">
+            <button className="text-sm text-white border border-white/40 rounded-lg px-4 py-1.5 hover:bg-white/10 transition flex items-center gap-1">
+              List your services <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </Link>
+        </div>
         <div className="flex items-center justify-center gap-2 mb-3">
           <Globe className="w-7 h-7" />
           <h1 className="text-3xl font-bold">Sphere — Community Hub</h1>
@@ -222,6 +231,29 @@ export default function CommunityHub() {
                       />
                     );
                   })}
+                </div>
+
+                {/* Seller acquisition banner */}
+                <div className="mt-10 rounded-2xl px-8 py-10 text-center" style={{ background: '#1E3245' }}>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Are you a local service provider?</h2>
+                  <p className="text-blue-200 text-base max-w-lg mx-auto mb-2">
+                    Join hundreds of local businesses already connecting with customers in your area. Free to get started.
+                  </p>
+                  <p className="text-blue-300 text-sm mb-6">
+                    {listings.length} business{listings.length !== 1 ? 'es' : ''} currently listed
+                  </p>
+                  <div className="flex flex-wrap gap-3 justify-center">
+                    <Link to="/register">
+                      <button className="px-6 py-2.5 rounded-lg font-semibold text-white transition" style={{ background: '#E8945A' }}>
+                        List your services — it's free
+                      </button>
+                    </Link>
+                    <Link to="/how-it-works">
+                      <button className="px-6 py-2.5 rounded-lg font-semibold text-white border border-white/40 hover:bg-white/10 transition">
+                        Learn how it works
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               </>
             )}
