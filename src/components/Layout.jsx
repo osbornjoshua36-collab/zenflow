@@ -24,10 +24,10 @@ export default function Layout() {
   return (
     <div className="flex h-screen" style={{ background: '#FAFCFF', fontFamily: 'var(--font-dm-sans)' }}>
       {/* Sidebar */}
-      <div className="w-64 flex flex-col" style={{ background: '#1E3245' }}>
-        <div className="p-6" style={{ borderBottom: '1px solid #2E4A65' }}>
+      <div className="w-64 flex flex-col" style={{ background: 'var(--nav-bg)' }}>
+        <div className="p-6" style={{ borderBottom: '1px solid var(--nav-border)' }}>
           <h1 className="text-xl font-bold text-white" style={{ fontFamily: 'var(--font-fraunces)' }}>Sphere</h1>
-          <p className="text-xs mt-1" style={{ color: '#8DAFC8' }}>AI Communication Platform</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--nav-text-muted)' }}>AI Communication Platform</p>
         </div>
         
         <nav className="flex-1 overflow-y-auto p-4">
@@ -40,11 +40,11 @@ export default function Layout() {
                 to={mod.path}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors"
                 style={isActive
-                  ? { background: '#E8945A', color: '#fff' }
-                  : { color: '#8DAFC8' }
+                  ? { background: 'var(--nav-active)', color: 'var(--nav-active-text)' }
+                  : { color: 'var(--nav-text-muted)' }
                 }
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#2E4A65'; e.currentTarget.style.color = '#fff'; }}
-                onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#8DAFC8'; } }}
+                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'var(--nav-hover)'; e.currentTarget.style.color = '#fff'; } }}
+                onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--nav-text-muted)'; } }}
               >
                 <Icon className="w-5 h-5" />
                 <span className="text-sm font-medium">{mod.label}</span>
@@ -53,13 +53,13 @@ export default function Layout() {
           })}
         </nav>
 
-        <div className="p-4" style={{ borderTop: '1px solid #2E4A65' }}>
+        <div className="p-4" style={{ borderTop: '1px solid var(--nav-border)' }}>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors"
-            style={{ color: '#8DAFC8' }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#2E4A65'; e.currentTarget.style.color = '#fff'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#8DAFC8'; }}
+            style={{ color: 'var(--nav-text-muted)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--nav-hover)'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--nav-text-muted)'; }}
           >
             <LogOut className="w-4 h-4" />
             Logout
@@ -69,7 +69,7 @@ export default function Layout() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="px-8 py-4 flex items-center" style={{ background: '#1E3245', borderBottom: '1px solid #2E4A65' }}>
+        <div className="px-8 py-4 flex items-center" style={{ background: 'var(--nav-header-bg)', borderBottom: '1px solid var(--nav-border)' }}>
           <h2 className="text-xl font-semibold text-white" style={{ fontFamily: 'var(--font-fraunces)' }}>
             {modules.find(m => m.path === location.pathname)?.label || 'App'}
           </h2>
