@@ -4,7 +4,68 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "Business name"
+      "description": "Business name (legacy field)"
+    },
+    "business_name": {
+      "type": "string",
+      "description": "Business display name"
+    },
+    "slug": {
+      "type": "string",
+      "description": "URL-friendly unique identifier, e.g. smiths-plumbing-co"
+    },
+    "owner_first_name": {
+      "type": "string"
+    },
+    "owner_last_name": {
+      "type": "string"
+    },
+    "owner_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Owner email for notifications and login"
+    },
+    "owner_phone": {
+      "type": "string",
+      "description": "Owner primary phone number"
+    },
+    "business_phone": {
+      "type": "string",
+      "description": "Public-facing business phone (shown on storefront only if verified)"
+    },
+    "business_address_line1": {
+      "type": "string"
+    },
+    "business_address_line2": {
+      "type": "string"
+    },
+    "business_city": {
+      "type": "string"
+    },
+    "business_state": {
+      "type": "string",
+      "description": "2-letter state code, e.g. NC"
+    },
+    "business_zip": {
+      "type": "string"
+    },
+    "years_in_business": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "number_of_employees": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "business_description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Full business description shown on storefront"
+    },
+    "tagline": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Short headline shown on public storefront"
     },
     "industry": {
       "type": "string",
@@ -22,12 +83,11 @@
     },
     "phone": {
       "type": "string",
-      "description": "Business phone number \u2014 used for identity verification, not shown publicly"
+      "description": "Legacy phone field \u2014 used for identity verification"
     },
     "phone_verified": {
       "type": "boolean",
-      "default": false,
-      "description": "Whether phone number has been verified"
+      "default": false
     },
     "ai_tone": {
       "type": "string",
@@ -39,17 +99,124 @@
       ],
       "description": "AI persona tone for messages"
     },
-    "owner_email": {
-      "type": "string",
-      "description": "Owner's email for notifications"
-    },
     "timezone": {
       "type": "string",
-      "description": "Business timezone (e.g., America/New_York)"
+      "description": "Business timezone, e.g. America/New_York"
     },
     "logo_url": {
       "type": "string",
-      "description": "Business logo URL"
+      "description": "Business logo URL (JPG/PNG/SVG)"
+    },
+    "banner_image_url": {
+      "type": "string",
+      "description": "Storefront header banner image URL (JPG/PNG), 1200x300px recommended"
+    },
+    "portfolio_images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 12,
+      "description": "Array of portfolio image URLs, max 12"
+    },
+    "service_radius_miles": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "default": 25,
+      "description": "Miles the seller will travel from their location"
+    },
+    "service_area_description": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Free-text description of service area"
+    },
+    "is_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Set by admin only \u2014 unlocks phone display and verified badge"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "unsubmitted",
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "unsubmitted",
+      "description": "Credential verification state"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verification_note": {
+      "type": "string",
+      "description": "Internal admin note about verification"
+    },
+    "licence_number": {
+      "type": "string"
+    },
+    "licence_type": {
+      "type": "string"
+    },
+    "licence_expiry_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "licence_document_url": {
+      "type": "string",
+      "description": "Uploaded licence document URL (PDF or image)"
+    },
+    "insurance_provider": {
+      "type": "string"
+    },
+    "insurance_policy_number": {
+      "type": "string"
+    },
+    "insurance_expiry_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "insurance_document_url": {
+      "type": "string",
+      "description": "Uploaded insurance document URL (PDF)"
+    },
+    "onboarding_status": {
+      "type": "string",
+      "enum": [
+        "incomplete",
+        "ready_to_launch",
+        "active",
+        "suspended"
+      ],
+      "default": "incomplete",
+      "description": "Current onboarding / account state"
+    },
+    "onboarding_step_completed": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5,
+      "default": 0,
+      "description": "Furthest onboarding step the seller has completed"
+    },
+    "profile_completeness_pct": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0,
+      "description": "Calculated 0-100 profile completeness score"
+    },
+    "is_accepting_jobs": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the business is accepting new job requests"
+    },
+    "go_live_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when onboarding_status first became active"
     },
     "status": {
       "type": "string",
@@ -58,72 +225,57 @@
         "Paused",
         "Setup"
       ],
-      "description": "Business account status"
+      "description": "Legacy business account status"
     },
-    "subscription_plan": {
+    "subscription_tier": {
       "type": "string",
       "enum": [
+        "none",
         "starter",
         "pro",
         "business"
       ],
-      "default": "starter",
-      "description": "Current SaaS subscription plan"
+      "default": "none"
     },
-    "subscription_status": {
+    "subscription_start_date": {
       "type": "string",
-      "enum": [
-        "active",
-        "trialing",
-        "past_due",
-        "canceled"
-      ],
-      "default": "active",
-      "description": "Subscription billing status"
-    },
-    "subscription_plan_id": {
-      "type": "string",
-      "description": "Base44 Payments plan identifier (e.g. pro_monthly)"
-    },
-    "base44_subscription_id": {
-      "type": "string",
-      "description": "Unique subscription contract ID from Base44 Payments"
+      "format": "date"
     },
     "subscription_end_date": {
       "type": "string",
       "format": "date-time",
       "description": "Current billing period end / cancellation revert date"
     },
-    "is_verified": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether this business has been verified by the platform admin"
-    },
-    "verification_status": {
+    "subscription_status": {
       "type": "string",
       "enum": [
-        "unverified",
-        "pending",
-        "verified",
-        "suspended"
+        "inactive",
+        "active",
+        "past_due",
+        "cancelled"
       ],
-      "default": "unverified",
-      "description": "Current verification state of the business"
+      "default": "inactive"
     },
-    "verified_at": {
+    "subscription_plan_id": {
       "type": "string",
-      "format": "date-time",
-      "description": "Timestamp when verification was granted"
+      "description": "Base44 Payments plan identifier"
     },
-    "verification_note": {
+    "base44_subscription_id": {
       "type": "string",
-      "description": "Internal admin note about verification"
+      "description": "Unique subscription contract ID from Base44 Payments"
     }
   },
   "required": [
-    "name",
-    "industry",
+    "business_name",
+    "slug",
+    "owner_first_name",
+    "owner_last_name",
     "owner_email",
-    "timezone"
+    "owner_phone",
+    "business_address_line1",
+    "business_city",
+    "business_state",
+    "business_zip",
+    "service_radius_miles"
   ]
 }
