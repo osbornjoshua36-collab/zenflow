@@ -41,14 +41,13 @@
     "price_type": {
       "type": "string",
       "enum": [
-        "Flat Rate",
-        "Hourly",
-        "Free Quote"
+        "Contact for Quote",
+        "Hourly"
       ]
     },
     "price": {
       "type": "number",
-      "description": "Starting price (0 if free quote)"
+      "description": "Hourly rate (0 if contact for quote)"
     },
     "images": {
       "type": "array",

@@ -13,7 +13,7 @@ const CATEGORIES = LISTING_CATEGORIES;
 const STEPS = ['Basics', 'Details', 'Pricing', 'Publish'];
 
 export default function CreateListingDialog({ open, onClose, onCreated, businessId, existing }) {
-  const empty = { title: '', category: '', description: '', price_type: 'Free Quote', price: '', location: '', service_area_miles: 25, city: '', state: '', zip_code: '', service_radius_miles: 25, seller_about: '', years_experience: '', certifications: '', tags: [], images: [], status: 'Active' };
+  const empty = { title: '', category: '', description: '', price_type: 'Contact for Quote', price: '', location: '', service_area_miles: 25, city: '', state: '', zip_code: '', service_radius_miles: 25, seller_about: '', years_experience: '', certifications: '', tags: [], images: [], status: 'Active' };
   const [form, setForm] = useState(existing || empty);
   const [step, setStep] = useState(0);
   const [tagInput, setTagInput] = useState('');
@@ -184,13 +184,12 @@ export default function CreateListingDialog({ open, onClose, onCreated, business
         <Select value={form.price_type} onValueChange={v => set('price_type', v)}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="Free Quote">Free Quote (No price listed)</SelectItem>
-            <SelectItem value="Flat Rate">Flat Rate</SelectItem>
-            <SelectItem value="Hourly">Hourly Rate</SelectItem>
+            <SelectItem value="Contact for Quote">Contact for Quote — Buyer reaches out for pricing</SelectItem>
+            <SelectItem value="Hourly">Hourly Rate — List your rate per hour</SelectItem>
           </SelectContent>
         </Select>
       </div>
-      {form.price_type !== 'Free Quote' && (
+      {form.price_type === 'Hourly' && (
         <div>
           <Label>Starting Price ($)</Label>
           <Input type="number" placeholder="0.00" value={form.price} onChange={e => set('price', e.target.value)} />
@@ -210,7 +209,7 @@ export default function CreateListingDialog({ open, onClose, onCreated, business
     <div key="publish" className="space-y-4">
       <div className="bg-slate-50 rounded-lg p-4 space-y-2 text-sm">
         <p className="font-semibold text-slate-800">{form.title || 'Untitled Listing'}</p>
-        <p className="text-slate-500">{form.category} · {form.price_type === 'Free Quote' ? 'Free Quote' : `$${form.price}${form.price_type === 'Hourly' ? '/hr' : ''}`}</p>
+        <p className="text-slate-500">{form.category} · {form.price_type === 'Contact for Quote' ? 'Contact for Quote' : `$${form.price}/hr`}</p>
         <p className="text-slate-600 line-clamp-3">{form.description}</p>
       </div>
       <div>
