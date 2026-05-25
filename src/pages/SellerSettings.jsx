@@ -23,24 +23,30 @@ export default function SellerSettings() {
 
   useEffect(() => {
     const load = async () => {
-      const user = await base44.auth.me();
-      const results = await base44.entities.Business.filter({ owner_email: user.email });
-      const biz = results[0] || null;
-      setBusiness(biz);
-      if (biz) {
-        setForm({
-          name: biz.name || '',
-          industry: biz.industry || '',
-          phone: biz.phone || '',
-          ai_tone: biz.ai_tone || 'Professional',
-          owner_email: biz.owner_email || user.email,
-          timezone: biz.timezone || 'America/New_York',
-          logo_url: biz.logo_url || '',
-          status: biz.status || 'Active',
-        });
-        if (biz.phone) setPhoneSavedOnce(true);
+      try {
+        const user = await base44.auth.me();
+        if (!user) { setLoading(false); return; }
+        const results = await base44.entities.Business.filter({ owner_email: user.email });
+        const biz = results[0] || null;
+        setBusiness(biz);
+        if (biz) {
+          setForm({
+            name: biz.name || '',
+            industry: biz.industry || '',
+            phone: biz.phone || '',
+            ai_tone: biz.ai_tone || 'Professional',
+            owner_email: biz.owner_email || user.email,
+            timezone: biz.timezone || 'America/New_York',
+            logo_url: biz.logo_url || '',
+            status: biz.status || 'Active',
+          });
+          if (biz.phone) setPhoneSavedOnce(true);
+        }
+      } catch {
+        // not authenticated
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     load();
   }, []);
