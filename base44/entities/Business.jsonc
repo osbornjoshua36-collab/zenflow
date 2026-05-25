@@ -197,9 +197,28 @@
     "onboarding_step_completed": {
       "type": "integer",
       "minimum": 0,
-      "maximum": 5,
+      "maximum": 6,
       "default": 0,
-      "description": "Furthest onboarding step the seller has completed"
+      "description": "Furthest onboarding step the seller has completed (0\u20136)"
+    },
+    "onboarding_intent": {
+      "type": "string",
+      "enum": [
+        "leads",
+        "profile",
+        "operations"
+      ],
+      "description": "Seller's stated goal \u2014 set once at intent screen, never overwritten"
+    },
+    "onboarding_completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when seller clicked Go live"
+    },
+    "wizard_last_seen_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Updated each time the wizard screen loads \u2014 used for re-entry resumption"
     },
     "profile_completeness_pct": {
       "type": "integer",
@@ -252,7 +271,9 @@
         "inactive",
         "active",
         "past_due",
-        "cancelled"
+        "cancelled",
+        "trial",
+        "expired"
       ],
       "default": "inactive"
     },
@@ -263,6 +284,27 @@
     "base44_subscription_id": {
       "type": "string",
       "description": "Unique subscription contract ID from Base44 Payments"
+    },
+    "trial_plan_tier": {
+      "type": "string",
+      "enum": [
+        "none",
+        "starter",
+        "pro",
+        "business"
+      ],
+      "default": "none",
+      "description": "The tier the seller selected for their free trial"
+    },
+    "trial_started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Set when seller confirms trial selection"
+    },
+    "trial_ends_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Set to trial_started_at + 14 days"
     }
   },
   "required": [

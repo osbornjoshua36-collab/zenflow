@@ -1,288 +1,231 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckCircle, Loader2, Phone, MessageSquare } from 'lucide-react';
+import { PATH_CONFIG, calculateProfileCompleteness } from '@/utils/sellerUtils';
+import WizardChrome from '@/components/onboarding/WizardChrome';
+import Step1Identity from '@/components/onboarding/Step1Identity';
+import IntentScreen from '@/components/onboarding/IntentScreen';
+import PlanScreen from '@/components/onboarding/PlanScreen';
+import ModuleA from '@/components/onboarding/ModuleA';
+import ModuleB from '@/components/onboarding/ModuleB';
+import ModuleC from '@/components/onboarding/ModuleC';
+import ModuleD from '@/components/onboarding/ModuleD';
+import ModuleE from '@/components/onboarding/ModuleE';
+import ModuleF from '@/components/onboarding/ModuleF';
+import ModuleG from '@/components/onboarding/ModuleG';
+import GoLiveChecklist from '@/components/onboarding/GoLiveChecklist';
 
-const INDUSTRIES = ['HVAC', 'Plumbing', 'Electrical', 'Salon', 'Real Estate', 'Cleaning', 'Landscaping', 'Other'];
-const TIMEZONES = [
-  { id: 'America/New_York',    label: 'Eastern Time (ET)'  },
-  { id: 'America/Chicago',     label: 'Central Time (CT)'  },
-  { id: 'America/Denver',      label: 'Mountain Time (MT)' },
-  { id: 'America/Los_Angeles', label: 'Pacific Time (PT)'  },
-  { id: 'America/Phoenix',     label: 'Arizona (MST)'      },
-  { id: 'Pacific/Honolulu',    label: 'Hawaii (HST)'       },
-  { id: 'America/Anchorage',   label: 'Alaska (AKST)'      },
-];
+const MODULE_COMPONENTS = { A: ModuleA, B: ModuleB, C: ModuleC, D: ModuleD, E: ModuleE, F: ModuleF, G: ModuleG };
 
-// Step 1: Business info. Step 2: Phone verify.
 export default function SellerOnboarding() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ name: '', industry: '', timezone: 'America/New_York', owner_email: '' });
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [phoneVerified, setPhoneVerified] = useState(false);
-  const [sendingOtp, setSendingOtp] = useState(false);
-  const [verifyingOtp, setVerifyingOtp] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpError, setOtpError] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [done, setDone] = useState(false);
-  const [existingBiz, setExistingBiz] = useState(null);
+  const [seller, setSeller] = useState(null);
+  const [screen, setScreen] = useState('loading'); // loading|step1|intent|plan|step|checklist
+  const [currentStep, setCurrentStep] = useState(2); // steps 2–6
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  useEffect(() => { initWizard(); }, []);
 
-  useEffect(() => {
-    (async () => {
+  const initWizard = async () => {
+    try {
       const me = await base44.auth.me();
-      set('owner_email', me.email);
-      const existing = await base44.entities.Business.filter({ owner_email: me.email });
-      if (existing.length > 0) {
-        const biz = existing[0];
-        setExistingBiz(biz);
-        setForm({ name: biz.name || '', industry: biz.industry || '', timezone: biz.timezone || 'America/New_York', owner_email: me.email });
-        if (biz.phone && biz.phone_verified) {
-          setPhone(biz.phone);
-          setPhoneVerified(true);
+      if (!me) { setScreen('step1'); return; }
+
+      const sellers = await base44.entities.Business.filter({ owner_email: me.email });
+
+      if (!sellers.length) { setScreen('step1'); return; }
+
+      const s = sellers[0];
+      setSeller(s);
+      base44.entities.Business.update(s.id, { wizard_last_seen_at: new Date().toISOString() });
+
+      if (s.onboarding_status === 'active') { navigate('/'); return; }
+
+      const step = s.onboarding_step_completed || 0;
+
+      if (step === 0) {
+        setScreen('step1');
+      } else if (!s.onboarding_intent) {
+        setScreen('intent');
+      } else {
+        const nextStep = Math.min(step + 1, 6);
+        if (step >= 6) {
+          setScreen('checklist');
+        } else {
+          setCurrentStep(nextStep);
+          setScreen('step');
+          setShowResumeBanner(true);
         }
       }
-    })();
-  }, []);
-
-  // Normalize to E.164
-  const normalizePhone = (raw) => {
-    const digits = raw.replace(/\D/g, '');
-    return digits.startsWith('1') ? `+${digits}` : `+1${digits}`;
-  };
-
-  const handleSendOtp = async () => {
-    setOtpError('');
-    const normalized = normalizePhone(phone);
-    if (normalized.replace(/\D/g, '').length < 10) {
-      setOtpError('Please enter a valid US phone number.');
-      return;
-    }
-    setSendingOtp(true);
-    const res = await base44.functions.invoke('phoneOtp', { action: 'send', phone: normalized });
-    setSendingOtp(false);
-    if (res.data?.success) {
-      setOtpSent(true);
-    } else {
-      setOtpError(res.data?.error || 'Failed to send code. Try again.');
+    } catch {
+      setScreen('step1');
     }
   };
 
-  const handleVerifyOtp = async () => {
-    setOtpError('');
-    setVerifyingOtp(true);
-    const normalized = normalizePhone(phone);
-    const res = await base44.functions.invoke('phoneOtp', { action: 'verify', phone: normalized, code: otp });
-    setVerifyingOtp(false);
-    if (res.data?.valid) {
-      setPhoneVerified(true);
-    } else {
-      setOtpError(res.data?.error || 'Incorrect code. Please try again.');
-    }
+  const refreshSeller = async (id) => {
+    const list = await base44.entities.Business.filter({ id });
+    if (list.length) { setSeller(list[0]); return list[0]; }
+    return seller;
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    const normalized = normalizePhone(phone);
-    const payload = {
-      name: form.name,
-      industry: form.industry,
-      timezone: form.timezone,
-      owner_email: form.owner_email,
-      phone: normalized,
-      phone_verified: true,
-      status: 'Active',
-      ai_tone: 'Professional'
+  // ── Event handlers ────────────────────────────────────────────────
+
+  const handleStep1Complete = (newSeller) => {
+    setSeller(newSeller);
+    base44.analytics.track({ eventName: 'onboarding_started', properties: { seller_id: newSeller.id } });
+    setScreen('intent');
+  };
+
+  const handleIntentSelected = async (intent) => {
+    await base44.entities.Business.update(seller.id, { onboarding_intent: intent });
+    setSeller(s => ({ ...s, onboarding_intent: intent }));
+    base44.analytics.track({ eventName: 'intent_selected', properties: { seller_id: seller.id, intent } });
+    setScreen('plan');
+  };
+
+  const handlePlanSelected = async (planTier) => {
+    const now = new Date();
+    const trialEnds = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const updates = {
+      trial_plan_tier: planTier,
+      trial_started_at: now.toISOString(),
+      trial_ends_at: trialEnds.toISOString(),
+      subscription_tier: planTier,
+      subscription_status: 'trial',
     };
-    if (existingBiz) {
-      await base44.entities.Business.update(existingBiz.id, payload);
-    } else {
-      await base44.entities.Business.create(payload);
-    }
-    setSaving(false);
-    setDone(true);
-    setTimeout(() => navigate('/seller/listings'), 1800);
+    await base44.entities.Business.update(seller.id, updates);
+    setSeller(s => ({ ...s, ...updates }));
+    base44.analytics.track({ eventName: 'plan_selected', properties: { seller_id: seller.id, intent: seller.onboarding_intent, plan_tier: planTier } });
+    setCurrentStep(2);
+    setScreen('step');
   };
 
-  if (done) {
+  const handlePlanSkipped = async () => {
+    await base44.entities.Business.update(seller.id, { trial_plan_tier: 'none' });
+    setSeller(s => ({ ...s, trial_plan_tier: 'none' }));
+    base44.analytics.track({ eventName: 'plan_skipped', properties: { seller_id: seller.id, intent: seller.onboarding_intent } });
+    setCurrentStep(2);
+    setScreen('step');
+  };
+
+  const handleStepComplete = async (updates = {}) => {
+    const merged = { ...seller, ...updates };
+    const maxCompleted = Math.max(seller.onboarding_step_completed || 0, currentStep);
+    const intent = seller.onboarding_intent;
+    const pathCfg = PATH_CONFIG[intent];
+
+    // Recalculate completeness
+    let hasActive = false;
+    try {
+      const listings = await base44.entities.Listing.filter({ business_id: seller.id, status: 'Active' });
+      hasActive = listings.length > 0;
+    } catch {}
+    const pct = calculateProfileCompleteness(merged, hasActive);
+
+    let onboarding_status = merged.onboarding_status;
+    if (pct >= 60 && hasActive && onboarding_status === 'incomplete') {
+      onboarding_status = 'ready_to_launch';
+    }
+
+    await base44.entities.Business.update(seller.id, { ...updates, onboarding_step_completed: maxCompleted, profile_completeness_pct: pct, onboarding_status });
+    setSeller(s => ({ ...s, ...updates, onboarding_step_completed: maxCompleted, profile_completeness_pct: pct, onboarding_status }));
+
+    base44.analytics.track({ eventName: 'step_completed', properties: { seller_id: seller.id, intent, step_number: currentStep, step_name: pathCfg?.stepNames[currentStep - 2] } });
+
+    if (currentStep >= 6) { setScreen('checklist'); } else { setCurrentStep(n => n + 1); }
+  };
+
+  const handleStepSkipped = async () => {
+    const intent = seller.onboarding_intent;
+    const pathCfg = PATH_CONFIG[intent];
+    const maxCompleted = Math.max(seller.onboarding_step_completed || 0, currentStep);
+    await base44.entities.Business.update(seller.id, { onboarding_step_completed: maxCompleted });
+    setSeller(s => ({ ...s, onboarding_step_completed: maxCompleted }));
+    base44.analytics.track({ eventName: 'step_skipped', properties: { seller_id: seller.id, intent, step_name: pathCfg?.stepNames[currentStep - 2] } });
+    if (currentStep >= 6) { setScreen('checklist'); } else { setCurrentStep(n => n + 1); }
+  };
+
+  const handleBack = () => {
+    if (screen === 'plan') { setScreen('intent'); return; }
+    if (screen === 'step' && currentStep === 2) { setScreen('plan'); return; }
+    if (screen === 'step') { setCurrentStep(n => n - 1); return; }
+    if (screen === 'checklist') { setCurrentStep(6); setScreen('step'); }
+  };
+
+  const handleSaveExit = async () => {
+    await base44.entities.Business.update(seller.id, { wizard_last_seen_at: new Date().toISOString() });
+    base44.analytics.track({ eventName: 'wizard_exited', properties: { seller_id: seller.id, intent: seller.onboarding_intent, last_step_reached: currentStep, plan_tier: seller.trial_plan_tier || 'none' } });
+    navigate('/?wizard_incomplete=1');
+  };
+
+  const handleGoLive = async () => {
+    const now = new Date().toISOString();
+    await base44.entities.Business.update(seller.id, {
+      onboarding_status: 'active',
+      go_live_date: now,
+      onboarding_completed_at: now,
+    });
+    base44.analytics.track({ eventName: 'onboarding_completed', properties: { seller_id: seller.id, intent: seller.onboarding_intent, plan_tier: seller.trial_plan_tier || 'none', profile_completeness_pct: seller.profile_completeness_pct || 0 } });
+    navigate('/?onboarding_complete=1');
+  };
+
+  // ── Render ────────────────────────────────────────────────────────
+
+  if (screen === 'loading') {
+    return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-slate-200 border-t-[#E8945A] rounded-full animate-spin" /></div>;
+  }
+
+  if (screen === 'step1') return <Step1Identity onComplete={handleStep1Complete} />;
+  if (screen === 'intent') return <IntentScreen onSelect={handleIntentSelected} onBack={() => setScreen('step1')} />;
+  if (screen === 'plan') return <PlanScreen intent={seller?.onboarding_intent} onSelect={handlePlanSelected} onSkip={handlePlanSkipped} onBack={() => setScreen('intent')} />;
+
+  const intent = seller?.onboarding_intent;
+  const pathCfg = intent ? PATH_CONFIG[intent] : null;
+  const stepIdx = currentStep - 2; // 0–4
+  const moduleCode = pathCfg?.steps[stepIdx];
+  const ModuleComp = moduleCode ? MODULE_COMPONENTS[moduleCode] : null;
+  const isRequired = pathCfg ? pathCfg.required[stepIdx] : true;
+
+  if (screen === 'step' && ModuleComp) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAFCFF]">
-        <div className="text-center">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-800 mb-2">You're all set!</h2>
-          <p className="text-slate-500">Taking you to your listings dashboard…</p>
-        </div>
-      </div>
+      <WizardChrome
+        currentStep={currentStep}
+        stepName={pathCfg.stepNames[stepIdx]}
+        intent={intent}
+        seller={seller}
+        onBack={currentStep > 2 ? handleBack : null}
+        onSaveExit={handleSaveExit}
+        showResumeBanner={showResumeBanner}
+        onDismissResume={() => setShowResumeBanner(false)}
+      >
+        <ModuleComp
+          seller={seller}
+          onComplete={handleStepComplete}
+          onSkip={!isRequired ? handleStepSkipped : null}
+          skipLabel={pathCfg.skipLabel}
+          isRequired={isRequired}
+          isProfilePath={intent === 'profile'}
+          onSellerUpdate={(u) => setSeller(s => ({ ...s, ...u }))}
+        />
+      </WizardChrome>
     );
   }
 
-  const step1Complete = form.name.trim() && form.industry && form.timezone;
+  if (screen === 'checklist') {
+    return (
+      <WizardChrome
+        currentStep={7}
+        stepName="Go live"
+        intent={intent}
+        seller={seller}
+        onBack={handleBack}
+        onSaveExit={null}
+        showResumeBanner={false}
+      >
+        <GoLiveChecklist seller={seller} onGoLive={handleGoLive} onSellerUpdate={(u) => setSeller(s => ({ ...s, ...u }))} />
+      </WizardChrome>
+    );
+  }
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-[#FAFCFF]">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-800" style={{ fontFamily: 'var(--font-fraunces)' }}>
-            Create Your Seller Account
-          </h1>
-          <p className="text-slate-500 mt-2 text-sm">Quick setup — you'll be live in under a minute.</p>
-
-          {/* Step indicator */}
-          <div className="flex items-center justify-center gap-3 mt-5">
-            {[1, 2].map(s => (
-              <div key={s} className="flex items-center gap-3">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${step >= s ? 'bg-[#E8945A] text-white' : 'bg-slate-200 text-slate-500'}`}>{s}</div>
-                {s < 2 && <div className={`w-10 h-0.5 transition-colors ${step > s ? 'bg-[#E8945A]' : 'bg-slate-200'}`} />}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-
-          {/* STEP 1: Business info */}
-          {step === 1 && (
-            <div className="space-y-5">
-              <h2 className="text-lg font-semibold text-slate-700">Business Details</h2>
-
-              <div>
-                <Label className="text-sm font-medium text-slate-700">Business Name *</Label>
-                <Input
-                  className="mt-1"
-                  placeholder="e.g. Smith's Plumbing Co."
-                  value={form.name}
-                  onChange={e => set('name', e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium text-slate-700">Industry *</Label>
-                <Select value={form.industry} onValueChange={v => set('industry', v)}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select your industry" /></SelectTrigger>
-                  <SelectContent>
-                    {INDUSTRIES.map(ind => <SelectItem key={ind} value={ind}>{ind}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium text-slate-700">Your Timezone *</Label>
-                <Select value={form.timezone} onValueChange={v => set('timezone', v)}>
-                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {TIMEZONES.map(tz => <SelectItem key={tz.id} value={tz.id}>{tz.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button
-                onClick={() => setStep(2)}
-                disabled={!step1Complete}
-                className="w-full mt-2"
-                style={{ background: '#E8945A', color: '#fff' }}
-              >
-                Continue →
-              </Button>
-            </div>
-          )}
-
-          {/* STEP 2: Phone verification */}
-          {step === 2 && (
-            <div className="space-y-5">
-              <div className="flex items-center gap-2">
-                <Phone className="w-5 h-5 text-[#E8945A]" />
-                <h2 className="text-lg font-semibold text-slate-700">Verify Your Phone</h2>
-              </div>
-              <p className="text-sm text-slate-500">We'll send a 6-digit code to confirm you're a real person.</p>
-
-              {!phoneVerified ? (
-                <>
-                  <div>
-                    <Label className="text-sm font-medium text-slate-700">Mobile Phone Number *</Label>
-                    <div className="flex gap-2 mt-1">
-                      <Input
-                        placeholder="(555) 123-4567"
-                        value={phone}
-                        onChange={e => { setPhone(e.target.value); setOtpSent(false); setOtp(''); setOtpError(''); }}
-                        disabled={otpSent}
-                      />
-                      <Button
-                        variant="outline"
-                        onClick={handleSendOtp}
-                        disabled={sendingOtp || !phone.trim()}
-                        className="shrink-0"
-                      >
-                        {sendingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : otpSent ? 'Resend' : 'Send Code'}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {otpSent && (
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700">Enter 6-digit Code</Label>
-                      <div className="flex gap-2 mt-1">
-                        <Input
-                          placeholder="123456"
-                          maxLength={6}
-                          value={otp}
-                          onChange={e => { setOtp(e.target.value.replace(/\D/g, '')); setOtpError(''); }}
-                          className="tracking-widest text-center text-lg font-semibold"
-                        />
-                        <Button
-                          onClick={handleVerifyOtp}
-                          disabled={verifyingOtp || otp.length < 6}
-                          className="shrink-0"
-                          style={{ background: '#E8945A', color: '#fff' }}
-                        >
-                          {verifyingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verify'}
-                        </Button>
-                      </div>
-                      <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                        <MessageSquare className="w-3 h-3" /> Code sent via SMS. Valid for 10 minutes.
-                      </p>
-                    </div>
-                  )}
-
-                  {otpError && <p className="text-sm text-red-500">{otpError}</p>}
-                </>
-              ) : (
-                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                  <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-green-800">Phone verified!</p>
-                    <p className="text-xs text-green-600">{normalizePhone(phone)}</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-2">
-                <Button variant="outline" onClick={() => setStep(1)} className="flex-1">← Back</Button>
-                <Button
-                  onClick={handleSave}
-                  disabled={!phoneVerified || saving}
-                  className="flex-1"
-                  style={{ background: '#E8945A', color: '#fff' }}
-                >
-                  {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</> : <>Finish Setup <CheckCircle className="w-4 h-4" /></>}
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <p className="text-center text-xs text-slate-400 mt-6">
-          You can update your profile anytime from <span className="font-medium">Seller Settings</span>.
-        </p>
-      </div>
-    </div>
-  );
+  return null;
 }
