@@ -1,0 +1,27 @@
+{
+  "name": "OtpCode",
+  "type": "object",
+  "properties": {
+    "phone": {
+      "type": "string",
+      "description": "E.164 phone number"
+    },
+    "code": {
+      "type": "string",
+      "description": "6-digit OTP code"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "used": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "phone",
+    "code",
+    "expires_at"
+  ]
+}
