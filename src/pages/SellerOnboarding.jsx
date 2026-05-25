@@ -197,16 +197,7 @@ export default function SellerOnboarding() {
                 </Select>
               </div>
 
-              <div>
-                <Label className="text-sm font-medium text-slate-700">AI Response Tone</Label>
-                <Select value={form.ai_tone} onValueChange={v => set('ai_tone', v)}>
-                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {TONES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-slate-400 mt-1">Sets the tone for AI-drafted messages to customers.</p>
-              </div>
+
             </div>
           )}
 
