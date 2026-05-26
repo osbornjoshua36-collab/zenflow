@@ -44,12 +44,17 @@ export default function Hiring() {
 
   useEffect(() => {
     (async () => {
-      const me = await base44.auth.me();
-      const biz = await base44.entities.Business.filter({ owner_email: me.email });
-      if (biz[0]) {
-        setBusiness(biz[0]);
-        const data = await base44.entities.JobPosting.filter({ business_id: biz[0].id }, '-created_date', 100);
-        setPostings(data);
+      try {
+        const me = await base44.auth.me();
+        if (!me) { setLoading(false); return; }
+        const biz = await base44.entities.Business.filter({ owner_email: me.email });
+        if (biz[0]) {
+          setBusiness(biz[0]);
+          const data = await base44.entities.JobPosting.filter({ business_id: biz[0].id }, '-created_date', 100);
+          setPostings(data);
+        }
+      } catch {
+        // not authenticated
       }
       setLoading(false);
     })();
