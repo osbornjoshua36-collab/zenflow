@@ -5,8 +5,8 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const { action, phone, code } = await req.json();
 
-    const TWILIO_SID = Deno.env.get('TWILIO_ACCOUNT_SID');
-    const TWILIO_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN');
+    const TWILIO_SID = Deno.env.get('Twilio_account_SID');
+    const TWILIO_TOKEN = Deno.env.get('Twilio_Auth_token');
     const TWILIO_FROM = Deno.env.get('TWILIO_PHONE_NUMBER');
 
     if (action === 'send') {
