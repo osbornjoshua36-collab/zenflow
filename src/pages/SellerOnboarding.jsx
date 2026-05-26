@@ -160,12 +160,19 @@ export default function SellerOnboarding() {
 
   const handleGoLive = async () => {
     const now = new Date().toISOString();
+    // Check founding member eligibility
+    const activesellers = await base44.entities.Business.filter({ onboarding_status: 'active' });
+    const foundingCount = activesellers.filter(b => b.is_founding_member).length;
+    const isFoundingMember = foundingCount < 200;
+    const TIER_PRICES = { starter: 0, pro: 29, business: 59, none: 0 };
+    const lockedPrice = TIER_PRICES[seller.trial_plan_tier] ?? 0;
     await base44.entities.Business.update(seller.id, {
       onboarding_status: 'active',
       go_live_date: now,
       onboarding_completed_at: now,
+      ...(isFoundingMember ? { is_founding_member: true, locked_subscription_price: lockedPrice } : {}),
     });
-    base44.analytics.track({ eventName: 'onboarding_completed', properties: { seller_id: seller.id, intent: seller.onboarding_intent, plan_tier: seller.trial_plan_tier || 'none', profile_completeness_pct: seller.profile_completeness_pct || 0 } });
+    base44.analytics.track({ eventName: 'onboarding_completed', properties: { seller_id: seller.id, intent: seller.onboarding_intent, plan_tier: seller.trial_plan_tier || 'none', profile_completeness_pct: seller.profile_completeness_pct || 0, is_founding_member: isFoundingMember } });
     navigate('/?onboarding_complete=1');
   };
 

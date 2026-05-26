@@ -2,71 +2,89 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
-const PLANS = [
-  { id: 'starter', name: 'Starter', price: '$29', priceNote: '/mo' },
-  { id: 'pro', name: 'Pro', price: '$69', priceNote: '/mo' },
-  { id: 'business', name: 'Business', price: '$129', priceNote: '/mo' },
+const SUBHEADINGS = {
+  leads: "You said you want leads fast. Sellers on paid plans are notified first when matching jobs are posted. Get started from $29 a month — or free.",
+  profile: "You said you already have a backend. Get a professional storefront, your own web address, and access to local buyers — free to start, no commitment required.",
+  operations: "You said you want to run everything here. Most businesses pay $364+ a month across QuickBooks, Jobber, and lead generation separately. Business gives you all three for $59.",
+};
+
+const STARTER_BULLETS = [
+  "Professional profile page with your own web address — works as your business website",
+  "Create and publish service listings with your own pricing",
+  "Receive and respond to job enquiries from buyers in your area",
+  "Send invoices and collect payment from clients",
+  "Collect verified reviews from paying customers",
 ];
 
-const RECOMMENDATIONS = { leads: 'pro', profile: 'starter', operations: 'business' };
+const PRO_BULLETS = [
+  "Everything in Starter",
+  "Earlier lead alerts — notified ahead of free-plan sellers when a matching job is posted near you",
+  "Job scheduling calendar — manage bookings, send reminders, track job status",
+  "Performance dashboard — see profile views, quote requests, and conversion to jobs",
+  "Sync with Google Calendar or Outlook to avoid double-bookings",
+];
 
-const SUBHEADINGS = {
-  leads: "You said you want leads fast. Pro members are notified first when matching jobs are posted.",
-  profile: "You said you already have a backend. Starter gets your profile live and in front of buyers.",
-  operations: "You said you want to run everything here. Business gives you the full toolkit from day one.",
-};
+const BUSINESS_BULLETS = [
+  "Everything in Starter and Pro",
+  "Priority placement — shown to buyers above Starter and Pro sellers in search results",
+  "Full invoicing — line items, tax, discounts, recurring billing, and payment tracking",
+  "Job scheduling and calendar sync — replaces standalone scheduling tools",
+  "Client records with full job history, notes, and automatic re-booking reminders",
+  "Expense tracking and annual income and tax summary — exportable as CSV",
+  "Post job openings and manage applicants directly on the platform",
+];
 
-const BULLETS = {
-  leads: {
-    starter: ['Listed in search results', 'Unlimited quote responses', 'Basic analytics'],
-    pro: ['Wave 1 notifications — among the first 3 alerted on new jobs', '1.15x match score boost', 'Full analytics dashboard'],
-    business: ['Wave 1 notifications + 1.25x match score boost', 'Invoicing and scheduling included', 'Priority support'],
+// Card order: Starter (left), Business (centre, recommended), Pro (right)
+const PLANS = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    price: null,
+    priceDisplay: 'Free',
+    buttonLabel: 'Get started free',
+    tagline: "Get your business listed and in front of local buyers at no cost. Upgrade when you're ready.",
+    bullets: STARTER_BULLETS,
+    recommended: false,
+    savingsLine: null,
+    footnote: null,
   },
-  profile: {
-    starter: ['Professional storefront with custom URL', 'Unlimited listings', 'Verified badge eligibility'],
-    pro: ['Everything in Starter', 'Wave 1 lead notifications when ready', 'Full analytics'],
-    business: ['Everything in Pro', 'Invoicing, scheduling, and CRM included', 'Highest match score multiplier'],
+  {
+    id: 'business',
+    name: 'Business',
+    price: 59,
+    priceDisplay: '$59',
+    buttonLabel: 'Start for $59/mo',
+    tagline: "Replaces QuickBooks, Jobber, and your lead generation costs — one platform for $59 a month.",
+    bullets: BUSINESS_BULLETS,
+    recommended: true,
+    savingsLine: "Replaces tools costing $364–564/mo elsewhere",
+    footnote: "Includes priority support and dedicated onboarding assistance.",
   },
-  operations: {
-    starter: ['Storefront and listings', 'Invoicing basics', 'Lead access'],
-    pro: ['Wave 1 lead notifications', 'Full invoicing and scheduling', 'Analytics dashboard'],
-    business: ['Wave 1 + highest match multiplier', 'Complete business toolkit', 'Invoicing, CRM, calendar, hiring', 'Priority support'],
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: 29,
+    priceDisplay: '$29',
+    buttonLabel: 'Start for $29/mo',
+    tagline: "Everything in Starter, plus tools to manage your jobs and get notified ahead of free-plan sellers.",
+    bullets: PRO_BULLETS,
+    recommended: false,
+    savingsLine: null,
+    footnote: null,
   },
-};
-
-const WHAT_THIS_MEANS = {
-  leads: {
-    starter: 'Gets you listed and visible to buyers looking for your services.',
-    pro: "You'll be among the first 3 sellers notified when a matching job is posted.",
-    business: 'Maximum visibility and the full toolset to convert and deliver jobs.',
-  },
-  profile: {
-    starter: 'Everything you need to have a professional online presence buyers can find.',
-    pro: "When you're ready to receive leads directly, Wave 1 access is already included.",
-    business: 'Full platform — activate backend tools whenever you are ready to transition.',
-  },
-  operations: {
-    starter: 'Basic platform access to get started.',
-    pro: 'Lead access and core tools to manage your operations.',
-    business: 'The full platform — one place to manage every part of your business.',
-  },
-};
+];
 
 export default function PlanScreen({ intent, onSelect, onSkip, onBack }) {
-  const recommended = RECOMMENDATIONS[intent] || 'pro';
-  const [selected, setSelected] = useState(recommended);
+  const [selected, setSelected] = useState('business');
   const [showPayPerContact, setShowPayPerContact] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [savingPlan, setSavingPlan] = useState(null);
 
-  const bullets = BULLETS[intent] || BULLETS.leads;
-  const meanings = WHAT_THIS_MEANS[intent] || WHAT_THIS_MEANS.leads;
-
-  const handleStart = async () => {
+  const handleStart = async (planId) => {
     setSaving(true);
-    await onSelect(selected);
+    setSavingPlan(planId);
+    await onSelect(planId);
   };
-
-  const selectedPlan = PLANS.find(p => p.id === selected);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start px-4 py-12 bg-[#FAFCFF]">
@@ -74,72 +92,164 @@ export default function PlanScreen({ intent, onSelect, onSkip, onBack }) {
         <button onClick={onBack} className="text-sm text-slate-400 hover:text-slate-600">← Back</button>
       </div>
 
-      <div className="w-full max-w-5xl text-center mb-8">
+      <div className="w-full max-w-5xl text-center mb-6">
         <h1 className="text-3xl lg:text-4xl font-bold text-slate-800 mb-3" style={{ fontFamily: 'var(--font-fraunces)' }}>
           Choose how you want to start
         </h1>
-        <p className="text-slate-500 text-base">{SUBHEADINGS[intent]}</p>
-        <p className="text-sm text-green-600 font-medium mt-2">All plans include a 14-day free trial — no credit card needed</p>
+        <p className="text-slate-500 text-base">{SUBHEADINGS[intent] || SUBHEADINGS.leads}</p>
       </div>
 
-      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+      {/* Founding member callout banner */}
+      <div className="w-full max-w-5xl mb-6">
+        <div
+          className="rounded-xl px-5 py-3.5"
+          style={{
+            background: '#FFFBEB',
+            border: '0.5px solid #E5E7EB',
+          }}
+        >
+          <div className="flex flex-wrap items-start gap-2">
+            <span
+              className="shrink-0 mt-0.5"
+              style={{
+                background: '#DCFCE7',
+                color: '#166534',
+                fontSize: '11px',
+                fontWeight: 500,
+                padding: '2px 10px',
+                borderRadius: '99px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Founding member pricing
+            </span>
+            <div>
+              <p style={{ fontSize: '13px', color: '#111827', lineHeight: 1.5 }}>
+                Join before we reach 200 active sellers and these prices are locked in for you permanently — no increases, ever. New sellers after that pay our standard rates.
+              </p>
+              <p style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px' }}>
+                Standard pricing: Starter $29/mo · Pro $99/mo · Business $199/mo
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Plan cards — order: Starter, Business (recommended), Pro */}
+      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
         {PLANS.map(plan => {
-          const isRec = plan.id === recommended;
           const isSelected = selected === plan.id;
           return (
-            <button
+            <div
               key={plan.id}
               onClick={() => setSelected(plan.id)}
-              className={`relative text-left rounded-2xl border-2 p-6 transition-all flex flex-col ${isSelected ? 'border-[#E8945A] bg-orange-50 shadow-md' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+              className={`relative text-left rounded-2xl border-2 p-6 transition-all flex flex-col cursor-pointer ${
+                plan.recommended
+                  ? isSelected
+                    ? 'border-[#E8945A] bg-orange-50 shadow-md'
+                    : 'border-[#E8945A] bg-white shadow-sm'
+                  : isSelected
+                    ? 'border-[#E8945A] bg-orange-50 shadow-md'
+                    : 'border-slate-200 bg-white hover:border-slate-300'
+              }`}
             >
-              {isRec && (
+              {plan.recommended && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#E8945A] text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
                   Recommended for you
                 </span>
               )}
               {isSelected && <CheckCircle className="absolute top-4 right-4 w-5 h-5 text-[#E8945A]" />}
+
               <h3 className="text-lg font-bold text-slate-800 mb-1">{plan.name}</h3>
-              <div className="flex items-baseline gap-0.5 mb-4">
-                <span className="text-2xl font-bold text-slate-800">{plan.price}</span>
-                <span className="text-sm text-slate-400">{plan.priceNote}</span>
+
+              {/* Price */}
+              <div className="flex items-baseline gap-0.5 mb-1">
+                <span className="text-2xl font-bold text-slate-800">{plan.priceDisplay}</span>
+                {plan.price !== null && (
+                  <span className="text-sm text-slate-400">/mo</span>
+                )}
               </div>
+
+              {/* Savings comparison line (Business only) */}
+              {plan.savingsLine && (
+                <p style={{ fontSize: '11px', fontWeight: 500, color: '#166534', marginBottom: '12px' }}>
+                  {plan.savingsLine}
+                </p>
+              )}
+
+              {!plan.savingsLine && <div className="mb-4" />}
+
+              {/* Bullets */}
               <ul className="space-y-2 mb-4 flex-1">
-                {(bullets[plan.id] || []).map((b, i) => (
+                {plan.bullets.map((b, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
                     <span className="text-[#E8945A] mt-0.5 shrink-0">✓</span>
                     {b}
                   </li>
                 ))}
               </ul>
-              <p className="text-xs text-slate-500 italic border-t border-slate-100 pt-3">{meanings[plan.id]}</p>
-            </button>
+
+              {/* Tagline */}
+              <p className="text-xs text-slate-500 italic border-t border-slate-100 pt-3 mb-3">{plan.tagline}</p>
+
+              {/* Per-card CTA button */}
+              <Button
+                onClick={e => { e.stopPropagation(); handleStart(plan.id); }}
+                disabled={saving}
+                className="w-full"
+                style={{ background: '#E8945A', color: '#fff' }}
+              >
+                {saving && savingPlan === plan.id ? 'Setting up…' : plan.buttonLabel}
+              </Button>
+
+              {/* Footnote (Business only) */}
+              {plan.footnote && (
+                <p className="text-xs text-slate-400 text-center mt-2">{plan.footnote}</p>
+              )}
+            </div>
           );
         })}
       </div>
 
-      <Button onClick={handleStart} disabled={saving} className="px-10 py-3 text-base mb-4" style={{ background: '#E8945A', color: '#fff' }}>
-        {saving ? 'Starting trial…' : `Start 14-day free trial on ${selectedPlan?.name}`}
-      </Button>
+      {/* Transaction fee waiver */}
+      <p style={{ fontSize: '12px', color: '#6B7280', textAlign: 'center', padding: '10px 0' }}>
+        We take 0% on jobs you complete through the platform during our launch period.
+      </p>
 
-      {/* Pay per contact option */}
-      <div className="w-full max-w-5xl">
-        <button onClick={() => setShowPayPerContact(v => !v)} className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mx-auto">
-          I'd prefer to pay per lead as I need them — no monthly commitment {showPayPerContact ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      {/* Pay-per-contact text link */}
+      <div className="w-full max-w-5xl text-center mb-4">
+        <button
+          onClick={() => setShowPayPerContact(v => !v)}
+          style={{
+            fontSize: '12px',
+            color: '#6B7280',
+            textDecoration: 'underline',
+            textDecorationColor: '#D1D5DB',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        >
+          Prefer to pay per lead as you go — no monthly commitment →
         </button>
         {showPayPerContact && (
-          <div className="mt-4 bg-white border border-slate-200 rounded-xl p-5 text-sm text-slate-600 leading-relaxed">
+          <div className="mt-4 bg-white border border-slate-200 rounded-xl p-5 text-sm text-slate-600 leading-relaxed text-left">
             <p className="font-medium text-slate-700 mb-2">Pay-per-contact credits</p>
+            <p className="text-sm text-slate-500 mb-3">
+              Buy credits and spend one credit to respond to each lead that interests you. No monthly fee. Credits do not expire.
+            </p>
             <ul className="space-y-1.5 mb-3 text-slate-500">
-              <li>Credits are purchased in bundles and spent when you respond to individual leads</li>
-              <li>Pay-per-contact sellers receive <strong>Wave 2 notifications at earliest</strong> — after subscribed sellers have already been notified</li>
-              <li>No monthly commitment — top up credits when you need them</li>
+              <li>✓ 10 credits — $19</li>
+              <li>✓ 25 credits — $39</li>
+              <li>✓ 50 credits — $69</li>
             </ul>
-            <p className="text-xs text-slate-400">You can switch to pay-per-contact from your billing settings at any time after going live.</p>
+            <p className="text-xs text-slate-400">Pay-per-contact sellers receive lead notifications after subscribed sellers. You can switch plans from your billing settings at any time.</p>
           </div>
         )}
       </div>
 
-      <button onClick={onSkip} className="mt-4 text-sm text-slate-400 hover:text-slate-600">
+      <button onClick={onSkip} className="mt-2 text-sm text-slate-400 hover:text-slate-600">
         I'll decide later
       </button>
     </div>

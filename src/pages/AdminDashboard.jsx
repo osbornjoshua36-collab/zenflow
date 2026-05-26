@@ -442,19 +442,30 @@ export default function AdminDashboard() {
           <TabsContent value="metrics">
             {metrics && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="col-span-full bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-amber-800">Founding Member Progress</p>
+                    <p className="text-xs text-amber-600 mt-0.5">Founding member pricing locks when 200 active sellers are reached</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold text-amber-700">{bizList.filter(b => b.is_founding_member).length} <span className="text-lg font-normal text-amber-500">/ 200</span></p>
+                    <p className="text-xs text-amber-600">{200 - bizList.filter(b => b.is_founding_member).length} spots remaining</p>
+                  </div>
+                </div>
                 {[
                   { label: 'Total Businesses', value: metrics.businesses, color: 'text-blue-600' },
+                  { label: 'Active Sellers', value: bizList.filter(b => b.onboarding_status === 'active').length, color: 'text-green-600' },
                   { label: 'Active Listings', value: metrics.activeListings, color: 'text-green-600' },
                   { label: 'Quotes Submitted', value: metrics.quotes, color: 'text-purple-600' },
                   { label: 'Jobs Created', value: metrics.jobs, color: 'text-amber-600' },
                   { label: 'Verified Reviews', value: metrics.reviews, color: 'text-teal-600' },
                   { label: 'Open Reports', value: metrics.openReports, color: 'text-red-600' },
                 ].map(({ label, value, color }) => (
-                  <div key={label} className="bg-white rounded-xl border p-6">
-                    <p className="text-sm text-slate-500 mb-1">{label}</p>
-                    <p className={`text-4xl font-bold ${color}`}>{value ?? '—'}</p>
-                  </div>
-                ))}
+                <div key={label} className="bg-white rounded-xl border p-6">
+                  <p className="text-sm text-slate-500 mb-1">{label}</p>
+                  <p className={`text-4xl font-bold ${color}`}>{value ?? '—'}</p>
+                </div>
+              ))}
               </div>
             )}
           </TabsContent>
