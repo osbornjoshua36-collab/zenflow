@@ -24,6 +24,7 @@ export default function ModuleC({ seller, onComplete, onSkip, skipLabel, onSelle
   const [MapComponent, setMapComponent] = useState(null);
 
   const set = (k, v) => { setForm(f => ({ ...f, [k]: v })); onSellerUpdate({ [k]: v }); };
+  const setZip = (v) => { setForm(f => ({ ...f, business_zip: v })); };
 
   const geocodeZip = async () => {
     if (form.business_zip.length !== 5 || !/^\d{5}$/.test(form.business_zip)) return;
@@ -97,8 +98,8 @@ export default function ModuleC({ seller, onComplete, onSkip, skipLabel, onSelle
         <Label className="text-sm font-medium text-slate-700">ZIP code *</Label>
         <Input
           className="mt-1 max-w-xs" value={form.business_zip}
-          onChange={e => set('business_zip', e.target.value.replace(/\D/g,'').slice(0,5))}
-          onBlur={geocodeZip}
+          onChange={e => setZip(e.target.value.replace(/\D/g,'').slice(0,5))}
+          onBlur={() => { onSellerUpdate({ business_zip: form.business_zip }); geocodeZip(); }}
           placeholder="27601"
         />
         {geocodeError && <p className="text-xs text-amber-600 mt-1">{geocodeError}</p>}
