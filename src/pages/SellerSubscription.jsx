@@ -57,10 +57,16 @@ export default function SellerSubscription() {
 
   useEffect(() => {
     (async () => {
-      const me = await base44.auth.me();
-      const biz = await base44.entities.Business.filter({ owner_email: me.email });
-      setBusiness(biz[0] || null);
-      setLoading(false);
+      try {
+        const me = await base44.auth.me();
+        if (!me) { setLoading(false); return; }
+        const biz = await base44.entities.Business.filter({ owner_email: me.email });
+        setBusiness(biz[0] || null);
+      } catch {
+        // not authenticated
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
