@@ -3,9 +3,9 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 const SUBHEADINGS = {
-  leads: "You said you want leads fast. Sellers on paid plans are notified first when matching jobs are posted. Get started from $29 a month — or free.",
-  profile: "You said you already have a backend. Get a professional storefront, your own web address, and access to local buyers — free to start, no commitment required.",
-  operations: "You said you want to run everything here. Most businesses pay $364+ a month across QuickBooks, Jobber, and lead generation separately. Business gives you all three for $59.",
+  leads: "You said you want leads fast. Priority Access members are notified ahead of General Access sellers when matching jobs are posted.",
+  profile: "You said you already have a backend. General Access gets your profile live and in front of buyers.",
+  operations: "You said you want to run everything here. All-Access gives you every tool from day one — nothing is locked.",
 };
 
 const STARTER_BULLETS = [
@@ -38,38 +38,38 @@ const BUSINESS_BULLETS = [
 const PLANS = [
   {
     id: 'starter',
-    name: 'Starter',
-    price: null,
-    priceDisplay: 'Free',
-    buttonLabel: 'Get started free',
-    tagline: "Get your business listed and in front of local buyers at no cost. Upgrade when you're ready.",
+    name: 'General Access',
+    price: 19,
+    priceDisplay: '$19',
+    buttonLabel: 'Join as Founding General Access',
+    tagline: "Your business is live, visible, and open for work. Everything you need to start receiving job enquiries.",
     bullets: STARTER_BULLETS,
     recommended: false,
-    savingsLine: null,
+    savingsLine: "You save $10/mo — locked permanently",
     footnote: null,
   },
   {
     id: 'business',
-    name: 'Business',
-    price: 59,
-    priceDisplay: '$59',
-    buttonLabel: 'Start for $59/mo',
-    tagline: "Replaces QuickBooks, Jobber, and your lead generation costs — one platform for $59 a month.",
+    name: 'All-Access',
+    price: 79,
+    priceDisplay: '$79',
+    buttonLabel: 'Join as Founding All-Access',
+    tagline: "First notification on every matching job. Every tool. Nothing locked. One platform for your entire operation.",
     bullets: BUSINESS_BULLETS,
     recommended: true,
-    savingsLine: "Replaces tools costing $364–564/mo elsewhere",
+    savingsLine: "You save $120/mo — locked permanently",
     footnote: "Includes priority support and dedicated onboarding assistance.",
   },
   {
     id: 'pro',
-    name: 'Pro',
-    price: 29,
-    priceDisplay: '$29',
-    buttonLabel: 'Start for $29/mo',
-    tagline: "Everything in Starter, plus tools to manage your jobs and get notified ahead of free-plan sellers.",
+    name: 'Priority Access',
+    price: 49,
+    priceDisplay: '$49',
+    buttonLabel: 'Join as Founding Priority Access',
+    tagline: "Get ahead of General Access sellers on every matching job. Plus the scheduling and analytics tools to run your operation.",
     bullets: PRO_BULLETS,
     recommended: false,
-    savingsLine: null,
+    savingsLine: "You save $50/mo — locked permanently",
     footnote: null,
   },
 ];
@@ -128,12 +128,15 @@ export default function PlanScreen({ intent, onSelect, onSkip, onBack }) {
                 Join before we reach 200 active sellers and these prices are locked in for you permanently — no increases, ever. New sellers after that pay our standard rates.
               </p>
               <p style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px' }}>
-                Standard pricing: Starter $29/mo · Pro $99/mo · Business $199/mo
+                What new sellers pay after founding period closes: General Access $29 · Priority Access $99 · All-Access $199
               </p>
             </div>
           </div>
         </div>
       </div>
+      <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-success)', textAlign: 'center', marginBottom: '24px' }}>
+        ● 30-day trial on all plans — enter your card today, first payment on day 30. Cancel any time before then at no charge.
+      </p>
 
       {/* Plan cards — order: Starter, Business (recommended), Pro */}
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
