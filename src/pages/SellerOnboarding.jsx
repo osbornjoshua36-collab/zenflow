@@ -27,7 +27,9 @@ export default function SellerOnboarding() {
   useEffect(() => { initWizard(); }, []);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const el = document.getElementById('main-scroll');
+    if (el) el.scrollTop = 0;
+    else window.scrollTo(0, 0);
   }, [screen, currentStep]);
 
   const initWizard = async () => {
@@ -102,7 +104,6 @@ export default function SellerOnboarding() {
    base44.analytics.track({ eventName: 'plan_selected', properties: { seller_id: seller.id, intent: seller.onboarding_intent, plan_tier: planTier } });
    setCurrentStep(2);
    setScreen('step');
-   window.scrollTo(0, 0);
   };
 
   const handlePlanSkipped = async () => {

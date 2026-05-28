@@ -183,7 +183,7 @@ export default function Layout() {
             {modules.find(m => m.path === location.pathname)?.label || 'App'}
           </h2>
         </div>
-        <div ref={contentRef} className="flex-1 overflow-y-auto p-8" style={{ background: '#FAFCFF' }}>
+        <div id="main-scroll" ref={contentRef} className="flex-1 overflow-y-auto p-8" style={{ background: '#FAFCFF' }}>
           {isSeller && <PastDueBanner status={subStatus} />}
           <Outlet />
         </div>
