@@ -26,6 +26,10 @@ export default function SellerOnboarding() {
 
   useEffect(() => { initWizard(); }, []);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [screen, currentStep]);
+
   const initWizard = async () => {
     try {
       const me = await base44.auth.me();
@@ -84,20 +88,21 @@ export default function SellerOnboarding() {
   };
 
   const handlePlanSelected = async (planTier) => {
-    const now = new Date();
-    const trialEnds = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
-    const updates = {
-      trial_plan_tier: planTier,
-      trial_started_at: now.toISOString(),
-      trial_ends_at: trialEnds.toISOString(),
-      subscription_tier: planTier,
-      subscription_status: 'trial',
-    };
-    await base44.entities.Business.update(seller.id, updates);
-    setSeller(s => ({ ...s, ...updates }));
-    base44.analytics.track({ eventName: 'plan_selected', properties: { seller_id: seller.id, intent: seller.onboarding_intent, plan_tier: planTier } });
-    setCurrentStep(2);
-    setScreen('step');
+   const now = new Date();
+   const trialEnds = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+   const updates = {
+     trial_plan_tier: planTier,
+     trial_started_at: now.toISOString(),
+     trial_ends_at: trialEnds.toISOString(),
+     subscription_tier: planTier,
+     subscription_status: 'trial',
+   };
+   await base44.entities.Business.update(seller.id, updates);
+   setSeller(s => ({ ...s, ...updates }));
+   base44.analytics.track({ eventName: 'plan_selected', properties: { seller_id: seller.id, intent: seller.onboarding_intent, plan_tier: planTier } });
+   setCurrentStep(2);
+   setScreen('step');
+   window.scrollTo(0, 0);
   };
 
   const handlePlanSkipped = async () => {
