@@ -57,7 +57,11 @@ export default function Layout() {
   }, []);
 
   useEffect(() => {
-    if (contentRef.current) contentRef.current.scrollTop = 0;
+    const el = contentRef.current;
+    if (el) {
+      el.scrollTop = 0;
+      setTimeout(() => { el.scrollTop = 0; }, 50);
+    }
   }, [location.pathname]);
 
   const isDual = isSeller && isBuyer;
