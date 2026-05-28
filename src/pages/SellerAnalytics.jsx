@@ -43,7 +43,9 @@ export default function SellerAnalytics() {
 
   useEffect(() => {
     (async () => {
+      try {
       const me = await base44.auth.me();
+      if (!me) { setLoading(false); return; }
       const bizList = await base44.entities.Business.filter({ owner_email: me.email });
       if (!bizList.length) { setLoading(false); return; }
       const biz = bizList[0];
@@ -62,6 +64,9 @@ export default function SellerAnalytics() {
       setReviews(reviewsData);
       setAds(adsData);
       setLoading(false);
+      } catch {
+        setLoading(false);
+      }
     })();
   }, []);
 
