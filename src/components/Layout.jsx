@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { LogOut, BarChart3, MessageSquare, Calendar, CheckCircle, Star, DollarSign, Users, Globe, Tag, Megaphone, CreditCard, Settings, Search, Briefcase, UserCircle, Layers, LineChart, HelpCircle } from 'lucide-react';
 import PastDueBanner from '@/components/PastDueBanner';
@@ -30,6 +30,7 @@ const BUYER_NAV = [
 
 export default function Layout() {
   const location = useLocation();
+  const contentRef = useRef(null);
   const [isSeller, setIsSeller] = useState(false);
   const [isBuyer, setIsBuyer] = useState(false);
   const [roleView, setRoleView] = useState('buying');
@@ -54,6 +55,10 @@ export default function Layout() {
       setRoleLoaded(true);
     })();
   }, []);
+
+  useEffect(() => {
+    if (contentRef.current) contentRef.current.scrollTop = 0;
+  }, [location.pathname]);
 
   const isDual = isSeller && isBuyer;
   let modules;
@@ -174,7 +179,7 @@ export default function Layout() {
             {modules.find(m => m.path === location.pathname)?.label || 'App'}
           </h2>
         </div>
-        <div className="flex-1 overflow-y-auto p-8" style={{ background: '#FAFCFF' }}>
+        <div ref={contentRef} className="flex-1 overflow-y-auto p-8" style={{ background: '#FAFCFF' }}>
           {isSeller && <PastDueBanner status={subStatus} />}
           <Outlet />
         </div>
