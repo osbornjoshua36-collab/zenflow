@@ -30,6 +30,8 @@ import PaymentSuccess from '@/pages/PaymentSuccess';
 import PaymentFailure from '@/pages/PaymentFailure';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
 import SellerOnboarding from '@/pages/SellerOnboarding';
+import Finance from '@/pages/Finance';
+import Clients from '@/pages/Clients';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -84,6 +86,8 @@ const AuthenticatedApp = () => {
           <Route path="/seller/subscription" element={<SellerSubscription />} />
           <Route path="/seller/analytics" element={<SellerAnalytics />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/finance" element={<Finance />} />
+          <Route path="/clients" element={<Clients />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>
