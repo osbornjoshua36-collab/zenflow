@@ -106,7 +106,7 @@ export default function BuyerJobCard({ quote, job, businesses, invoice, review, 
       {/* Scheduling: proposed dates to confirm */}
       {stage === 'booked' && job?.scheduling_status === 'proposed' && job?.proposed_dates?.length > 0 && (
         <div className="mt-3 pt-3 border-t">
-          <p className="text-sm font-medium text-slate-700 mb-2">Seller proposed times — confirm one:</p>
+          <p className="text-sm font-medium text-slate-700 mb-2">Proposed times — please confirm one:</p>
           <div className="space-y-1.5">
             {job.proposed_dates.map((d, i) => (
               <div key={i} className="text-sm text-slate-600 bg-slate-50 rounded-lg px-3 py-2">

@@ -18,7 +18,7 @@ const STARTER_BULLETS = [
 
 const PRO_BULLETS = [
   "Everything in Starter",
-  "Earlier lead alerts — notified ahead of free-plan sellers when a matching job is posted near you",
+  "Earlier lead alerts — notified ahead of General Access members when a matching job is posted near you",
   "Job scheduling calendar — manage bookings, send reminders, track job status",
   "Performance dashboard — see profile views, quote requests, and conversion to jobs",
   "Sync with Google Calendar or Outlook to avoid double-bookings",
@@ -26,7 +26,7 @@ const PRO_BULLETS = [
 
 const BUSINESS_BULLETS = [
   "Everything in Starter and Pro",
-  "Priority placement — shown to buyers above Starter and Pro sellers in search results",
+  "Priority placement — shown to buyers above General Access and Priority Access members in search results",
   "Full invoicing — line items, tax, discounts, recurring billing, and payment tracking",
   "Job scheduling and calendar sync — replaces standalone scheduling tools",
   "Client records with full job history, notes, and automatic re-booking reminders",
@@ -66,7 +66,7 @@ const PLANS = [
     price: 49,
     priceDisplay: '$49',
     buttonLabel: 'Join as Founding Priority Access',
-    tagline: "Get ahead of General Access sellers on every matching job. Plus the scheduling and analytics tools to run your operation.",
+    tagline: "Get ahead of General Access members on every matching job. Plus the scheduling and analytics tools to run your operation.",
     bullets: PRO_BULLETS,
     recommended: false,
     savingsLine: "You save $50/mo — locked permanently",
@@ -125,10 +125,10 @@ export default function PlanScreen({ intent, onSelect, onSkip, onBack }) {
             </span>
             <div>
               <p style={{ fontSize: '13px', color: '#111827', lineHeight: 1.5 }}>
-                Join before we reach 200 active sellers and these prices are locked in for you permanently — no increases, ever. New sellers after that pay our standard rates.
+                Join before we reach 200 active business accounts and these prices are locked in for you permanently — no increases, ever. New business accounts after that pay our standard rates.
               </p>
               <p style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px' }}>
-                What new sellers pay after founding period closes: General Access $29 · Priority Access $99 · All-Access $199
+                What new business accounts pay after founding period closes: General Access $29 · Priority Access $99 · All-Access $199
               </p>
             </div>
           </div>
@@ -247,7 +247,7 @@ export default function PlanScreen({ intent, onSelect, onSkip, onBack }) {
               <li>✓ 25 credits — $39</li>
               <li>✓ 50 credits — $69</li>
             </ul>
-            <p className="text-xs text-slate-400">Pay-per-contact sellers receive lead notifications after subscribed sellers. You can switch plans from your billing settings at any time.</p>
+            <p className="text-xs text-slate-400">Pay-per-contact members receive lead notifications after subscribed members. You can switch plans from your billing settings at any time.</p>
           </div>
         )}
       </div>

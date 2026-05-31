@@ -105,7 +105,7 @@ export default function GoLiveChecklist({ seller, onGoLive, onSellerUpdate }) {
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium text-amber-800">No plan selected</p>
-            <p className="text-xs text-amber-700">You'll receive leads in Wave 3 only, behind sellers on paid plans.</p>
+            <p className="text-xs text-amber-700">You'll receive leads in Wave 3 only, behind business accounts on paid plans.</p>
           </div>
           <button className="text-xs text-amber-700 hover:underline font-medium">Choose a plan →</button>
         </div>
@@ -152,7 +152,7 @@ export default function GoLiveChecklist({ seller, onGoLive, onSellerUpdate }) {
         </Button>
 
         {canGoLive && !hasTrialOrPlan && (
-          <p className="text-xs text-amber-600 text-center mt-2">Sellers without a plan receive leads in Wave 3 only — after subscribed sellers have already been notified.</p>
+          <p className="text-xs text-amber-600 text-center mt-2">Business accounts without a plan receive leads in Wave 3 only — after subscribed business accounts have already been notified.</p>
         )}
 
         {/* Preview storefront */}

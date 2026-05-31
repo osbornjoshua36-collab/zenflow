@@ -220,7 +220,7 @@ export default function Step1Identity({ onComplete }) {
     base44.integrations.Core.SendEmail({
       to: form.email,
       subject: "Welcome — let's get you set up",
-      body: `<p>Hi ${form.firstName},</p><p>Your seller account is created! Let's finish setting up your profile so buyers can find you.</p><p><a href="${window.location.origin}/seller/onboarding">Continue setup →</a></p>`
+      body: `<p>Hi ${form.firstName},</p><p>Your Business Account is created! Let's finish setting up your profile so buyers can find you.</p><p><a href="${window.location.origin}/seller/onboarding">Continue setup →</a></p>`
     }).catch(() => {});
 
     onComplete(created);
@@ -238,7 +238,7 @@ export default function Step1Identity({ onComplete }) {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-slate-800" style={{ fontFamily: 'var(--font-fraunces)' }}>
-              Create your seller account
+              Create your Business Account
             </h1>
             <p className="text-slate-500 mt-2 text-sm">Quick setup — you'll be live in minutes.</p>
           </div>

@@ -66,7 +66,7 @@ export default function QuoteRequestDialog({ open, onClose, listing, business })
               <Label>Describe what you need*</Label>
               <textarea
                 className="w-full border rounded-md px-3 py-2 text-sm min-h-[80px] resize-none focus:outline-none focus:ring-1 focus:ring-ring"
-                placeholder="Tell the seller what you need done..."
+                placeholder="Tell this business what you need done..."
                 value={form.service_description}
                 onChange={e => set('service_description', e.target.value)}
               />

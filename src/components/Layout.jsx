@@ -189,7 +189,7 @@ export default function Layout() {
               onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }}
               onMouseLeave={e => { e.currentTarget.style.color = 'var(--nav-text-muted)'; }}
             >
-              List your services — become a seller
+              Create a Business Account
             </Link>
           </div>
         )}

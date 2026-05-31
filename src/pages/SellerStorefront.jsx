@@ -72,7 +72,7 @@ export default function SellerStorefront() {
               {business.status === 'Active' && <Badge className="bg-green-500 text-white border-0">Active</Badge>}
               {business.is_verified && (
                 <span
-                  title="This seller has been verified by the platform."
+                  title="This business has been verified by the platform."
                   className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full cursor-default"
                   style={{ background: '#E4F5EC', color: '#276048', border: '1px solid #5BAA7E55' }}
                 >
@@ -154,7 +154,7 @@ export default function SellerStorefront() {
             onClick={() => setShowReport(true)}
             className="text-xs text-slate-400 hover:text-slate-600 transition-colors underline-offset-2 hover:underline"
           >
-            Report this seller
+            Report this business
           </button>
         </div>
       </div>

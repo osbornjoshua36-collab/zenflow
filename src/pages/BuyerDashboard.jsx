@@ -259,7 +259,7 @@ export default function BuyerDashboard() {
             {activeTab === 'Saved providers' ? (
               <div className="bg-white border rounded-xl p-8 text-center">
                 <BookmarkCheck className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                <p className="text-sm text-slate-500">Sellers you save will appear here.</p>
+                <p className="text-sm text-slate-500">Business accounts you save will appear here.</p>
                 <Link to="/community" className="mt-2 inline-block text-sm text-blue-600 hover:underline">Browse services</Link>
               </div>
             ) : filteredItems.length === 0 ? (

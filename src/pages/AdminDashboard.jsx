@@ -118,7 +118,7 @@ export default function AdminDashboard() {
               )}
             </TabsTrigger>
             <TabsTrigger value="listings">Listings</TabsTrigger>
-            <TabsTrigger value="sellers">Sellers</TabsTrigger>
+            <TabsTrigger value="sellers">Business Accounts</TabsTrigger>
             <TabsTrigger value="metrics">Platform Metrics</TabsTrigger>
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
           </TabsList>
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
                 <thead className="bg-slate-50 border-b">
                   <tr>
                     <th className="text-left px-4 py-3 text-slate-600 font-medium">Title</th>
-                    <th className="text-left px-4 py-3 text-slate-600 font-medium">Seller</th>
+                    <th className="text-left px-4 py-3 text-slate-600 font-medium">Business</th>
                     <th className="text-left px-4 py-3 text-slate-600 font-medium">Category</th>
                     <th className="text-left px-4 py-3 text-slate-600 font-medium">Status</th>
                     <th className="text-left px-4 py-3 text-slate-600 font-medium">Views</th>
@@ -383,7 +383,7 @@ export default function AdminDashboard() {
                           onClick={() => setTxnStatusFilter(s)} className="capitalize">{s === 'all' ? 'All' : s.replace('_', ' ')}</Button>
                       ))}
                     </div>
-                    <Input placeholder="Search by seller..." value={txnSearchSeller}
+                    <Input placeholder="Search by business..." value={txnSearchSeller}
                       onChange={e => setTxnSearchSeller(e.target.value)} className="max-w-xs" />
                     <Button size="sm" variant="outline" className="ml-auto gap-1" onClick={exportCSV}>
                       <Download className="w-4 h-4" /> Export CSV
@@ -400,7 +400,7 @@ export default function AdminDashboard() {
                         <tr>
                           <th className="text-left px-4 py-3 text-slate-600 font-medium">Date</th>
                           <th className="text-left px-4 py-3 text-slate-600 font-medium">Buyer</th>
-                          <th className="text-left px-4 py-3 text-slate-600 font-medium">Seller</th>
+                          <th className="text-left px-4 py-3 text-slate-600 font-medium">Business</th>
                           <th className="text-left px-4 py-3 text-slate-600 font-medium">Job ID</th>
                           <th className="text-right px-4 py-3 text-slate-600 font-medium">Gross</th>
                           <th className="text-right px-4 py-3 text-slate-600 font-medium">Fee</th>
@@ -445,7 +445,7 @@ export default function AdminDashboard() {
                 <div className="col-span-full bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-amber-800">Founding Member Progress</p>
-                    <p className="text-xs text-amber-600 mt-0.5">Founding member pricing locks when 200 active sellers are reached</p>
+                    <p className="text-xs text-amber-600 mt-0.5">Founding member pricing locks when 200 active business accounts are reached</p>
                   </div>
                   <div className="text-right">
                     <p className="text-3xl font-bold text-amber-700">{bizList.filter(b => b.is_founding_member).length} <span className="text-lg font-normal text-amber-500">/ 200</span></p>
@@ -454,7 +454,7 @@ export default function AdminDashboard() {
                 </div>
                 {[
                   { label: 'Total Businesses', value: metrics.businesses, color: 'text-blue-600' },
-                  { label: 'Active Sellers', value: bizList.filter(b => b.onboarding_status === 'active').length, color: 'text-green-600' },
+                  { label: 'Active Business Accounts', value: bizList.filter(b => b.onboarding_status === 'active').length, color: 'text-green-600' },
                   { label: 'Active Listings', value: metrics.activeListings, color: 'text-green-600' },
                   { label: 'Quotes Submitted', value: metrics.quotes, color: 'text-purple-600' },
                   { label: 'Jobs Created', value: metrics.jobs, color: 'text-amber-600' },
