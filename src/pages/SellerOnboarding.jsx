@@ -235,7 +235,12 @@ export default function SellerOnboarding() {
         onSaveExit={null}
         showResumeBanner={false}
       >
-        <GoLiveChecklist seller={seller} onGoLive={handleGoLive} onSellerUpdate={(u) => setSeller(s => ({ ...s, ...u }))} />
+        <GoLiveChecklist
+          seller={seller}
+          onGoLive={handleGoLive}
+          onSellerUpdate={(u) => setSeller(s => ({ ...s, ...u }))}
+          onGoToStep={(step) => { setCurrentStep(step); setScreen('step'); }}
+        />
       </WizardChrome>
     );
   }

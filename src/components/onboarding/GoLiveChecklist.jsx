@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Circle, ExternalLink, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -28,7 +29,18 @@ function CircularProgress({ pct }) {
   );
 }
 
-export default function GoLiveChecklist({ seller, onGoLive, onSellerUpdate }) {
+// Maps a criterion field to the onboarding step number to jump back to
+const FIELD_TO_STEP = {
+  name: 2,
+  description: 2,
+  logo: 3,
+  portfolio: 3,
+  area: 4,
+  credentials: 6,
+};
+
+export default function GoLiveChecklist({ seller, onGoLive, onSellerUpdate, onGoToStep }) {
+  const navigate = useNavigate();
   const [hasActiveListing, setHasActiveListing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [goingLive, setGoingLive] = useState(false);
@@ -125,7 +137,20 @@ export default function GoLiveChecklist({ seller, onGoLive, onSellerUpdate }) {
               : <Circle className="w-5 h-5 text-slate-300 shrink-0" />
             }
             <span className={`text-sm flex-1 ${c.met ? 'text-green-700' : 'text-slate-600'}`}>{c.label}</span>
-            {!c.met && <button className="text-xs text-[#E8945A] hover:underline">Complete now →</button>}
+            {!c.met && (
+              <button
+                className="text-xs text-[#E8945A] hover:underline"
+                onClick={() => {
+                  if (c.field === 'listing') {
+                    navigate('/seller/listings');
+                  } else if (FIELD_TO_STEP[c.field] && onGoToStep) {
+                    onGoToStep(FIELD_TO_STEP[c.field]);
+                  }
+                }}
+              >
+                Complete now →
+              </button>
+            )}
           </div>
         ))}
       </div>
