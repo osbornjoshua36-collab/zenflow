@@ -1,0 +1,62 @@
+{
+  "name": "WaveNotification",
+  "type": "object",
+  "properties": {
+    "service_request_id": {
+      "type": "string",
+      "description": "FK to ServiceRequest"
+    },
+    "wave_number": {
+      "type": "integer",
+      "description": "1, 2, 3, or 4"
+    },
+    "scheduled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this wave should fire"
+    },
+    "fired_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When it actually fired"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "fired",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "seller_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Business IDs assigned to this wave"
+    },
+    "seller_scores": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Score snapshot for each seller at time of ranking"
+    },
+    "response_count_at_fire": {
+      "type": "integer",
+      "description": "How many responses existed when wave fired"
+    },
+    "was_promoted_pay_per_contact": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if pay-per-contact sellers promoted due to supply shortage"
+    }
+  },
+  "required": [
+    "service_request_id",
+    "wave_number",
+    "scheduled_at",
+    "status"
+  ]
+}

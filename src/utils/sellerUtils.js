@@ -1,5 +1,6 @@
 /**
  * Calculate profile completeness percentage (0–100) for a seller.
+ * Description, logo, and portfolio images are optional and not counted.
  * @param {object} seller - Business entity record
  * @param {boolean} hasActiveListing - whether the seller has at least one active listing
  */
@@ -7,11 +8,8 @@ export function calculateProfileCompleteness(seller, hasActiveListing = false) {
   let pct = 0;
   if (seller.business_name && seller.business_name.trim()) pct += 10;
   if (seller.owner_phone || seller.phone) pct += 5;
-  if (seller.business_description && seller.business_description.length >= 100) pct += 15;
   if (seller.tagline && seller.tagline.trim()) pct += 5;
-  if (seller.logo_url) pct += 10;
   if (seller.banner_image_url) pct += 10;
-  if (seller.portfolio_images && seller.portfolio_images.length >= 1) pct += 10;
   if (seller.service_radius_miles) pct += 5;
   if (hasActiveListing) pct += 15;
   if (seller.licence_document_url) pct += 10;
@@ -27,7 +25,7 @@ export function deriveOnboardingStatus(seller, hasActiveListing) {
     return seller.onboarding_status;
   }
   const pct = calculateProfileCompleteness(seller, hasActiveListing);
-  if (pct >= 60 && hasActiveListing) return 'ready_to_launch';
+  if (pct >= 45 && hasActiveListing) return 'ready_to_launch';
   return 'incomplete';
 }
 

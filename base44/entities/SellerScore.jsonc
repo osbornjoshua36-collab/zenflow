@@ -1,0 +1,79 @@
+{
+  "name": "SellerScore",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "FK to Business"
+    },
+    "quality_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 composite quality score"
+    },
+    "speed_score": {
+      "type": "number",
+      "default": 50,
+      "description": "0-100 speed/responsiveness score"
+    },
+    "price_score": {
+      "type": "number",
+      "default": 55,
+      "description": "0-100 price competitiveness score"
+    },
+    "composite_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Balanced-weighted composite before multiplier"
+    },
+    "avg_response_time_hours": {
+      "type": "number",
+      "description": "Rolling 90-day avg hours to respond"
+    },
+    "response_rate_90d": {
+      "type": "number",
+      "description": "% of requests responded to within 48h, last 90 days"
+    },
+    "accepting_new_jobs": {
+      "type": "boolean",
+      "default": true
+    },
+    "speed_label": {
+      "type": "string",
+      "enum": [
+        "Typically responds within 2 hours",
+        "Typically responds same day",
+        "Typically responds within 24 hours",
+        "Response time varies"
+      ]
+    },
+    "price_label": {
+      "type": "string",
+      "enum": [
+        "$ \u2014 Competitively priced",
+        "$$ \u2014 Market rate",
+        "$$$ \u2014 Premium pricing"
+      ]
+    },
+    "wave1_eligibility_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "% of relevant requests where seller was in Wave 1, last 30 days"
+    },
+    "total_requests_notified_90d": {
+      "type": "integer",
+      "default": 0
+    },
+    "total_responses_90d": {
+      "type": "integer",
+      "default": 0
+    },
+    "last_calculated": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "business_id"
+  ]
+}

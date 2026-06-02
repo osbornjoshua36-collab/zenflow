@@ -66,19 +66,20 @@ export default function GoLiveChecklist({ seller, onGoLive, onSellerUpdate, onGo
     ? Math.max(0, Math.ceil((new Date(seller.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24)))
     : null;
 
+  // Required items must be met to go live; optional items are shown but don't block launch
   const CRITERIA = [
     { label: 'Phone number verified', met: (seller.onboarding_step_completed || 0) >= 1, field: 'phone' },
     { label: 'Business name added', met: !!seller.business_name, field: 'name' },
-    { label: 'Business description added', met: (seller.business_description || '').length >= 50, field: 'description' },
-    { label: 'Logo uploaded', met: !!seller.logo_url, field: 'logo' },
-    { label: 'At least one portfolio photo', met: (seller.portfolio_images || []).length >= 1, field: 'portfolio' },
     { label: 'Service area configured', met: !!seller.service_radius_miles, field: 'area' },
     { label: 'At least one active listing', met: hasActiveListing, field: 'listing' },
+    { label: 'Business description added', met: (seller.business_description || '').length >= 50, field: 'description', optional: true },
+    { label: 'Logo uploaded', met: !!seller.logo_url, field: 'logo', optional: true },
+    { label: 'At least one portfolio photo', met: (seller.portfolio_images || []).length >= 1, field: 'portfolio', optional: true },
     { label: 'Credentials submitted', met: !!(seller.licence_document_url || seller.insurance_document_url), field: 'credentials' },
   ];
 
-  const unmetRequired = CRITERIA.filter(c => !c.met);
-  const canGoLive = pct >= 60;
+  const unmetRequired = CRITERIA.filter(c => !c.met && !c.optional);
+  const canGoLive = pct >= 45 && hasActiveListing;
 
   const handleGoLive = async () => {
     setGoingLive(true);
@@ -131,15 +132,18 @@ export default function GoLiveChecklist({ seller, onGoLive, onSellerUpdate, onGo
       {/* Checklist */}
       <div className="space-y-2">
         {CRITERIA.map((c, i) => (
-          <div key={i} className={`flex items-center gap-3 p-3 rounded-xl border ${c.met ? 'border-green-100 bg-green-50' : 'border-slate-100 bg-white'}`}>
+          <div key={i} className={`flex items-center gap-3 p-3 rounded-xl border ${c.met ? 'border-green-100 bg-green-50' : c.optional ? 'border-slate-100 bg-slate-50/50' : 'border-slate-100 bg-white'}`}>
             {c.met
               ? <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
-              : <Circle className="w-5 h-5 text-slate-300 shrink-0" />
+              : <Circle className={`w-5 h-5 shrink-0 ${c.optional ? 'text-slate-200' : 'text-slate-300'}`} />
             }
-            <span className={`text-sm flex-1 ${c.met ? 'text-green-700' : 'text-slate-600'}`}>{c.label}</span>
+            <span className={`text-sm flex-1 ${c.met ? 'text-green-700' : c.optional ? 'text-slate-400' : 'text-slate-600'}`}>
+              {c.label}
+              {c.optional && !c.met && <span className="ml-1.5 text-xs text-slate-400">(optional)</span>}
+            </span>
             {!c.met && (
               <button
-                className="text-xs text-[#E8945A] hover:underline"
+                className={`text-xs hover:underline ${c.optional ? 'text-slate-400' : 'text-[#E8945A]'}`}
                 onClick={() => {
                   if (c.field === 'listing') {
                     navigate('/seller/listings');
@@ -157,7 +161,7 @@ export default function GoLiveChecklist({ seller, onGoLive, onSellerUpdate, onGo
 
       {/* Go live button */}
       <div className="pt-2">
-        {!canGoLive && (
+        {!canGoLive && unmetRequired.length > 0 && (
           <div className="mb-3 space-y-1">
             <p className="text-sm text-slate-500 text-center">Complete {unmetRequired.length} more item{unmetRequired.length !== 1 ? 's' : ''} to go live:</p>
             {unmetRequired.map((c, i) => (
