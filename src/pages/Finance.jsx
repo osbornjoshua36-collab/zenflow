@@ -1,21 +1,35 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Receipt, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Receipt } from 'lucide-react';
 import InvoiceCreate from '@/components/InvoiceCreate';
 import InvoiceList from '@/components/InvoiceList';
+import InvoiceDetail from '@/components/InvoiceDetail';
 
 export default function Finance() {
   const [business, setBusiness] = useState(null);
+  const [invoices, setInvoices] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+
+  const loadData = async (biz) => {
+    const [invs, custs] = await Promise.all([
+      base44.entities.Invoice.filter({ business_id: biz.id }, '-created_date', 200),
+      base44.entities.Customer.filter({ business_id: biz.id }, 'name', 200),
+    ]);
+    setInvoices(invs);
+    setCustomers(custs);
+  };
 
   useEffect(() => {
     (async () => {
       const me = await base44.auth.me();
       if (!me) { setLoading(false); return; }
       const bizList = await base44.entities.Business.filter({ owner_email: me.email });
-      setBusiness(bizList[0] || null);
+      const biz = bizList[0] || null;
+      setBusiness(biz);
+      if (biz) await loadData(biz);
       setLoading(false);
     })();
   }, []);
@@ -34,21 +48,21 @@ export default function Finance() {
     </div>
   );
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-slate-500 mt-1">Manage invoices and track payments.</p>
-        </div>
-        <Button onClick={() => setShowCreate(true)} className="gap-2">
-          <Plus className="w-4 h-4" /> Create Invoice
-        </Button>
-      </div>
+  if (showCreate) return (
+    <InvoiceCreate businessId={business.id} onClose={async () => { setShowCreate(false); await loadData(business); }} />
+  );
 
-      {showCreate
-        ? <InvoiceCreate businessId={business.id} onClose={() => setShowCreate(false)} />
-        : <InvoiceList businessId={business.id} />
-      }
-    </div>
+  if (selectedInvoice) return (
+    <InvoiceDetail invoice={selectedInvoice} customers={customers} onClose={() => setSelectedInvoice(null)} onUpdated={async () => { await loadData(business); setSelectedInvoice(null); }} />
+  );
+
+  return (
+    <InvoiceList
+      invoices={invoices}
+      customers={customers}
+      onCreate={() => setShowCreate(true)}
+      onView={(inv) => setSelectedInvoice(inv)}
+      onUpdated={() => loadData(business)}
+    />
   );
 }
