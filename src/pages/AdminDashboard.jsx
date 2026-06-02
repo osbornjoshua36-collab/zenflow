@@ -89,6 +89,27 @@ export default function AdminDashboard() {
     setBizList(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
   };
 
+  const setBusinessActive = async (b) => {
+    if (!window.confirm(`Set this business account to active? This will grant full dashboard access.\n\nBusiness: ${b.business_name || b.name}`)) return;
+    const now = new Date().toISOString();
+    const updates = {
+      onboarding_status: 'active',
+      onboarding_completed_at: now,
+      ...(!b.go_live_date ? { go_live_date: now } : {}),
+    };
+    await base44.entities.Business.update(b.id, updates);
+    setBizList(prev => prev.map(x => x.id === b.id ? { ...x, ...updates } : x));
+    alert(`✅ ${b.business_name || b.name} is now active.`);
+  };
+
+  const resetToOnboarding = async (b) => {
+    if (!window.confirm(`Reset this account back to onboarding? This will remove dashboard access until the account goes live again.\n\nBusiness: ${b.business_name || b.name}`)) return;
+    const updates = { onboarding_status: 'incomplete', onboarding_step_completed: 0 };
+    await base44.entities.Business.update(b.id, updates);
+    setBizList(prev => prev.map(x => x.id === b.id ? { ...x, ...updates } : x));
+    alert(`↩️ ${b.business_name || b.name} reset to onboarding.`);
+  };
+
   const filteredReports = reportFilter === 'all' ? reports : reports.filter(r => r.status === reportFilter);
   const filteredListings = listings.filter(l =>
     !listingSearch || l.title?.toLowerCase().includes(listingSearch.toLowerCase())
@@ -279,9 +300,8 @@ export default function AdminDashboard() {
                   <tr>
                     <th className="text-left px-4 py-3 text-slate-600 font-medium">Business</th>
                     <th className="text-left px-4 py-3 text-slate-600 font-medium">Owner Email</th>
-                    <th className="text-left px-4 py-3 text-slate-600 font-medium">Phone</th>
+                    <th className="text-left px-4 py-3 text-slate-600 font-medium">Onboarding</th>
                     <th className="text-left px-4 py-3 text-slate-600 font-medium">Verification</th>
-                    <th className="text-left px-4 py-3 text-slate-600 font-medium">Verified At</th>
                     <th className="text-left px-4 py-3 text-slate-600 font-medium">Actions</th>
                   </tr>
                 </thead>
@@ -290,12 +310,17 @@ export default function AdminDashboard() {
                     .filter(b => !sellerSearch || b.name?.toLowerCase().includes(sellerSearch.toLowerCase()))
                     .map(b => (
                     <tr key={b.id} className="border-b last:border-0 hover:bg-slate-50">
-                      <td className="px-4 py-3 font-medium">{b.name}</td>
+                      <td className="px-4 py-3 font-medium">{b.business_name || b.name}</td>
                       <td className="px-4 py-3 text-slate-500 text-xs">{b.owner_email || '—'}</td>
                       <td className="px-4 py-3">
-                        {b.phone_verified
-                          ? <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700">✓ Verified</span>
-                          : <span className="text-xs text-slate-400">—</span>}
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                          b.onboarding_status === 'active' ? 'bg-green-100 text-green-700' :
+                          b.onboarding_status === 'ready_to_launch' ? 'bg-blue-100 text-blue-700' :
+                          b.onboarding_status === 'suspended' ? 'bg-red-100 text-red-700' :
+                          'bg-slate-100 text-slate-500'
+                        }`}>
+                          {b.onboarding_status || 'incomplete'}
+                        </span>
                       </td>
                       <td className="px-4 py-3">
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
@@ -307,30 +332,27 @@ export default function AdminDashboard() {
                           {b.verification_status || 'unverified'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-slate-400 text-xs">
-                        {b.verified_at ? new Date(b.verified_at).toLocaleDateString() : '—'}
-                      </td>
                       <td className="px-4 py-3">
                         <div className="flex gap-1 flex-wrap">
+                          {b.onboarding_status !== 'active' && (
+                            <button
+                              onClick={() => setBusinessActive(b)}
+                              className="text-xs px-2 py-1 rounded border border-green-200 text-green-700 hover:bg-green-50 transition-colors font-medium">
+                              Set Active
+                            </button>
+                          )}
+                          {b.onboarding_status === 'active' && (
+                            <button
+                              onClick={() => resetToOnboarding(b)}
+                              className="text-xs px-2 py-1 rounded border border-orange-200 text-orange-600 hover:bg-orange-50 transition-colors">
+                              Reset to Onboarding
+                            </button>
+                          )}
                           {b.verification_status !== 'verified' && (
                             <button
                               onClick={() => updateVerification(b.id, { is_verified: true, verification_status: 'verified', verified_at: new Date().toISOString() })}
-                              className="text-xs px-2 py-1 rounded border border-green-200 text-green-700 hover:bg-green-50 transition-colors">
+                              className="text-xs px-2 py-1 rounded border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">
                               Verify
-                            </button>
-                          )}
-                          {b.verification_status !== 'pending' && (
-                            <button
-                              onClick={() => updateVerification(b.id, { is_verified: false, verification_status: 'pending' })}
-                              className="text-xs px-2 py-1 rounded border border-amber-200 text-amber-700 hover:bg-amber-50 transition-colors">
-                              Mark Pending
-                            </button>
-                          )}
-                          {b.verification_status !== 'suspended' && (
-                            <button
-                              onClick={() => updateVerification(b.id, { is_verified: false, verification_status: 'suspended' })}
-                              className="text-xs px-2 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
-                              Suspend
                             </button>
                           )}
                         </div>
