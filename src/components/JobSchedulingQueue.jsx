@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, CheckCircle, RotateCcw } from 'lucide-react';
+import { Calendar, CheckCircle, RotateCcw, ExternalLink } from 'lucide-react';
 import ProposeTimesDialog from '@/components/ProposeTimesDialog';
 
 const RESCHEDULE_REASONS = [
@@ -17,6 +18,7 @@ const fmtDate = (d) =>
   new Date(d).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
 export default function JobSchedulingQueue({ jobs, onRefresh }) {
+  const navigate = useNavigate();
   const [proposeJob, setProposeJob] = useState(null);
   const [rescheduleJobId, setRescheduleJobId] = useState(null);
   const [rescheduleReason, setRescheduleReason] = useState('');
@@ -50,7 +52,13 @@ export default function JobSchedulingQueue({ jobs, onRefresh }) {
         <div key={job.id} className="bg-white border rounded-xl p-4 space-y-3">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <p className="font-semibold text-slate-900">{job.title}</p>
+              <button
+                className="font-semibold text-slate-900 hover:text-blue-600 flex items-center gap-1 text-left"
+                onClick={() => navigate(`/jobs/${job.id}`)}
+              >
+                {job.title}
+                <ExternalLink className="w-3 h-3 opacity-60" />
+              </button>
               {job.actual_cost ? <p className="text-xs text-slate-500 mt-0.5">${job.actual_cost}</p> : null}
             </div>
 

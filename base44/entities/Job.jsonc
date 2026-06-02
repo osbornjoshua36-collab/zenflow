@@ -18,6 +18,20 @@
       "type": "string",
       "description": "Job details"
     },
+    "service_category": {
+      "type": "string",
+      "description": "Type of service e.g. AC Repair, Pipe Replacement"
+    },
+    "job_type": {
+      "type": "string",
+      "enum": [
+        "residential",
+        "commercial",
+        "emergency"
+      ],
+      "default": "residential",
+      "description": "Type of job"
+    },
     "status": {
       "type": "string",
       "enum": [
@@ -27,7 +41,7 @@
         "Cancelled",
         "No-Show"
       ],
-      "description": "Job status"
+      "description": "Job execution lifecycle status"
     },
     "scheduled_date": {
       "type": "string",
@@ -40,7 +54,7 @@
     },
     "technician_name": {
       "type": "string",
-      "description": "Assigned technician"
+      "description": "Assigned technician (matched to CalendarProfile)"
     },
     "estimated_cost": {
       "type": "number",
@@ -52,7 +66,15 @@
     },
     "notes": {
       "type": "string",
-      "description": "Internal notes"
+      "description": "Legacy notes field \u2014 kept for backward compatibility"
+    },
+    "notes_internal": {
+      "type": "string",
+      "description": "Internal notes \u2014 visible to seller only"
+    },
+    "notes_shared": {
+      "type": "string",
+      "description": "Shared notes \u2014 visible to both seller and buyer"
     },
     "proposed_dates": {
       "type": "array",
@@ -75,7 +97,71 @@
         "confirmed",
         "completed"
       ],
-      "description": "Scheduling negotiation state"
+      "description": "Pre-job scheduling conversation state"
+    },
+    "checklist_items": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": [],
+      "description": "Array of checklist items: {id, text, is_complete, completed_at}"
+    },
+    "photos_before": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Before-job photo URLs (max 5)"
+    },
+    "photos_after": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "After-job photo URLs (max 5)"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when job was marked as started"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when job was marked as completed"
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when job was cancelled"
+    },
+    "cancellation_reason": {
+      "type": "string",
+      "description": "Reason for cancellation"
+    },
+    "cancelled_by": {
+      "type": "string",
+      "enum": [
+        "seller",
+        "buyer"
+      ],
+      "description": "Who cancelled the job"
+    },
+    "no_show_recorded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when no-show was recorded"
+    },
+    "job_activity": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": [],
+      "description": "Chronological activity log: {timestamp, event_type, description, actor}"
     }
   },
   "required": [

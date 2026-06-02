@@ -8,7 +8,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from '@/components/Layout';
 import Dashboard from '@/pages/Dashboard';
 import Leads from '@/pages/Leads';
-import Scheduling from '@/pages/Scheduling';
+import Scheduling from '@/pages/Scheduling.jsx';
 import PostJob from '@/pages/PostJob';
 import Reputation from '@/pages/Reputation';
 import Invoicing from '@/pages/Invoicing';
@@ -32,6 +32,7 @@ import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
 import SellerOnboarding from '@/pages/SellerOnboarding';
 import Finance from '@/pages/Finance';
 import Clients from '@/pages/Clients';
+import JobDetail from '@/pages/JobDetail';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -88,6 +89,7 @@ const AuthenticatedApp = () => {
           <Route path="/support" element={<Support />} />
           <Route path="/finance" element={<Finance />} />
           <Route path="/clients" element={<Clients />} />
+          <Route path="/jobs/:id" element={<JobDetail />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>

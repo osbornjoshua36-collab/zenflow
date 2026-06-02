@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Plus, Ban, CalendarPlus } from 'lucide-react';
@@ -14,7 +15,7 @@ const COLOR_MAP = {
   pink:   { job: 'bg-pink-100 border-pink-400 text-pink-900',     block: 'bg-slate-200 border-slate-400 text-slate-700' },
 };
 
-const HOURS = Array.from({ length: 13 }, (_, i) => i + 7); // 7am-7pm
+const HOURS = Array.from({ length: 16 }, (_, i) => i + 6); // 6am-9pm
 
 function formatHour(h) {
   if (h === 12) return '12pm';
@@ -68,6 +69,7 @@ function getEventsForDay(jobs, blocked, calId, day) {
 }
 
 export default function AppointmentCalendar() {
+  const routerNavigate = useNavigate();
   const [view, setView] = useState('month');
   const [cursor, setCursor] = useState(new Date());
   const [jobs, setJobs] = useState([]);
@@ -122,6 +124,18 @@ export default function AppointmentCalendar() {
     const newDate = new Date(date);
     if (hour !== undefined) newDate.setHours(hour, 0, 0, 0);
     await base44.entities.Job.update(dragging.id, { scheduled_date: newDate.toISOString() });
+    const dateStr = newDate.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    if (dragging.scheduling_status === 'confirmed') {
+      const notify = window.confirm(`Rescheduled "${dragging.title}" to ${dateStr}. Notify customer?`);
+      if (notify) {
+        await base44.entities.Notification.create({
+          business_id: dragging.business_id,
+          message: `Your appointment "${dragging.title}" has been rescheduled to ${dateStr}.`,
+          type: 'job_update',
+          related_entity_id: dragging.id,
+        });
+      }
+    }
     setDragging(null);
     loadData();
   };
@@ -180,8 +194,9 @@ export default function AppointmentCalendar() {
                     <div
                       key={j.id}
                       draggable
-                      onDragStart={() => setDragging(j)}
-                      className={`text-xs rounded px-1 py-0.5 mb-0.5 truncate border-l-2 cursor-grab ${c}`}
+                      onDragStart={(e) => { e.stopPropagation(); setDragging(j); }}
+                      onClick={(e) => { e.stopPropagation(); routerNavigate(`/jobs/${j.id}`); }}
+                      className={`text-xs rounded px-1 py-0.5 mb-0.5 truncate border-l-2 cursor-pointer ${c}`}
                       title={`${j.title} — ${customers[j.customer_id]?.name || ''}`}
                     >
                       {new Date(j.scheduled_date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} {j.title}
@@ -253,8 +268,9 @@ export default function AppointmentCalendar() {
                         <div
                           key={j.id}
                           draggable
-                          onDragStart={() => setDragging(j)}
-                          className={`text-xs rounded px-1 py-0.5 mb-0.5 cursor-grab border-l-2 ${c}`}
+                          onDragStart={(e) => { e.stopPropagation(); setDragging(j); }}
+                          onClick={(e) => { e.stopPropagation(); routerNavigate(`/jobs/${j.id}`); }}
+                          className={`text-xs rounded px-1 py-0.5 mb-0.5 cursor-pointer border-l-2 ${c}`}
                         >
                           {j.title}
                         </div>
@@ -316,8 +332,9 @@ export default function AppointmentCalendar() {
                     <div
                       key={j.id}
                       draggable
-                      onDragStart={() => setDragging(j)}
-                      className={`text-xs rounded px-2 py-1 cursor-grab border-l-2 ${c}`}
+                      onDragStart={(e) => { e.stopPropagation(); setDragging(j); }}
+                      onClick={(e) => { e.stopPropagation(); routerNavigate(`/jobs/${j.id}`); }}
+                      className={`text-xs rounded px-2 py-1 cursor-pointer border-l-2 ${c}`}
                     >
                       <span className="font-medium">{j.title}</span>
                       {customers[j.customer_id] && <span className="ml-1 opacity-70">— {customers[j.customer_id].name}</span>}
