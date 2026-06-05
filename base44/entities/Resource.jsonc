@@ -64,6 +64,14 @@
       "type": "string",
       "maxLength": 500,
       "description": "Internal notes about certifications, restrictions, etc."
+    },
+    "availability_exceptions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": [],
+      "description": "Date-specific overrides: [{date, is_available, working_hours_start, working_hours_end, reason}]"
     }
   },
   "required": [

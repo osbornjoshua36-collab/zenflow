@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import JobChecklist from '@/components/jobs/JobChecklist';
 import JobPhotos from '@/components/jobs/JobPhotos';
 import JobActivityLog from '@/components/jobs/JobActivityLog';
 import JobRightPanel from '@/components/jobs/JobRightPanel';
+import JobResourcesSection from '@/components/resources/JobResourcesSection';
 import JobFooterActions from '@/components/jobs/JobFooterActions';
 import JobStatusModals from '@/components/jobs/JobStatusModals';
 import InvoiceCreate from '@/components/InvoiceCreate';
@@ -493,6 +494,7 @@ export default function JobDetail() {
 
         {/* Right column */}
         <div className="space-y-4">
+          <JobResourcesSection job={job} onUpdated={loadJob} />
           <JobRightPanel
             job={job}
             customer={customer}

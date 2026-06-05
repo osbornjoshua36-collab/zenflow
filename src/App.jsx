@@ -33,6 +33,8 @@ import SellerOnboarding from '@/pages/SellerOnboarding';
 import Finance from '@/pages/Finance';
 import Clients from '@/pages/Clients';
 import JobDetail from '@/pages/JobDetail';
+import ResourceManagement from '@/pages/ResourceManagement';
+import AppointmentTemplates from '@/pages/AppointmentTemplates';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -90,6 +92,8 @@ const AuthenticatedApp = () => {
           <Route path="/finance" element={<Finance />} />
           <Route path="/clients" element={<Clients />} />
           <Route path="/jobs/:id" element={<JobDetail />} />
+          <Route path="/settings/resources" element={<ResourceManagement />} />
+          <Route path="/settings/appointment-templates" element={<AppointmentTemplates />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>
