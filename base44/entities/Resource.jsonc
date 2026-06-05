@@ -1,0 +1,74 @@
+{
+  "name": "Resource",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "FK to Business"
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 80,
+      "description": "Display name e.g. 'Dr. Sarah Webb', 'Treatment Room 2', 'Truck 3'"
+    },
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "staff",
+        "space",
+        "equipment",
+        "vehicle",
+        "team"
+      ],
+      "description": "Determines icon, behaviour, and filter category"
+    },
+    "role": {
+      "type": "string",
+      "maxLength": 80,
+      "description": "Sub-classification e.g. 'Dentist', 'Hygienist', 'Driver', 'Arborist'"
+    },
+    "colour": {
+      "type": "string",
+      "description": "Hex colour code for calendar display e.g. #3B82F6"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Inactive resources are hidden from scheduling but historical assignments are preserved"
+    },
+    "working_hours_start": {
+      "type": "string",
+      "default": "08:00",
+      "description": "Earliest time this resource can be scheduled (HH:MM)"
+    },
+    "working_hours_end": {
+      "type": "string",
+      "default": "17:00",
+      "description": "Latest end time for this resource (HH:MM)"
+    },
+    "working_days": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "default": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "description": "Days of week available: 0=Sunday through 6=Saturday"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Internal notes about certifications, restrictions, etc."
+    }
+  },
+  "required": [
+    "business_id",
+    "name",
+    "resource_type"
+  ]
+}

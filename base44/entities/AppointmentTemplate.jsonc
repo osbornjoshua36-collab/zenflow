@@ -1,0 +1,91 @@
+{
+  "name": "AppointmentTemplate",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "FK to Business"
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "e.g. 'Routine Cleaning', 'Full Lawn Service', 'AC Installation'"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "What this appointment type involves"
+    },
+    "default_duration_minutes": {
+      "type": "integer",
+      "minimum": 15,
+      "maximum": 480,
+      "description": "Default appointment length in minutes"
+    },
+    "service_category": {
+      "type": "string",
+      "description": "Maps to existing service categories on the platform"
+    },
+    "colour": {
+      "type": "string",
+      "description": "Hex colour code for calendar display e.g. #3B82F6"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "buffer_minutes_before": {
+      "type": "integer",
+      "default": 0,
+      "description": "Prep time required before appointment start \u2014 blocks resource for this duration"
+    },
+    "buffer_minutes_after": {
+      "type": "integer",
+      "default": 0,
+      "description": "Cleanup/travel time after appointment end \u2014 blocks resource for this duration"
+    },
+    "required_resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "slot_label": {
+            "type": "string",
+            "description": "e.g. 'Lead technician', 'Treatment room'"
+          },
+          "resource_type": {
+            "type": "string",
+            "enum": [
+              "staff",
+              "space",
+              "equipment",
+              "vehicle",
+              "team"
+            ]
+          },
+          "role_filter": {
+            "type": "string",
+            "description": "If set, only Resources with this role are offered"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          "is_required": {
+            "type": "boolean",
+            "default": true,
+            "description": "If true, appointment cannot be confirmed without this slot filled"
+          }
+        }
+      },
+      "default": [],
+      "description": "Defines which resource types and quantities this appointment type requires"
+    }
+  },
+  "required": [
+    "business_id",
+    "name",
+    "default_duration_minutes"
+  ]
+}

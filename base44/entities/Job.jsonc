@@ -48,9 +48,27 @@
       "format": "date-time",
       "description": "Scheduled appointment time"
     },
+    "appointment_template_id": {
+      "type": "string",
+      "description": "FK to AppointmentTemplate \u2014 which template was used to create this job"
+    },
+    "duration_minutes": {
+      "type": "integer",
+      "description": "Actual scheduled duration in minutes (use instead of estimated_duration_hours)"
+    },
+    "buffer_before_minutes": {
+      "type": "integer",
+      "default": 0,
+      "description": "Prep buffer before job start \u2014 copied from template at creation"
+    },
+    "buffer_after_minutes": {
+      "type": "integer",
+      "default": 0,
+      "description": "Cleanup buffer after job end \u2014 copied from template at creation"
+    },
     "estimated_duration_hours": {
       "type": "number",
-      "description": "Estimated duration in hours"
+      "description": "Legacy field \u2014 kept for backward compatibility. Use duration_minutes going forward."
     },
     "technician_name": {
       "type": "string",

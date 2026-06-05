@@ -1,0 +1,59 @@
+{
+  "name": "ResourceAssignment",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "FK to Job"
+    },
+    "resource_id": {
+      "type": "string",
+      "description": "FK to Resource"
+    },
+    "slot_label": {
+      "type": "string",
+      "description": "Which slot this assignment fills, copied from TemplateResourceRequirement"
+    },
+    "start_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this resource's involvement begins (including buffer_before)"
+    },
+    "end_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this resource's involvement ends (including buffer_after)"
+    },
+    "assigned_by": {
+      "type": "string",
+      "description": "FK to User who created this assignment"
+    },
+    "assigned_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the assignment was created"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "confirmed",
+        "tentative",
+        "cancelled"
+      ],
+      "default": "confirmed",
+      "description": "Whether this assignment is locked in"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Specific notes for this resource on this job"
+    }
+  },
+  "required": [
+    "job_id",
+    "resource_id",
+    "start_datetime",
+    "end_datetime",
+    "status"
+  ]
+}
