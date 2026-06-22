@@ -36,6 +36,8 @@ import JobDetail from '@/pages/JobDetail';
 import ResourceManagement from '@/pages/ResourceManagement';
 import AppointmentTemplates from '@/pages/AppointmentTemplates';
 import StaffPortal from '@/pages/StaffPortal';
+import BusinessPageEditor from '@/pages/BusinessPageEditor';
+import PublicBusinessPage from '@/pages/PublicBusinessPage';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -73,6 +75,7 @@ const AuthenticatedApp = () => {
         <Route path="/buyer/jobs" element={<BuyerDashboard />} />
         <Route path="/buyer/messages" element={<BuyerMessages />} />
         <Route path="/staff/portal" element={<StaffPortal />} />
+        <Route path="/p/:handle" element={<PublicBusinessPage />} />
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/leads" element={<Leads />} />
@@ -96,6 +99,7 @@ const AuthenticatedApp = () => {
           <Route path="/jobs/:id" element={<JobDetail />} />
           <Route path="/settings/resources" element={<ResourceManagement />} />
           <Route path="/settings/appointment-templates" element={<AppointmentTemplates />} />
+          <Route path="/seller/page" element={<BusinessPageEditor />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>

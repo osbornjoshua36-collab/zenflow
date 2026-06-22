@@ -1,0 +1,132 @@
+{
+  "name": "BusinessPage",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "FK to Business"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "link",
+        "hosted"
+      ],
+      "default": "hosted",
+      "description": "Mode A = link, Mode B = hosted"
+    },
+    "external_url": {
+      "type": "string",
+      "description": "Mode A: external website URL"
+    },
+    "external_url_label": {
+      "type": "string",
+      "description": "Mode A: display label for the link"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "default": "draft"
+    },
+    "template": {
+      "type": "string",
+      "enum": [
+        "BOLD_CRAFT",
+        "CLEAN_PRO",
+        "WARM_LOCAL"
+      ],
+      "default": "BOLD_CRAFT"
+    },
+    "accent_color": {
+      "type": "string",
+      "description": "Primary accent hex color"
+    },
+    "handle": {
+      "type": "string",
+      "description": "URL slug, e.g. smiths-plumbing"
+    },
+    "seo_title": {
+      "type": "string"
+    },
+    "seo_description": {
+      "type": "string"
+    },
+    "hero_headline": {
+      "type": "string"
+    },
+    "hero_subheadline": {
+      "type": "string"
+    },
+    "hero_cta_label": {
+      "type": "string"
+    },
+    "hero_image_url": {
+      "type": "string"
+    },
+    "about_text": {
+      "type": "string"
+    },
+    "about_image_url": {
+      "type": "string"
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": [],
+      "description": "Array of {id, name, description, price, emoji}"
+    },
+    "gallery_images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Gallery photo URLs"
+    },
+    "contact_area_text": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "trust_stats": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": [],
+      "description": "Array of {label, value} for trust bar"
+    },
+    "ai_generated": {
+      "type": "boolean",
+      "default": false
+    },
+    "ai_draft_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "draft",
+        "accepted",
+        "edited"
+      ],
+      "default": "pending"
+    },
+    "last_saved_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "business_id",
+    "mode",
+    "status"
+  ]
+}
