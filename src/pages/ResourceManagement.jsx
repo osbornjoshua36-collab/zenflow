@@ -6,6 +6,7 @@ import { Plus } from 'lucide-react';
 import ResourceList from '@/components/resources/ResourceList';
 import ResourceFormDialog from '@/components/resources/ResourceFormDialog';
 import TeamTab from '@/components/resources/TeamTab';
+import ResourceCalendarView from '@/components/resources/ResourceCalendarView';
 
 export default function ResourceManagement() {
   const [business, setBusiness] = useState(null);
@@ -55,14 +56,19 @@ export default function ResourceManagement() {
         </Button>
       </div>
 
-      <Tabs defaultValue="all">
+      <Tabs defaultValue="calendar">
         <TabsList className="mb-4">
+          <TabsTrigger value="calendar">Calendar</TabsTrigger>
           <TabsTrigger value="all">All Resources</TabsTrigger>
           <TabsTrigger value="staff">Staff</TabsTrigger>
           <TabsTrigger value="spaces">Spaces & Equipment</TabsTrigger>
           <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
           <TabsTrigger value="teams">Teams</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="calendar">
+          <ResourceCalendarView businessId={business?.id} />
+        </TabsContent>
 
         <TabsContent value="all">
           <ResourceList
