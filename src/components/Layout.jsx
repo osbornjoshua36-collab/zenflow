@@ -10,7 +10,6 @@ import { base44 } from '@/api/base44Client';
 
 const SELLER_NAV_CONFIG = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard', badgeKey: null },
-  { path: '/leads', icon: Inbox, label: 'Leads', badgeKey: 'leads', badgeColor: '#EF4444' },
   { path: '/scheduling', icon: Briefcase, label: 'Jobs', badgeKey: 'jobs', badgeColor: '#3B82F6' },
   { path: '/finance', icon: Receipt, label: 'Finance', badgeKey: 'finance', badgeColor: '#F59E0B' },
   { path: '/clients', icon: Users, label: 'Clients', badgeKey: 'clients', badgeColor: '#F59E0B' },
@@ -27,7 +26,7 @@ const BUYER_NAV = [
   { path: '/buyer/account', icon: UserCircle, label: 'Account' },
 ];
 
-const MOBILE_PRIMARY_PATHS = ['/', '/leads', '/scheduling', '/finance', '/seller/settings'];
+const MOBILE_PRIMARY_PATHS = ['/', '/scheduling', '/finance', '/clients', '/seller/settings'];
 
 const PAGE_TITLES = {
   '/': 'Dashboard',
