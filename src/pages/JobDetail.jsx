@@ -10,6 +10,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import JobChecklist from '@/components/jobs/JobChecklist';
+import JobLifecycleTracker from '@/components/jobs/JobLifecycleTracker';
 import JobPhotos from '@/components/jobs/JobPhotos';
 import JobActivityLog from '@/components/jobs/JobActivityLog';
 import JobRightPanel from '@/components/jobs/JobRightPanel';
@@ -303,6 +304,11 @@ export default function JobDetail() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+      </div>
+
+      {/* Lifecycle tracker */}
+      <div className="mb-4">
+        <JobLifecycleTracker job={job} invoice={invoice} />
       </div>
 
       {/* Two-column body */}

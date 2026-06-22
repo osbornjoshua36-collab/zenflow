@@ -1,14 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 import AppointmentCalendar from '@/components/AppointmentCalendar';
 import ResourceScheduleView from '@/components/ResourceScheduleView';
+import JobPipelineView from '@/components/jobs/JobPipelineView';
 
 const TABS = [
+  { id: 'pipeline', label: 'Job Pipeline' },
   { id: 'calendar', label: 'Calendar' },
   { id: 'resources', label: 'Resource Availability' },
 ];
 
 export default function Scheduling() {
-  const [activeTab, setActiveTab] = useState('calendar');
+  const [activeTab, setActiveTab] = useState('pipeline');
+  const [businessId, setBusinessId] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const me = await base44.auth.me();
+      if (!me) return;
+      const biz = await base44.entities.Business.filter({ owner_email: me.email });
+      if (biz[0]) setBusinessId(biz[0].id);
+    })();
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -27,6 +40,7 @@ export default function Scheduling() {
           </button>
         ))}
       </div>
+      {activeTab === 'pipeline' && <JobPipelineView businessId={businessId} />}
       {activeTab === 'calendar' && <AppointmentCalendar />}
       {activeTab === 'resources' && <ResourceScheduleView />}
     </div>
