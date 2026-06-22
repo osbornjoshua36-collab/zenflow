@@ -26,7 +26,7 @@ const ACTIONS = [
     id: 'cancel',
     label: 'Cancel this job',
     icon: XCircle,
-    description: 'Cancel the job entirely — customer will be notified',
+    description: 'Cancel the job entirely — requires owner permission',
     color: 'text-red-600',
     bg: 'bg-red-50 border-red-200 hover:bg-red-100',
   },
@@ -160,7 +160,21 @@ export default function StaffJobActionDialog({ assignment, job, resource, onClos
               <div className="space-y-2">
                 {ACTIONS.map(act => {
                   const Icon = act.icon;
-                  return (
+                  const isCancel = act.id === 'cancel';
+                  const locked = isCancel && !resource?.can_cancel_jobs;
+                  return locked ? (
+                    <div
+                      key={act.id}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed"
+                    >
+                      <Icon className="w-5 h-5 flex-shrink-0 text-slate-400" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-slate-400">{act.label}</p>
+                        <p className="text-xs text-slate-400">Only the business owner can cancel jobs</p>
+                      </div>
+                      <span className="text-xs bg-slate-200 text-slate-500 rounded px-2 py-0.5 font-medium">Owner only</span>
+                    </div>
+                  ) : (
                     <button
                       key={act.id}
                       onClick={() => { setAction(act.id); setStep(act.id); }}

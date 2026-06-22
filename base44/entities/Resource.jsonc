@@ -36,6 +36,11 @@
       "default": true,
       "description": "Inactive resources are hidden from scheduling but historical assignments are preserved"
     },
+    "can_cancel_jobs": {
+      "type": "boolean",
+      "default": false,
+      "description": "Staff only \u2014 if true, this employee is permitted to cancel jobs from their portal. Otherwise only the business owner can cancel."
+    },
     "working_hours_start": {
       "type": "string",
       "default": "08:00",
