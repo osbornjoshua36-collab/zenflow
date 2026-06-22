@@ -5,7 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Shield, Download } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Shield, Download, Plus } from 'lucide-react';
+import ResourceList from '@/components/resources/ResourceList';
+import ResourceFormDialog from '@/components/resources/ResourceFormDialog';
 
 const STATUS_COLORS = {
   open: 'bg-red-100 text-red-700',
@@ -30,9 +33,14 @@ export default function AdminDashboard() {
   const [transactions, setTransactions] = useState([]);
   const [txnStatusFilter, setTxnStatusFilter] = useState('all');
   const [txnSearchSeller, setTxnSearchSeller] = useState('');
+  // Resources tab
+  const [allResources, setAllResources] = useState([]);
+  const [resourceBizFilter, setResourceBizFilter] = useState('all');
+  const [showResourceForm, setShowResourceForm] = useState(false);
+  const [editingResource, setEditingResource] = useState(null);
 
   const loadData = async () => {
-    const [rpts, lstgs, biz, quotes, jobs, reviews, txns] = await Promise.all([
+    const [rpts, lstgs, biz, quotes, jobs, reviews, txns, resources] = await Promise.all([
       base44.entities.Report.list('-created_date', 500),
       base44.entities.Listing.list('-created_date', 500),
       base44.entities.Business.list('-created_date', 500),
@@ -40,7 +48,9 @@ export default function AdminDashboard() {
       base44.entities.Job.list('-created_date', 1),
       base44.entities.Review.filter({ verified: true }, '-created_date', 1),
       base44.entities.Transaction.list('-created_date', 500),
+      base44.entities.Resource.list('-created_date', 500),
     ]);
+    setAllResources(resources);
     const bizMap = {};
     biz.forEach(b => { bizMap[b.id] = b; });
     setReports(rpts);
@@ -142,6 +152,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="sellers">Business Accounts</TabsTrigger>
             <TabsTrigger value="metrics">Platform Metrics</TabsTrigger>
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="resources">Resources</TabsTrigger>
           </TabsList>
 
           {/* TAB 1 — Reports */}
@@ -455,6 +466,65 @@ export default function AdminDashboard() {
                       </tbody>
                     </table>
                   </div>
+                </div>
+              );
+            })()}
+          </TabsContent>
+
+          {/* TAB — Resources */}
+          <TabsContent value="resources">
+            {(() => {
+              const bizOptions = bizList.filter(b => allResources.some(r => r.business_id === b.id));
+              const filteredResources = resourceBizFilter === 'all'
+                ? allResources
+                : allResources.filter(r => r.business_id === resourceBizFilter);
+              const selectedBiz = bizList.find(b => b.id === resourceBizFilter) || null;
+              const byType = (type) => filteredResources.filter(r => r.resource_type === type);
+              const loadResources = async () => {
+                const res = await base44.entities.Resource.list('-created_date', 500);
+                setAllResources(res);
+              };
+              return (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <Select value={resourceBizFilter} onValueChange={setResourceBizFilter}>
+                      <SelectTrigger className="w-64">
+                        <SelectValue placeholder="All businesses" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All businesses ({allResources.length} resources)</SelectItem>
+                        {bizOptions.map(b => (
+                          <SelectItem key={b.id} value={b.id}>
+                            {b.business_name || b.name} ({allResources.filter(r => r.business_id === b.id).length})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={() => { setEditingResource(null); setShowResourceForm(true); }} className="gap-2" disabled={!selectedBiz}>
+                      <Plus className="w-4 h-4" /> Add Resource
+                    </Button>
+                  </div>
+                  {!selectedBiz && resourceBizFilter === 'all' && (
+                    <p className="text-xs text-slate-400">Select a specific business to add new resources.</p>
+                  )}
+                  <ResourceList
+                    groups={[
+                      { label: 'Staff', resources: byType('staff') },
+                      { label: 'Spaces', resources: byType('space') },
+                      { label: 'Equipment', resources: byType('equipment') },
+                      { label: 'Vehicles', resources: byType('vehicle') },
+                      { label: 'Teams', resources: byType('team') },
+                    ]}
+                    onEdit={(r) => { setEditingResource(r); setShowResourceForm(true); }}
+                    onRefresh={loadResources}
+                  />
+                  <ResourceFormDialog
+                    open={showResourceForm}
+                    resource={editingResource}
+                    business={selectedBiz || (editingResource ? bizList.find(b => b.id === editingResource.business_id) : null)}
+                    onClose={() => { setShowResourceForm(false); setEditingResource(null); }}
+                    onSaved={() => { setShowResourceForm(false); setEditingResource(null); loadResources(); }}
+                  />
                 </div>
               );
             })()}
