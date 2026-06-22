@@ -33,6 +33,8 @@ export default function BusinessPageEditor() {
   }, []);
 
   const load = async () => {
+    const authed = await base44.auth.isAuthenticated();
+    if (!authed) { base44.auth.redirectToLogin('/seller/page'); return; }
     const me = await base44.auth.me();
     const [bizList, reviewsList] = await Promise.all([
       base44.entities.Business.filter({ owner_email: me.email }),
