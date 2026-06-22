@@ -41,6 +41,11 @@
       "default": false,
       "description": "Staff only \u2014 if true, this employee is permitted to cancel jobs from their portal. Otherwise only the business owner can cancel."
     },
+    "can_block_own_calendar": {
+      "type": "boolean",
+      "default": false,
+      "description": "Staff only \u2014 if true, this employee can add breaks or blocked time to their own calendar from their portal."
+    },
     "working_hours_start": {
       "type": "string",
       "default": "08:00",

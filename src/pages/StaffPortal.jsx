@@ -101,14 +101,21 @@ export default function StaffPortal() {
           <h1 className="text-2xl font-fraunces font-semibold text-slate-900">My Schedule</h1>
           <p className="text-sm text-slate-500 mt-0.5">{myResource?.role || 'Staff'} · {me?.full_name}</p>
         </div>
-        <Button
-          onClick={() => setShowScheduleEditor(true)}
-          variant="outline"
-          className="flex items-center gap-2 text-sm"
-        >
-          <Calendar className="w-4 h-4" />
-          Edit Availability
-        </Button>
+        {myResource?.can_block_own_calendar ? (
+          <Button
+            onClick={() => setShowScheduleEditor(true)}
+            variant="outline"
+            className="flex items-center gap-2 text-sm"
+          >
+            <Calendar className="w-4 h-4" />
+            Edit Availability
+          </Button>
+        ) : (
+          <div className="flex items-center gap-1.5 text-xs text-slate-400 border rounded-lg px-3 py-2 bg-slate-50 cursor-not-allowed">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>Owner managed</span>
+          </div>
+        )}
       </div>
 
       {/* Availability exceptions banner */}

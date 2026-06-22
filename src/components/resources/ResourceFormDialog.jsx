@@ -156,18 +156,26 @@ export default function ResourceFormDialog({ open, resource, business, onClose, 
 
           {/* Staff permissions */}
           {form.resource_type === 'staff' && (
-            <div className="flex items-center justify-between rounded-lg border p-3 bg-slate-50">
-              <div>
-                <p className="text-sm font-medium text-slate-700">Can cancel jobs</p>
-                <p className="text-xs text-slate-400 mt-0.5">Allow this employee to cancel jobs from their portal</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => set('can_cancel_jobs', !form.can_cancel_jobs)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.can_cancel_jobs ? 'bg-blue-600' : 'bg-slate-200'}`}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${form.can_cancel_jobs ? 'translate-x-6' : 'translate-x-1'}`} />
-              </button>
+            <div className="space-y-2">
+              <Label className="block">Staff Permissions</Label>
+              {[
+                { key: 'can_cancel_jobs', label: 'Can cancel jobs', desc: 'Allow this employee to cancel jobs from their portal' },
+                { key: 'can_block_own_calendar', label: 'Can block own calendar', desc: 'Allow this employee to add breaks or blocked time from their portal' },
+              ].map(({ key, label, desc }) => (
+                <div key={key} className="flex items-center justify-between rounded-lg border p-3 bg-slate-50">
+                  <div>
+                    <p className="text-sm font-medium text-slate-700">{label}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{desc}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => set(key, !form[key])}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form[key] ? 'bg-blue-600' : 'bg-slate-200'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${form[key] ? 'translate-x-6' : 'translate-x-1'}`} />
+                  </button>
+                </div>
+              ))}
             </div>
           )}
 
