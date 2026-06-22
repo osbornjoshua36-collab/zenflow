@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Search, Briefcase, MessageSquare, UserCircle, BookmarkCheck, Wrench, Home, Scissors, Zap, Leaf, Bell } from 'lucide-react';
+import { Search, Briefcase, MessageSquare, UserCircle, BookmarkCheck, Wrench, Home, Scissors, Zap, Leaf, Bell, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import BuyerJobCard from '@/components/BuyerJobCard';
 import { deriveStage } from '@/components/BuyerJobStatusBadge';
@@ -174,6 +174,9 @@ export default function BuyerDashboard() {
         </Link>
         <Link to="/buyer/messages" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors whitespace-nowrap">
           <MessageSquare className="w-4 h-4" /> Messages
+        </Link>
+        <Link to="/staff/portal" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors whitespace-nowrap">
+          <CalendarDays className="w-4 h-4" /> My Schedule
         </Link>
         <Link to="/buyer/account" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors ml-auto whitespace-nowrap">
           <UserCircle className="w-4 h-4" /> {me?.full_name?.split(' ')[0] || 'Account'}

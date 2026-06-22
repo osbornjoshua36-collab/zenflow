@@ -35,6 +35,7 @@ import Clients from '@/pages/Clients';
 import JobDetail from '@/pages/JobDetail';
 import ResourceManagement from '@/pages/ResourceManagement';
 import AppointmentTemplates from '@/pages/AppointmentTemplates';
+import StaffPortal from '@/pages/StaffPortal';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -71,6 +72,7 @@ const AuthenticatedApp = () => {
         <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
         <Route path="/buyer/jobs" element={<BuyerDashboard />} />
         <Route path="/buyer/messages" element={<BuyerMessages />} />
+        <Route path="/staff/portal" element={<StaffPortal />} />
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/leads" element={<Leads />} />
