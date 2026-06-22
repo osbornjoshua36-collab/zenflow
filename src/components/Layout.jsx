@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   LogOut, LayoutDashboard, Inbox, Briefcase, Receipt, Users, Tag, Star,
   Settings, HelpCircle, Search, MessageSquare, UserCircle, Globe,
-  MoreHorizontal, X
+  MoreHorizontal, X, Boxes
 } from 'lucide-react';
 import PastDueBanner from '@/components/PastDueBanner';
 import { base44 } from '@/api/base44Client';
@@ -16,6 +16,7 @@ const SELLER_NAV_CONFIG = [
   { path: '/clients', icon: Users, label: 'Clients', badgeKey: 'clients', badgeColor: '#F59E0B' },
   { path: '/seller/listings', icon: Tag, label: 'Listings', badgeKey: 'listings', badgeColor: '#F59E0B' },
   { path: '/reputation', icon: Star, label: 'Reviews', badgeKey: 'reviews', badgeColor: '#3B82F6' },
+  { path: '/settings/resources', icon: Boxes, label: 'Resources', badgeKey: null },
   { path: '/seller/settings', icon: Settings, label: 'Settings', badgeKey: null },
 ];
 
@@ -38,6 +39,7 @@ const PAGE_TITLES = {
   '/reputation': 'Reviews and Reputation',
   '/seller/settings': 'Settings',
   '/settings/resources': 'Resources',
+  '/settings/appointment-templates': 'Appointment Templates',
   '/settings/appointment-templates': 'Appointment Templates',
   '/seller/subscription': 'Subscription',
   '/seller/analytics': 'Analytics',
