@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { User, Building, Wrench, Truck, Users, ChevronRight } from 'lucide-react';
+import { User, Building, Wrench, Truck, Users, ChevronRight, AlertTriangle } from 'lucide-react';
 import ProposeTimesDialog from '@/components/ProposeTimesDialog';
 
 const TYPE_ICONS = { staff: User, space: Building, equipment: Wrench, vehicle: Truck, team: Users };
@@ -56,6 +56,7 @@ export default function NewJobDialog({ open, onClose, customers: customersProp, 
   const [sendProposed, setSendProposed] = useState(true);
   const [createdJob, setCreatedJob] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [conflictWarnings, setConflictWarnings] = useState({}); // { slotIdx: conflictMessage }
 
   useEffect(() => {
     if (!open) return;
@@ -108,6 +109,28 @@ export default function NewJobDialog({ open, onClose, customers: customersProp, 
       setResourceAssignments(tmpl.required_resources.map(slot => ({ ...slot, resource_id: '' })));
     } else {
       setResourceAssignments([]);
+    }
+  };
+
+  const checkConflict = async (resourceId, slotIdx) => {
+    if (!resourceId || !form.scheduled_date || !form.scheduled_time) {
+      setConflictWarnings(w => { const n = { ...w }; delete n[slotIdx]; return n; });
+      return;
+    }
+    const start = new Date(`${form.scheduled_date}T${form.scheduled_time}`);
+    const end = new Date(start.getTime() + (form.duration_minutes || 60) * 60 * 1000);
+    const existing = await base44.entities.ResourceAssignment.filter({ resource_id: resourceId });
+    const conflict = existing.find(a =>
+      a.status !== 'cancelled' &&
+      new Date(a.start_datetime) < end &&
+      new Date(a.end_datetime) > start
+    );
+    if (conflict) {
+      const from = new Date(conflict.start_datetime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const to = new Date(conflict.end_datetime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      setConflictWarnings(w => ({ ...w, [slotIdx]: `Already booked ${from} – ${to}` }));
+    } else {
+      setConflictWarnings(w => { const n = { ...w }; delete n[slotIdx]; return n; });
     }
   };
 
@@ -340,9 +363,10 @@ export default function NewJobDialog({ open, onClose, customers: customersProp, 
                         const updated = [...resourceAssignments];
                         updated[idx] = { ...updated[idx], resource_id: v };
                         setResourceAssignments(updated);
+                        checkConflict(v, idx);
                       }}
                     >
-                      <SelectTrigger className="mt-0.5">
+                      <SelectTrigger className={`mt-0.5 ${conflictWarnings[idx] ? 'border-amber-400 ring-1 ring-amber-300' : ''}`}>
                         <SelectValue placeholder="Select resource…" />
                       </SelectTrigger>
                       <SelectContent>
@@ -359,6 +383,12 @@ export default function NewJobDialog({ open, onClose, customers: customersProp, 
                         })}
                       </SelectContent>
                     </Select>
+                    {conflictWarnings[idx] && (
+                      <div className="flex items-center gap-1.5 mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                        <span><strong>Scheduling conflict:</strong> {conflictWarnings[idx]}</span>
+                      </div>
+                    )}
                   </div>
                 );
               })}

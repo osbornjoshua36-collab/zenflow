@@ -19,6 +19,7 @@ export default function JobResourcesSection({ job, onUpdated }) {
   const [search, setSearch] = useState('');
   const [template, setTemplate] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [conflictWarning, setConflictWarning] = useState(null);
 
   useEffect(() => {
     if (job?.id) loadData();
@@ -47,6 +48,27 @@ export default function JobResourcesSection({ job, onUpdated }) {
     onUpdated?.();
   };
 
+  const handleAddForce = async () => {
+    if (!conflictWarning) return;
+    const { resource, start, end } = conflictWarning;
+    setConflictWarning(null);
+    setSaving(true);
+    await base44.entities.ResourceAssignment.create({
+      job_id: job.id,
+      resource_id: resource.id,
+      slot_label: 'Additional resource',
+      start_datetime: start.toISOString(),
+      end_datetime: end.toISOString(),
+      status: 'confirmed',
+      assigned_at: new Date().toISOString(),
+    });
+    setShowAddSearch(false);
+    setSearch('');
+    setSaving(false);
+    loadData();
+    onUpdated?.();
+  };
+
   const handleAdd = async (resource) => {
     setSaving(true);
     const start = job.scheduled_date ? new Date(job.scheduled_date) : new Date();
@@ -62,10 +84,11 @@ export default function JobResourcesSection({ job, onUpdated }) {
       new Date(a.end_datetime) > start
     );
     if (conflict) {
-      alert(`Conflict: ${resource.name} is already booked from ${fmtTime(conflict.start_datetime)} to ${fmtTime(conflict.end_datetime)}.`);
+      setConflictWarning({ resource, conflict, start, end });
       setSaving(false);
       return;
     }
+    setConflictWarning(null);
 
     await base44.entities.ResourceAssignment.create({
       job_id: job.id,
@@ -141,6 +164,26 @@ export default function JobResourcesSection({ job, onUpdated }) {
           );
         })}
       </div>
+
+      {conflictWarning && (
+        <div className="border border-amber-300 bg-amber-50 rounded-lg px-3 py-2.5 space-y-2">
+          <div className="flex items-start gap-2 text-xs text-amber-800">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+            <div>
+              <p className="font-semibold">Scheduling conflict detected</p>
+              <p className="mt-0.5">{conflictWarning.resource.name} is already booked from {fmtTime(conflictWarning.conflict.start_datetime)} to {fmtTime(conflictWarning.conflict.end_datetime)}.</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="h-7 text-xs border-amber-300 text-amber-700 hover:bg-amber-100" onClick={handleAddForce}>
+              Assign anyway
+            </Button>
+            <Button size="sm" variant="ghost" className="h-7 text-xs text-slate-500" onClick={() => setConflictWarning(null)}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
 
       {showAddSearch && (
         <div className="border rounded-lg p-2 space-y-1.5 bg-slate-50">
