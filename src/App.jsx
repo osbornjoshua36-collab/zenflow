@@ -6,7 +6,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from '@/components/Layout';
-import Dashboard from '@/pages/Dashboard';
+import SphereShell from '@/components/sphere/SphereShell';
 import Leads from '@/pages/Leads';
 import Scheduling from '@/pages/Scheduling.jsx';
 import PostJob from '@/pages/PostJob';
@@ -76,8 +76,8 @@ const AuthenticatedApp = () => {
         <Route path="/buyer/messages" element={<BuyerMessages />} />
         <Route path="/staff/portal" element={<StaffPortal />} />
         <Route path="/p/:handle" element={<PublicBusinessPage />} />
+        <Route path="/" element={<SphereShell />} />
         <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
           <Route path="/leads" element={<Leads />} />
           <Route path="/scheduling" element={<Scheduling />} />
           <Route path="/post-job" element={<PostJob />} />
