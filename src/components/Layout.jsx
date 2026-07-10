@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   LogOut, LayoutDashboard, Inbox, Briefcase, Receipt, Users, Tag, Star,
-  Settings, HelpCircle, Search, MessageSquare, UserCircle, Globe,
-  MoreHorizontal, X, Boxes, MonitorSmartphone
+  Settings, HelpCircle, MoreHorizontal, X, Boxes, MonitorSmartphone
 } from 'lucide-react';
 import PastDueBanner from '@/components/PastDueBanner';
 import { base44 } from '@/api/base44Client';
@@ -20,13 +19,6 @@ const SELLER_NAV_CONFIG = [
   { path: '/seller/settings', icon: Settings, label: 'Settings', badgeKey: null },
 ];
 
-const BUYER_NAV = [
-  { path: '/community', icon: Search, label: 'Browse Services' },
-  { path: '/buyer/jobs', icon: Briefcase, label: 'My Jobs' },
-  { path: '/buyer/messages', icon: MessageSquare, label: 'Messages' },
-  { path: '/buyer/account', icon: UserCircle, label: 'Account' },
-];
-
 const MOBILE_PRIMARY_PATHS = ['/', '/scheduling', '/finance', '/clients', '/seller/settings'];
 
 const PAGE_TITLES = {
@@ -40,7 +32,6 @@ const PAGE_TITLES = {
   '/seller/page': 'My Sphere Page',
   '/seller/settings': 'Settings',
   '/settings/resources': 'Resources',
-  '/settings/appointment-templates': 'Appointment Templates',
   '/settings/appointment-templates': 'Appointment Templates',
   '/seller/subscription': 'Subscription',
   '/seller/analytics': 'Analytics',
@@ -58,9 +49,6 @@ export default function Layout() {
   const location = useLocation();
   const contentRef = useRef(null);
   const [isSeller, setIsSeller] = useState(false);
-  const [isBuyer, setIsBuyer] = useState(false);
-  const [roleView, setRoleView] = useState('buying');
-  const [roleLoaded, setRoleLoaded] = useState(false);
   const [subStatus, setSubStatus] = useState(null);
   const [badges, setBadges] = useState({});
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -68,20 +56,13 @@ export default function Layout() {
   useEffect(() => {
     (async () => {
       const authed = await base44.auth.isAuthenticated();
-      if (!authed) { setRoleLoaded(true); return; }
+      if (!authed) return;
       const me = await base44.auth.me();
-      const [businesses, buyerProfiles] = await Promise.all([
-        base44.entities.Business.filter({ owner_email: me.email }),
-        base44.entities.BuyerProfile.filter({ user_id: me.id }),
-      ]);
+      const businesses = await base44.entities.Business.filter({ owner_email: me.email });
       const biz = businesses[0] || null;
       const isSel = !!biz && (biz.onboarding_status === 'active' || !!biz.subscription_tier);
-      const buyer = buyerProfiles.length > 0;
       if (biz) setSubStatus(biz.subscription_status || null);
       setIsSeller(isSel);
-      setIsBuyer(buyer);
-      setRoleView(isSel && !buyer ? 'selling' : 'buying');
-      setRoleLoaded(true);
       if (isSel && biz) fetchBadges(biz.id);
     })();
   }, []);
@@ -117,20 +98,7 @@ export default function Layout() {
     }
   }, [location.pathname]);
 
-  const isDual = isSeller && isBuyer;
-  const isSellerView = isSeller && (roleView === 'selling' || !isDual);
-
-  let modules;
-  if (!isSeller && !isBuyer) {
-    modules = [{ path: '/community', icon: Globe, label: 'Browse Services' }];
-  } else if (isDual) {
-    modules = roleView === 'selling' ? SELLER_NAV_CONFIG : BUYER_NAV;
-  } else if (isSeller) {
-    modules = SELLER_NAV_CONFIG;
-  } else {
-    modules = BUYER_NAV;
-  }
-
+  const modules = SELLER_NAV_CONFIG;
   const formatBadge = (n) => n > 99 ? '99+' : String(n);
   const pageTitle = PAGE_TITLES[location.pathname] || modules.find(m => m.path === location.pathname)?.label || '';
   const mobilePrimaryItems = SELLER_NAV_CONFIG.filter(m => MOBILE_PRIMARY_PATHS.includes(m.path));
@@ -172,53 +140,17 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen" style={{ background: '#FAFCFF', fontFamily: 'var(--font-dm-sans)' }}>
-      {/* Sidebar hidden on mobile */}
       <div className="hidden md:flex w-64 flex-col shrink-0" style={{ background: 'var(--nav-bg)' }}>
         <div className="p-6" style={{ borderBottom: '1px solid var(--nav-border)' }}>
           <h1 className="text-xl font-bold text-white" style={{ fontFamily: 'var(--font-fraunces)' }}>Sphere</h1>
           <p className="text-xs mt-1" style={{ color: 'var(--nav-text-muted)' }}>
-            {isSellerView ? 'Service Professional Dashboard' : 'AI Communication Platform'}
+            Service Professional Dashboard
           </p>
         </div>
 
         <nav className="flex-1 overflow-y-auto p-4">
           {modules.map((mod) => renderNavItem(mod))}
         </nav>
-
-        {!isSeller && (
-          <div className="px-4 pb-3">
-            <Link
-              to="/seller/onboarding"
-              className="block w-full text-center text-xs px-3 py-2 rounded-lg font-medium transition-colors"
-              style={{ background: 'var(--nav-hover)', color: 'var(--nav-text-muted)' }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'var(--nav-text-muted)'; }}
-            >
-              Create a Business Account
-            </Link>
-          </div>
-        )}
-
-        {isDual && (
-          <div className="px-4 pb-3">
-            <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--nav-border)' }}>
-              <button
-                onClick={() => setRoleView('buying')}
-                className="flex-1 text-xs py-2 font-medium transition-colors"
-                style={roleView === 'buying'
-                  ? { background: 'var(--nav-active)', color: 'var(--nav-active-text)' }
-                  : { color: 'var(--nav-text-muted)' }}
-              >Buying</button>
-              <button
-                onClick={() => setRoleView('selling')}
-                className="flex-1 text-xs py-2 font-medium transition-colors"
-                style={roleView === 'selling'
-                  ? { background: 'var(--nav-active)', color: 'var(--nav-active-text)' }
-                  : { color: 'var(--nav-text-muted)' }}
-              >Selling</button>
-            </div>
-          </div>
-        )}
 
         <div className="px-4 pb-2">
           <Link
@@ -246,7 +178,6 @@ export default function Layout() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="px-8 py-4 flex items-center" style={{ background: 'var(--nav-header-bg)', borderBottom: '1px solid var(--nav-border)' }}>
           <h2 className="text-xl font-semibold text-white" style={{ fontFamily: 'var(--font-fraunces)' }}>
@@ -259,8 +190,7 @@ export default function Layout() {
         </div>
       </div>
 
-      {/* Mobile bottom tab bar — seller only */}
-      {isSellerView && (
+      {isSeller && (
         <>
           <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex" style={{ background: 'var(--nav-bg)', borderTop: '1px solid var(--nav-border)' }}>
             {mobilePrimaryItems.map(mod => {

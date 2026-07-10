@@ -7,7 +7,7 @@ import GoalsView from '@/components/sphere/GoalsView';
 import CircleView from '@/components/sphere/CircleView';
 import BrainView from '@/components/sphere/BrainView';
 import BusinessDashboard from '@/components/sphere/BusinessDashboard';
-import CommunityHub from '@/pages/CommunityHub';
+import ServicesView from '@/components/sphere/ServicesView';
 
 const NAV_ITEMS = [
   { id: 'my_view', icon: Sun, label: 'My View' },
@@ -34,7 +34,7 @@ export default function SphereShell() {
       case 'my_schedule': return <ScheduleView />;
       case 'my_goals': return <GoalsView />;
       case 'my_circle': return <CircleView />;
-      case 'my_services': return <CommunityHub />;
+      case 'my_services': return <ServicesView />;
       case 'my_business': return <BusinessDashboard />;
       case 'my_brain': return <BrainView />;
       default: return <MyView />;
