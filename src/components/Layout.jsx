@@ -30,7 +30,7 @@ const BUYER_NAV = [
 const MOBILE_PRIMARY_PATHS = ['/', '/scheduling', '/finance', '/clients', '/seller/settings'];
 
 const PAGE_TITLES = {
-  '/': 'Dashboard',
+  '/': 'My View',
   '/leads': 'Leads Pipeline',
   '/scheduling': 'Jobs and Schedule',
   '/finance': 'Finance',

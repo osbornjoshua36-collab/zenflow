@@ -1,0 +1,37 @@
+{
+  "name": "Note",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "brain_dump",
+        "notes",
+        "journal"
+      ],
+      "default": "brain_dump"
+    },
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "description": "Note content"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "mood": {
+      "type": "string",
+      "description": "Mood tag for journal entries"
+    }
+  },
+  "required": [
+    "content",
+    "type"
+  ]
+}

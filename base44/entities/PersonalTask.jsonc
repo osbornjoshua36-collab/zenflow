@@ -1,0 +1,70 @@
+{
+  "name": "PersonalTask",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Task title"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the task is scheduled for"
+    },
+    "scheduled_time": {
+      "type": "string",
+      "description": "Time of day HH:MM"
+    },
+    "duration_minutes": {
+      "type": "integer",
+      "default": 15,
+      "description": "Estimated duration in minutes"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "work",
+        "personal",
+        "health",
+        "family",
+        "errands",
+        "learning",
+        "other"
+      ],
+      "default": "personal"
+    },
+    "priority_level": {
+      "type": "string",
+      "enum": [
+        "one_thing",
+        "top3",
+        "normal"
+      ],
+      "default": "normal",
+      "description": "Priority tier for the day"
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false
+    },
+    "recurrence_pattern": {
+      "type": "string",
+      "description": "daily, weekly, etc."
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "scheduled_date"
+  ]
+}

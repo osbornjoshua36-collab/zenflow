@@ -1,0 +1,37 @@
+{
+  "name": "JournalEntry",
+  "type": "object",
+  "properties": {
+    "entry_text": {
+      "type": "string",
+      "description": "Journal entry body"
+    },
+    "mood": {
+      "type": "string",
+      "enum": [
+        "great",
+        "good",
+        "okay",
+        "low",
+        "rough",
+        "frustrated",
+        "anxious",
+        "grateful"
+      ]
+    },
+    "gratitudes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "entry_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "entry_date"
+  ]
+}
