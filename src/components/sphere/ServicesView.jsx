@@ -14,7 +14,7 @@ export default function ServicesView() {
 
   const renderContent = () => {
     switch (activeSub) {
-      case 'dashboard': return <ServicesDashboard />;
+      case 'dashboard': return <ServicesDashboard onNavigate={setActiveSub} />;
       case 'browse': return <CommunityHub />;
       case 'my_jobs': return <BuyerDashboard />;
       default: return <ServicesDashboard />;

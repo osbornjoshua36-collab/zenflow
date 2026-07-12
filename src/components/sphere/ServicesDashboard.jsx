@@ -1,4 +1,4 @@
-export default function ServicesDashboard() {
+export default function ServicesDashboard({ onNavigate }) {
   return (
     <div className="space-y-4">
       <div>
@@ -7,16 +7,22 @@ export default function ServicesDashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-xl p-6 bg-card border border-border text-center">
+        <button
+          onClick={() => onNavigate?.('browse')}
+          className="rounded-xl p-6 bg-card border border-border text-center hover:border-terracotta/40 hover:bg-terracotta-light/50 transition-colors"
+        >
           <span className="text-3xl">🔍</span>
           <p className="text-sm font-medium mt-2">Browse Services</p>
           <p className="text-xs text-muted-foreground mt-1">Find local service professionals for any job</p>
-        </div>
-        <div className="rounded-xl p-6 bg-card border border-border text-center">
+        </button>
+        <button
+          onClick={() => onNavigate?.('my_jobs')}
+          className="rounded-xl p-6 bg-card border border-border text-center hover:border-terracotta/40 hover:bg-terracotta-light/50 transition-colors"
+        >
           <span className="text-3xl">📋</span>
           <p className="text-sm font-medium mt-2">My Jobs</p>
           <p className="text-xs text-muted-foreground mt-1">Track your active and past service jobs</p>
-        </div>
+        </button>
       </div>
 
       <div className="rounded-xl p-4 bg-terracotta-light border border-terracotta/20">
