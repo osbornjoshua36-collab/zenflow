@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const COLORS = ['blue', 'green', 'purple', 'orange', 'red', 'pink'];
 
-export default function CalendarProfileDialog({ open, onClose, onSaved }) {
+export default function CalendarProfileDialog({ open, onClose, onSaved, businessId }) {
   const [form, setForm] = useState({ name: '', technician_name: '', color: 'blue' });
   const [loading, setLoading] = useState(false);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -16,7 +16,7 @@ export default function CalendarProfileDialog({ open, onClose, onSaved }) {
   const handleSave = async () => {
     if (!form.name) return;
     setLoading(true);
-    await base44.entities.CalendarProfile.create({ ...form, business_id: 'default' });
+    await base44.entities.CalendarProfile.create({ ...form, business_id: businessId || null });
     setLoading(false);
     setForm({ name: '', technician_name: '', color: 'blue' });
     onSaved();

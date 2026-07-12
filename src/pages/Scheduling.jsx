@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import AppointmentCalendar from '@/components/AppointmentCalendar';
+import UnifiedCalendar from '@/components/calendar/UnifiedCalendar';
 import ResourceScheduleView from '@/components/ResourceScheduleView';
 import JobPipelineView from '@/components/jobs/JobPipelineView';
 
@@ -41,7 +41,7 @@ export default function Scheduling() {
         ))}
       </div>
       {activeTab === 'pipeline' && <JobPipelineView businessId={businessId} />}
-      {activeTab === 'calendar' && <AppointmentCalendar />}
+      {activeTab === 'calendar' && <UnifiedCalendar defaultView="month" />}
       {activeTab === 'resources' && <ResourceScheduleView />}
     </div>
   );

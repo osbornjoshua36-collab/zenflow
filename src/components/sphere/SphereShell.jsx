@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Sun, Calendar, Target, MessageCircle, ShoppingBag, Building2, Brain, LogOut, MoreHorizontal, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import MyView from '@/components/sphere/MyView';
-import ScheduleView from '@/components/sphere/ScheduleView';
+import UnifiedCalendar from '@/components/calendar/UnifiedCalendar';
 import GoalsView from '@/components/sphere/GoalsView';
 import CircleView from '@/components/sphere/CircleView';
 import BrainView from '@/components/sphere/BrainView';
@@ -31,7 +31,7 @@ export default function SphereShell() {
   const renderContent = () => {
     switch (activeTab) {
       case 'my_view': return <MyView />;
-      case 'my_schedule': return <ScheduleView />;
+      case 'my_schedule': return <UnifiedCalendar defaultView="day" />;
       case 'my_goals': return <GoalsView />;
       case 'my_circle': return <CircleView />;
       case 'my_services': return <ServicesView />;

@@ -82,6 +82,10 @@
       },
       "default": [],
       "description": "Date-specific overrides: [{date, is_available, working_hours_start, working_hours_end, reason}]"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Staff only \u2014 links this employee's Resource record to their login account, replacing name-based matching"
     }
   },
   "required": [

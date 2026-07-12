@@ -3,7 +3,12 @@
   "type": "object",
   "properties": {
     "business_id": {
-      "type": "string"
+      "type": "string",
+      "description": "FK to Business \u2014 optional for personal calendars"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who owns this personal calendar (used when business_id is not set)"
     },
     "name": {
       "type": "string",
@@ -26,7 +31,6 @@
     }
   },
   "required": [
-    "business_id",
     "name"
   ]
 }

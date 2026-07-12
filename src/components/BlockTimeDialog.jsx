@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-export default function BlockTimeDialog({ open, onClose, onSaved, calendarProfiles, prefillDate }) {
+export default function BlockTimeDialog({ open, onClose, onSaved, calendarProfiles, prefillDate, businessId }) {
   const toLocal = (d) => {
     const dt = d ? new Date(d) : new Date();
     return dt.toISOString().slice(0, 16);
@@ -25,7 +25,7 @@ export default function BlockTimeDialog({ open, onClose, onSaved, calendarProfil
     setLoading(true);
     await base44.entities.BlockedTime.create({
       ...form,
-      business_id: 'default',
+      business_id: businessId || 'default',
       start_time: new Date(form.start_time).toISOString(),
       end_time: new Date(form.end_time).toISOString(),
     });

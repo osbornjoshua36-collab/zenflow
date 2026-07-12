@@ -25,13 +25,12 @@ export default function StaffPortal() {
       const user = await base44.auth.me();
       setMe(user);
 
-      // Find the Resource record linked to this user by name match
-      const resources = await base44.asServiceRole.entities.Resource.filter({ resource_type: 'staff' });
-      // Match by full_name or technician-style name
-      const matched = resources.find(r =>
-        r.name?.toLowerCase() === user.full_name?.toLowerCase() ||
-        r.name?.toLowerCase().includes(user.full_name?.split(' ')[0]?.toLowerCase())
-      );
+      // Find the Resource record linked to this user by email
+      const resources = await base44.asServiceRole.entities.Resource.filter({
+        resource_type: 'staff',
+        user_email: user.email,
+      });
+      const matched = resources[0];
 
       if (!matched) {
         setError('No staff profile found for your account. Please contact your manager.');
