@@ -18,7 +18,7 @@ function defaultDueDate() {
   return d.toISOString().split('T')[0];
 }
 
-export default function InvoiceCreate({ business, customers, invoiceCount, onCreated, onCancel }) {
+export default function InvoiceCreate({ business, customers = [], invoiceCount, onCreated, onCancel }) {
   const [form, setForm] = useState({
     customer_id: '',
     invoice_number: genInvoiceNumber(invoiceCount),
