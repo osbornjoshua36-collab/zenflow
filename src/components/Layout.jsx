@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   LogOut, LayoutDashboard, Inbox, Briefcase, Receipt, Users, Tag, Star,
-  Settings, HelpCircle, MoreHorizontal, X, Boxes, MonitorSmartphone
+  Settings, HelpCircle, MoreHorizontal, X, Boxes, MonitorSmartphone, Home
 } from 'lucide-react';
 import PastDueBanner from '@/components/PastDueBanner';
 import { base44 } from '@/api/base44Client';
@@ -179,10 +179,20 @@ export default function Layout() {
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="px-8 py-4 flex items-center" style={{ background: 'var(--nav-header-bg)', borderBottom: '1px solid var(--nav-border)' }}>
+        <div className="px-8 py-4 flex items-center justify-between" style={{ background: 'var(--nav-header-bg)', borderBottom: '1px solid var(--nav-border)' }}>
           <h2 className="text-xl font-semibold text-white" style={{ fontFamily: 'var(--font-fraunces)' }}>
             {pageTitle}
           </h2>
+          <Link
+            to="/"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors"
+            style={{ color: 'var(--nav-text-muted)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--nav-hover)'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--nav-text-muted)'; }}
+          >
+            <Home className="w-4 h-4" />
+            Home
+          </Link>
         </div>
         <div id="main-scroll" ref={contentRef} className="flex-1 overflow-y-auto p-8 pb-20 md:pb-8" style={{ background: '#FAFCFF' }}>
           {isSeller && <PastDueBanner status={subStatus} />}

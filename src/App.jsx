@@ -29,6 +29,7 @@ import Support from '@/pages/Support';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import PaymentFailure from '@/pages/PaymentFailure';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
+import BackToHome from '@/components/BackToHome';
 import SellerOnboarding from '@/pages/SellerOnboarding';
 import Finance from '@/pages/Finance';
 import Clients from '@/pages/Clients';
@@ -64,45 +65,48 @@ const AuthenticatedApp = () => {
 
   // Render the main app
     return (
-      <Routes>
-        <Route element={<ProtectedAdminRoute />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-        </Route>
-        <Route path="/register" element={<BuyerRegister />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/payment-failure" element={<PaymentFailure />} />
-        <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
-        <Route path="/buyer/jobs" element={<BuyerDashboard />} />
-        <Route path="/buyer/messages" element={<BuyerMessages />} />
-        <Route path="/staff/portal" element={<StaffPortal />} />
-        <Route path="/p/:handle" element={<PublicBusinessPage />} />
-        <Route path="/" element={<SphereShell />} />
-        <Route element={<Layout />}>
-          <Route path="/leads" element={<Leads />} />
-          <Route path="/scheduling" element={<Scheduling />} />
-          <Route path="/post-job" element={<PostJob />} />
-          <Route path="/reputation" element={<Reputation />} />
-          <Route path="/invoicing" element={<Invoicing />} />
-          <Route path="/hiring" element={<Hiring />} />
-          <Route path="/community" element={<CommunityHub />} />
-          <Route path="/seller/onboarding" element={<SellerOnboarding />} />
-          <Route path="/seller/listings" element={<SellerListings />} />
-          <Route path="/seller/:businessId" element={<SellerStorefront />} />
-          <Route path="/seller/ads" element={<SellerAds />} />
-          <Route path="/seller/billing" element={<SellerBilling />} />
-          <Route path="/seller/settings" element={<SellerSettings />} />
-          <Route path="/seller/subscription" element={<SellerSubscription />} />
-          <Route path="/seller/analytics" element={<SellerAnalytics />} />
-          <Route path="/support" element={<Support />} />
-          <Route path="/finance" element={<Finance />} />
-          <Route path="/clients" element={<Clients />} />
-          <Route path="/jobs/:id" element={<JobDetail />} />
-          <Route path="/settings/resources" element={<ResourceManagement />} />
-          <Route path="/settings/appointment-templates" element={<AppointmentTemplates />} />
-          <Route path="/seller/page" element={<BusinessPageEditor />} />
-          <Route path="*" element={<PageNotFound />} />
-        </Route>
-      </Routes>
+      <>
+        <Routes>
+          <Route element={<ProtectedAdminRoute />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Route>
+          <Route path="/register" element={<BuyerRegister />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failure" element={<PaymentFailure />} />
+          <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
+          <Route path="/buyer/jobs" element={<BuyerDashboard />} />
+          <Route path="/buyer/messages" element={<BuyerMessages />} />
+          <Route path="/staff/portal" element={<StaffPortal />} />
+          <Route path="/p/:handle" element={<PublicBusinessPage />} />
+          <Route path="/" element={<SphereShell />} />
+          <Route element={<Layout />}>
+            <Route path="/leads" element={<Leads />} />
+            <Route path="/scheduling" element={<Scheduling />} />
+            <Route path="/post-job" element={<PostJob />} />
+            <Route path="/reputation" element={<Reputation />} />
+            <Route path="/invoicing" element={<Invoicing />} />
+            <Route path="/hiring" element={<Hiring />} />
+            <Route path="/community" element={<CommunityHub />} />
+            <Route path="/seller/onboarding" element={<SellerOnboarding />} />
+            <Route path="/seller/listings" element={<SellerListings />} />
+            <Route path="/seller/:businessId" element={<SellerStorefront />} />
+            <Route path="/seller/ads" element={<SellerAds />} />
+            <Route path="/seller/billing" element={<SellerBilling />} />
+            <Route path="/seller/settings" element={<SellerSettings />} />
+            <Route path="/seller/subscription" element={<SellerSubscription />} />
+            <Route path="/seller/analytics" element={<SellerAnalytics />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/finance" element={<Finance />} />
+            <Route path="/clients" element={<Clients />} />
+            <Route path="/jobs/:id" element={<JobDetail />} />
+            <Route path="/settings/resources" element={<ResourceManagement />} />
+            <Route path="/settings/appointment-templates" element={<AppointmentTemplates />} />
+            <Route path="/seller/page" element={<BusinessPageEditor />} />
+            <Route path="*" element={<PageNotFound />} />
+          </Route>
+        </Routes>
+        <BackToHome />
+      </>
     );
 };
 
