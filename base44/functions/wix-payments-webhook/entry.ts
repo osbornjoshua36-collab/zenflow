@@ -211,6 +211,35 @@ Deno.serve(async (req) => {
         return new Response('OK', { status: 200 });
       }
 
+      // Check for AI image credit top-up (name format: AiCredits|businessId|sellerEmail|packSize)
+      const aiCreditsItem = order.lineItems.find(item =>
+        item.productName?.original?.startsWith('AiCredits|')
+      );
+      if (aiCreditsItem) {
+        const parts = aiCreditsItem.productName.original.split('|');
+        const aiBusinessId = parts[1] || null;
+        const aiSellerEmail = parts[2] || null;
+        const packSize = parseInt(parts[3]) || 50;
+        const creditFilter = aiBusinessId ? { business_id: aiBusinessId } : { seller_email: aiSellerEmail };
+        let creditRecords = await base44.asServiceRole.entities.AiImageCredit.filter(creditFilter);
+        const creditRecord = creditRecords[0];
+        if (!creditRecord) {
+          await base44.asServiceRole.entities.AiImageCredit.create({
+            ...(aiBusinessId ? { business_id: aiBusinessId } : {}),
+            ...(aiSellerEmail ? { seller_email: aiSellerEmail } : {}),
+            monthly_generations_used: 0,
+            current_period_start: new Date().toISOString().slice(0, 10),
+            purchased_credits_balance: packSize,
+          });
+        } else {
+          await base44.asServiceRole.entities.AiImageCredit.update(creditRecord.id, {
+            purchased_credits_balance: (creditRecord.purchased_credits_balance || 0) + packSize,
+          });
+        }
+        console.log(`AI credits topped up: +${packSize} for ${aiBusinessId || aiSellerEmail}`);
+        return new Response('OK', { status: 200 });
+      }
+
       // Check if this is a SaaS plan purchase (Pro/Business)
       const saasItem = order.lineItems.find(item =>
         item.productName?.original?.includes('Plan Monthly')

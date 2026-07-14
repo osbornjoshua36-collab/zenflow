@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Upload } from 'lucide-react';
+import AiDraftFromPhoto from '@/components/products/AiDraftFromPhoto';
 
 const CATEGORIES = ['Handmade & Crafts', 'Home Goods', 'Clothing & Accessories', 'Electronics', 'Collectibles', 'Other'];
 const CONDITIONS = ['New', 'Used – Like New', 'Used – Good', 'Used – Fair'];
@@ -145,6 +146,17 @@ export default function ProductFormDialog({ open, onClose, onSaved, businessId, 
               )}
             </div>
           </div>
+          <AiDraftFromPhoto
+            imageUrl={form.images?.[0]}
+            businessId={businessId}
+            sellerEmail={sellerEmail}
+            onApply={(d) => setForm(f => ({
+              ...f,
+              title: d.title || f.title,
+              description: d.description || f.description,
+              category: d.category || f.category,
+            }))}
+          />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancel</Button>

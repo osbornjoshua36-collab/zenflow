@@ -1,3 +1,5 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+
 Deno.serve(async (req) => {
   try {
     const body = await req.json();
@@ -82,6 +84,55 @@ Deno.serve(async (req) => {
       if (!checkoutResponse.ok) {
         const err = await checkoutResponse.json();
         console.error('Order payment checkout error:', err);
+        return Response.json({ error: 'Checkout creation failed' }, { status: 500 });
+      }
+      const data = await checkoutResponse.json();
+      return Response.json({ redirectUrl: data.checkoutSession.redirectUrl });
+    }
+
+    // ── AI image credits top-up checkout path ────────────────────────────────
+    if (checkout_type === 'ai_credits') {
+      const { business_id, seller_email } = body;
+      if (!business_id && !seller_email) {
+        return Response.json({ error: 'Missing business_id or seller_email' }, { status: 400 });
+      }
+      const base44 = createClientFromRequest(req);
+      const priceCfg = await base44.asServiceRole.entities.PlatformConfig.filter({ key: 'ai_credits_pack_price' });
+      const sizeCfg = await base44.asServiceRole.entities.PlatformConfig.filter({ key: 'ai_credits_pack_size' });
+      const price = priceCfg.length > 0 ? parseFloat(priceCfg[0].value) : 5;
+      const packSize = sizeCfg.length > 0 ? parseInt(sizeCfg[0].value) : 50;
+      if (price < 0.50) {
+        return Response.json({ error: 'Amount must be at least $0.50' }, { status: 400 });
+      }
+      const origin = req.headers.get('origin') || 'https://sphere.base44.app';
+      const checkoutResponse = await fetch(
+        'https://www.wixapis.com/payments/platform/v1/checkout-sessions/construct',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': Deno.env.get('WIX_PAYMENTS_API_KEY'),
+            'wix-site-id': Deno.env.get('WIX_PAYMENTS_SITE_ID'),
+          },
+          body: JSON.stringify({
+            cart: {
+              items: [{
+                name: `AiCredits|${business_id || ''}|${seller_email || ''}|${packSize}`,
+                quantity: 1,
+                price: price.toFixed(2),
+              }],
+            },
+            callbackUrls: {
+              postFlowUrl: `${origin}/products`,
+              thankYouPageUrl: `${origin}/payment-success?plan_type=ai_credits`,
+              errorUrl: `${origin}/payment-failure?reason=declined`,
+            },
+          }),
+        }
+      );
+      if (!checkoutResponse.ok) {
+        const err = await checkoutResponse.json();
+        console.error('AI credits checkout error:', err);
         return Response.json({ error: 'Checkout creation failed' }, { status: 500 });
       }
       const data = await checkoutResponse.json();

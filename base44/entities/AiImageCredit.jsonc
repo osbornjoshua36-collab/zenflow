@@ -1,0 +1,30 @@
+{
+  "name": "AiImageCredit",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "FK to Business \u2014 set for business sellers. Mutually exclusive with seller_email."
+    },
+    "seller_email": {
+      "type": "string",
+      "description": "Email of individual seller \u2014 used instead of business_id for casual sellers with no Business record."
+    },
+    "monthly_generations_used": {
+      "type": "integer",
+      "default": 0,
+      "description": "Count of free monthly generations consumed in the current period."
+    },
+    "current_period_start": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date of the current monthly allotment period (YYYY-MM-DD). Resets automatically at the start of each new calendar month."
+    },
+    "purchased_credits_balance": {
+      "type": "integer",
+      "default": 0,
+      "description": "Credits bought separately via top-up packs. These never expire and are only consumed once the monthly free allotment is exhausted."
+    }
+  },
+  "required": []
+}
