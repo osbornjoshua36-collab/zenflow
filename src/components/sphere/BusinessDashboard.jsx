@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import LeadsPipeline from '@/components/LeadsPipeline';
 import AppointmentCalendar from '@/components/AppointmentCalendar';
-import { Briefcase, Receipt, Users, Tag, Star, Inbox, Boxes, Settings } from 'lucide-react';
+import { Briefcase, Receipt, Users, Tag, Star, Inbox, Boxes, Settings, Package, ShoppingCart } from 'lucide-react';
 
-const QUICK_LINKS = [
+const SERVICES_LINKS = [
   { path: '/scheduling', icon: Briefcase, label: 'Jobs' },
   { path: '/finance', icon: Receipt, label: 'Finance' },
   { path: '/clients', icon: Users, label: 'Clients' },
@@ -18,8 +18,19 @@ const QUICK_LINKS = [
   { path: '/seller/settings', icon: Settings, label: 'Settings' },
 ];
 
+const PRODUCTS_LINKS = [
+  { path: '/products', icon: Package, label: 'Products' },
+  { path: '/orders', icon: ShoppingCart, label: 'Orders' },
+  { path: '/finance', icon: Receipt, label: 'Finance' },
+  { path: '/clients', icon: Users, label: 'Clients' },
+  { path: '/reputation', icon: Star, label: 'Reviews' },
+  { path: '/seller/settings', icon: Settings, label: 'Settings' },
+];
+
 export default function BusinessDashboard() {
   const [stats, setStats] = useState({ leads: 0, jobs: 0, invoices: 0, revenue: 0, applicants: 0 });
+  const [businessType, setBusinessType] = useState('services');
+  const QUICK_LINKS = businessType === 'products' ? PRODUCTS_LINKS : SERVICES_LINKS;
 
   useEffect(() => {
     (async () => {
@@ -39,6 +50,10 @@ export default function BusinessDashboard() {
           applicants: applicants.filter(a => a.status === 'Qualified').length,
         });
       } catch (e) { console.error('Error fetching stats:', e); }
+      try {
+        const bizList = await base44.entities.Business.list('-created_date', 1);
+        if (bizList[0]?.business_type) setBusinessType(bizList[0].business_type);
+      } catch {}
     })();
   }, []);
 
@@ -87,8 +102,8 @@ export default function BusinessDashboard() {
         </CardContent>
       </Card>
 
-      <AppointmentCalendar />
-      <LeadsPipeline />
+      {businessType === 'services' && <AppointmentCalendar />}
+      {businessType === 'services' && <LeadsPipeline />}
     </div>
   );
 }

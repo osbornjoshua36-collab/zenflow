@@ -2,12 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   LogOut, LayoutDashboard, Inbox, Briefcase, Receipt, Users, Tag, Star,
-  Settings, HelpCircle, MoreHorizontal, X, Boxes, MonitorSmartphone, Home
+  Settings, HelpCircle, MoreHorizontal, X, Boxes, MonitorSmartphone, Home,
+  Package, ShoppingCart
 } from 'lucide-react';
 import PastDueBanner from '@/components/PastDueBanner';
 import { base44 } from '@/api/base44Client';
 
-const SELLER_NAV_CONFIG = [
+const SERVICES_NAV = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard', badgeKey: null },
   { path: '/scheduling', icon: Briefcase, label: 'Jobs', badgeKey: 'jobs', badgeColor: '#3B82F6' },
   { path: '/finance', icon: Receipt, label: 'Finance', badgeKey: 'finance', badgeColor: '#F59E0B' },
@@ -19,7 +20,19 @@ const SELLER_NAV_CONFIG = [
   { path: '/seller/settings', icon: Settings, label: 'Settings', badgeKey: null },
 ];
 
-const MOBILE_PRIMARY_PATHS = ['/', '/scheduling', '/finance', '/clients', '/seller/settings'];
+const PRODUCTS_NAV = [
+  { path: '/', icon: LayoutDashboard, label: 'Dashboard', badgeKey: null },
+  { path: '/products', icon: Package, label: 'Products', badgeKey: 'products', badgeColor: '#3B82F6' },
+  { path: '/orders', icon: ShoppingCart, label: 'Orders', badgeKey: 'orders', badgeColor: '#F59E0B' },
+  { path: '/finance', icon: Receipt, label: 'Finance', badgeKey: 'finance', badgeColor: '#F59E0B' },
+  { path: '/clients', icon: Users, label: 'Clients', badgeKey: 'clients', badgeColor: '#F59E0B' },
+  { path: '/reputation', icon: Star, label: 'Reviews', badgeKey: 'reviews', badgeColor: '#3B82F6' },
+  { path: '/seller/page', icon: MonitorSmartphone, label: 'My Page', badgeKey: null },
+  { path: '/seller/settings', icon: Settings, label: 'Settings', badgeKey: null },
+];
+
+const MOBILE_PRIMARY_PATHS_SERVICES = ['/', '/scheduling', '/finance', '/clients', '/seller/settings'];
+const MOBILE_PRIMARY_PATHS_PRODUCTS = ['/', '/products', '/finance', '/clients', '/seller/settings'];
 
 const PAGE_TITLES = {
   '/': 'My View',
@@ -27,6 +40,8 @@ const PAGE_TITLES = {
   '/scheduling': 'Jobs and Schedule',
   '/finance': 'Finance',
   '/clients': 'Clients',
+  '/products': 'My Products',
+  '/orders': 'Orders',
   '/seller/listings': 'My Listings',
   '/reputation': 'Reviews and Reputation',
   '/seller/page': 'My Sphere Page',
@@ -49,6 +64,7 @@ export default function Layout() {
   const location = useLocation();
   const contentRef = useRef(null);
   const [isSeller, setIsSeller] = useState(false);
+  const [businessType, setBusinessType] = useState('services');
   const [subStatus, setSubStatus] = useState(null);
   const [badges, setBadges] = useState({});
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -61,7 +77,7 @@ export default function Layout() {
       const businesses = await base44.entities.Business.filter({ owner_email: me.email });
       const biz = businesses[0] || null;
       const isSel = !!biz && (biz.onboarding_status === 'active' || !!biz.subscription_tier);
-      if (biz) setSubStatus(biz.subscription_status || null);
+      if (biz) { setSubStatus(biz.subscription_status || null); setBusinessType(biz.business_type || 'services'); }
       setIsSeller(isSel);
       if (isSel && biz) fetchBadges(biz.id);
     })();
@@ -98,10 +114,11 @@ export default function Layout() {
     }
   }, [location.pathname]);
 
-  const modules = SELLER_NAV_CONFIG;
+  const modules = businessType === 'products' ? PRODUCTS_NAV : SERVICES_NAV;
+  const mobilePrimaryPaths = businessType === 'products' ? MOBILE_PRIMARY_PATHS_PRODUCTS : MOBILE_PRIMARY_PATHS_SERVICES;
   const formatBadge = (n) => n > 99 ? '99+' : String(n);
   const pageTitle = PAGE_TITLES[location.pathname] || modules.find(m => m.path === location.pathname)?.label || '';
-  const mobilePrimaryItems = SELLER_NAV_CONFIG.filter(m => MOBILE_PRIMARY_PATHS.includes(m.path));
+  const mobilePrimaryItems = modules.filter(m => mobilePrimaryPaths.includes(m.path));
 
   const handleLogout = async () => { await base44.auth.logout(); };
 
@@ -144,7 +161,7 @@ export default function Layout() {
         <div className="p-6" style={{ borderBottom: '1px solid var(--nav-border)' }}>
           <h1 className="text-xl font-bold text-white" style={{ fontFamily: 'var(--font-fraunces)' }}>Sphere</h1>
           <p className="text-xs mt-1" style={{ color: 'var(--nav-text-muted)' }}>
-            Service Professional Dashboard
+            {businessType === 'products' ? 'Products Business Dashboard' : 'Service Professional Dashboard'}
           </p>
         </div>
 
@@ -249,7 +266,7 @@ export default function Layout() {
                     <X className="w-5 h-5" style={{ color: 'var(--nav-text-muted)' }} />
                   </button>
                 </div>
-                {SELLER_NAV_CONFIG.map(mod => renderNavItem(mod, () => setMobileDrawerOpen(false)))}
+                {modules.map(mod => renderNavItem(mod, () => setMobileDrawerOpen(false)))}
                 <div className="mt-2 pt-2" style={{ borderTop: '1px solid var(--nav-border)' }}>
                   <Link
                     to="/support"

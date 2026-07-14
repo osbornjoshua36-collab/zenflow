@@ -1,0 +1,97 @@
+{
+  "name": "Product",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "FK to Business \u2014 set for business sellers, null for individual sellers"
+    },
+    "seller_email": {
+      "type": "string",
+      "description": "Email of individual seller \u2014 used instead of business_id for casual sellers"
+    },
+    "title": {
+      "type": "string",
+      "description": "Product title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Product description"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Handmade & Crafts",
+        "Home Goods",
+        "Clothing & Accessories",
+        "Electronics",
+        "Collectibles",
+        "Other"
+      ],
+      "description": "Product category"
+    },
+    "price": {
+      "type": "number",
+      "description": "Price per unit"
+    },
+    "quantity_available": {
+      "type": "integer",
+      "default": 1,
+      "description": "Number of units available"
+    },
+    "condition": {
+      "type": "string",
+      "enum": [
+        "New",
+        "Used \u2013 Like New",
+        "Used \u2013 Good",
+        "Used \u2013 Fair"
+      ],
+      "default": "New",
+      "description": "Item condition \u2014 mainly relevant for individual sellers"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8,
+      "default": [],
+      "description": "Product image URLs, max 8"
+    },
+    "fulfillment_method": {
+      "type": "string",
+      "enum": [
+        "Shipping",
+        "Local Pickup",
+        "Both"
+      ],
+      "default": "Local Pickup",
+      "description": "How the buyer receives the item"
+    },
+    "shipping_flat_rate": {
+      "type": "number",
+      "description": "Flat shipping rate \u2014 applies when fulfillment includes Shipping"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Draft",
+        "Sold Out",
+        "Archived"
+      ],
+      "default": "Draft"
+    },
+    "view_count": {
+      "type": "integer",
+      "default": 0
+    }
+  },
+  "required": [
+    "title",
+    "category",
+    "price",
+    "status"
+  ]
+}

@@ -14,6 +14,10 @@
       "type": "string",
       "description": "Foreign key to Job"
     },
+    "order_id": {
+      "type": "string",
+      "description": "Foreign key to Order \u2014 set for product purchase reviews"
+    },
     "platform": {
       "type": "string",
       "enum": [
@@ -52,7 +56,7 @@
     "verified": {
       "type": "boolean",
       "default": false,
-      "description": "Whether this review is from a verified completed job with a matching completed Transaction \u2014 only settable by backend functions",
+      "description": "Whether this review is from a verified completed job or order with a matching completed Transaction \u2014 only settable by backend functions",
       "rls": {
         "write": {
           "user_condition": {

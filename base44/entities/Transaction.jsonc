@@ -4,7 +4,11 @@
   "properties": {
     "job_id": {
       "type": "string",
-      "description": "FK to Job"
+      "description": "FK to Job \u2014 set for service jobs, null for product orders"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "FK to Order \u2014 set for product sales, null for service jobs"
     },
     "invoice_id": {
       "type": "string",
@@ -15,7 +19,11 @@
     },
     "seller_business_id": {
       "type": "string",
-      "description": "FK to Business"
+      "description": "FK to Business \u2014 set for business sellers"
+    },
+    "seller_email": {
+      "type": "string",
+      "description": "Individual seller's email \u2014 set when no business is involved"
     },
     "gross_amount": {
       "type": "number",
@@ -79,9 +87,7 @@
     }
   },
   "required": [
-    "job_id",
     "buyer_email",
-    "seller_business_id",
     "gross_amount",
     "status"
   ]

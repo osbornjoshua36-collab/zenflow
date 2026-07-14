@@ -81,6 +81,15 @@
       ],
       "description": "Service business type"
     },
+    "business_type": {
+      "type": "string",
+      "enum": [
+        "services",
+        "products"
+      ],
+      "default": "services",
+      "description": "Determines which toolset the business sees \u2014 services (Leads/Jobs/Scheduling) or products (Products/Orders)"
+    },
     "phone": {
       "type": "string",
       "description": "Legacy phone field \u2014 used for identity verification"

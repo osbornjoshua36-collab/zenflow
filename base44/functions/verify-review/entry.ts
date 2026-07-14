@@ -9,16 +9,19 @@ Deno.serve(async (req) => {
 
     let body = {};
     try { body = await req.json(); } catch (_) {}
-    const { job_id, review_id } = body;
+    const { job_id, order_id, review_id } = body;
 
-    if (!job_id && !review_id) {
-      return Response.json({ error: 'job_id or review_id required' }, { status: 400 });
+    if (!job_id && !order_id && !review_id) {
+      return Response.json({ error: 'job_id, order_id, or review_id required' }, { status: 400 });
     }
 
     // Find the review
     let review;
     if (review_id) {
       const reviews = await base44.entities.Review.filter({ id: review_id });
+      review = reviews[0];
+    } else if (order_id) {
+      const reviews = await base44.entities.Review.filter({ order_id });
       review = reviews[0];
     } else {
       const reviews = await base44.entities.Review.filter({ job_id });
@@ -29,11 +32,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Review not found' }, { status: 404 });
     }
 
-    // Require a real, completed Transaction linked to this job — not just a completed job status
-    const transactions = await base44.asServiceRole.entities.Transaction.filter({
-      job_id: review.job_id,
-      status: 'completed',
-    });
+    // Require a real, completed Transaction linked to this job or order — not just a completed job status
+    const transactionFilter = review.order_id
+      ? { order_id: review.order_id, status: 'completed' }
+      : { job_id: review.job_id, status: 'completed' };
+    const transactions = await base44.asServiceRole.entities.Transaction.filter(transactionFilter);
 
     const hasCompletedTransaction = transactions.length > 0;
 

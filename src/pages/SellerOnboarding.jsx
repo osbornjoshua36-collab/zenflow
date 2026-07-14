@@ -14,13 +14,14 @@ import ModuleE from '@/components/onboarding/ModuleE';
 import ModuleF from '@/components/onboarding/ModuleF';
 import ModuleG from '@/components/onboarding/ModuleG';
 import GoLiveChecklist from '@/components/onboarding/GoLiveChecklist';
+import BusinessTypeScreen from '@/components/onboarding/BusinessTypeScreen';
 
 const MODULE_COMPONENTS = { A: ModuleA, B: ModuleB, C: ModuleC, D: ModuleD, E: ModuleE, F: ModuleF, G: ModuleG };
 
 export default function SellerOnboarding() {
   const navigate = useNavigate();
   const [seller, setSeller] = useState(null);
-  const [screen, setScreen] = useState('loading'); // loading|step1|intent|plan|step|checklist
+  const [screen, setScreen] = useState('loading'); // loading|step1|business_type|intent|plan|step|checklist
   const [currentStep, setCurrentStep] = useState(2); // steps 2–6
   const [showResumeBanner, setShowResumeBanner] = useState(false);
 
@@ -51,7 +52,9 @@ export default function SellerOnboarding() {
 
       if (step === 0) {
         setScreen('step1');
-      } else if (!s.onboarding_intent) {
+      } else if (!s.business_type) {
+        setScreen('business_type');
+      } else if (s.business_type === 'services' && !s.onboarding_intent) {
         setScreen('intent');
       } else {
         const nextStep = Math.min(step + 1, 6);
@@ -79,7 +82,14 @@ export default function SellerOnboarding() {
   const handleStep1Complete = (newSeller) => {
     setSeller(newSeller);
     base44.analytics.track({ eventName: 'onboarding_started', properties: { seller_id: newSeller.id } });
-    setScreen('intent');
+    setScreen('business_type');
+  };
+
+  const handleBusinessTypeSelected = async (type) => {
+    await base44.entities.Business.update(seller.id, { business_type: type });
+    setSeller(s => ({ ...s, business_type: type }));
+    base44.analytics.track({ eventName: 'business_type_selected', properties: { seller_id: seller.id, business_type: type } });
+    setScreen(type === 'services' ? 'intent' : 'plan');
   };
 
   const handleIntentSelected = async (intent) => {
@@ -152,7 +162,7 @@ export default function SellerOnboarding() {
   };
 
   const handleBack = () => {
-    if (screen === 'plan') { setScreen('intent'); return; }
+    if (screen === 'plan') { setScreen(seller.business_type === 'products' ? 'business_type' : 'intent'); return; }
     if (screen === 'step' && currentStep === 2) { setScreen('plan'); return; }
     if (screen === 'step') { setCurrentStep(n => n - 1); return; }
     if (screen === 'checklist') { setCurrentStep(6); setScreen('step'); }
@@ -178,7 +188,8 @@ export default function SellerOnboarding() {
   }
 
   if (screen === 'step1') return <Step1Identity onComplete={handleStep1Complete} />;
-  if (screen === 'intent') return <IntentScreen onSelect={handleIntentSelected} onBack={() => setScreen('step1')} />;
+  if (screen === 'business_type') return <BusinessTypeScreen onSelect={handleBusinessTypeSelected} onBack={() => setScreen('step1')} />;
+  if (screen === 'intent') return <IntentScreen onSelect={handleIntentSelected} onBack={() => setScreen('business_type')} />;
   if (screen === 'plan') return <PlanScreen intent={seller?.onboarding_intent} onSelect={handlePlanSelected} onSkip={handlePlanSkipped} onBack={() => setScreen('intent')} />;
 
   const intent = seller?.onboarding_intent;

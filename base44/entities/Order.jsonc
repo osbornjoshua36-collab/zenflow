@@ -1,0 +1,69 @@
+{
+  "name": "Order",
+  "type": "object",
+  "properties": {
+    "product_id": {
+      "type": "string",
+      "description": "FK to Product"
+    },
+    "buyer_email": {
+      "type": "string"
+    },
+    "buyer_name": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "integer",
+      "default": 1
+    },
+    "unit_price": {
+      "type": "number",
+      "description": "Price per unit at time of purchase"
+    },
+    "total_amount": {
+      "type": "number",
+      "description": "quantity * unit_price + shipping"
+    },
+    "shipping_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "fulfillment_method": {
+      "type": "string",
+      "enum": [
+        "Shipping",
+        "Local Pickup"
+      ]
+    },
+    "shipping_address": {
+      "type": "string",
+      "description": "Required when fulfillment is Shipping"
+    },
+    "tracking_number": {
+      "type": "string",
+      "description": "Carrier tracking number, set when seller marks order as shipped"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Pending Payment",
+        "Paid",
+        "Shipped",
+        "Delivered",
+        "Cancelled",
+        "Refunded"
+      ],
+      "default": "Pending Payment"
+    }
+  },
+  "required": [
+    "product_id",
+    "buyer_email",
+    "buyer_name",
+    "quantity",
+    "unit_price",
+    "total_amount",
+    "fulfillment_method",
+    "status"
+  ]
+}

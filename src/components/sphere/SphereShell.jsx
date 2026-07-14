@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sun, Calendar, Target, MessageCircle, ShoppingBag, Building2, Brain, LogOut, MoreHorizontal, X } from 'lucide-react';
+import { Sun, Calendar, Target, MessageCircle, ShoppingBag, Building2, Brain, LogOut, MoreHorizontal, X, Package } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import MyView from '@/components/sphere/MyView';
 import UnifiedCalendar from '@/components/calendar/UnifiedCalendar';
@@ -8,6 +8,7 @@ import CircleView from '@/components/sphere/CircleView';
 import BrainView from '@/components/sphere/BrainView';
 import BusinessDashboard from '@/components/sphere/BusinessDashboard';
 import ServicesView from '@/components/sphere/ServicesView';
+import ProductsView from '@/components/sphere/ProductsView';
 
 const NAV_ITEMS = [
   { id: 'my_view', icon: Sun, label: 'My View' },
@@ -15,11 +16,12 @@ const NAV_ITEMS = [
   { id: 'my_goals', icon: Target, label: 'My Goals' },
   { id: 'my_circle', icon: MessageCircle, label: 'My Circle' },
   { id: 'my_services', icon: ShoppingBag, label: 'My Services' },
+  { id: 'my_products', icon: Package, label: 'My Products' },
   { id: 'my_business', icon: Building2, label: 'My Business' },
   { id: 'my_brain', icon: Brain, label: 'My Brain' },
 ];
 
-const MOBILE_PRIMARY = ['my_view', 'my_schedule', 'my_services', 'my_business'];
+const MOBILE_PRIMARY = ['my_view', 'my_schedule', 'my_products', 'my_business'];
 
 export default function SphereShell() {
   const [activeTab, setActiveTab] = useState('my_view');
@@ -35,6 +37,7 @@ export default function SphereShell() {
       case 'my_goals': return <GoalsView />;
       case 'my_circle': return <CircleView />;
       case 'my_services': return <ServicesView />;
+      case 'my_products': return <ProductsView />;
       case 'my_business': return <BusinessDashboard />;
       case 'my_brain': return <BrainView />;
       default: return <MyView />;
