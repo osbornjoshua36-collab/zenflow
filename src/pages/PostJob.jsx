@@ -93,9 +93,14 @@ export default function PostJob() {
       rating,
       text: feedback,
       platform: 'Internal',
-      verified: true,
       status: 'Pending',
     });
+    // Verify the review only if a completed Transaction exists for this job
+    try {
+      await base44.functions.invoke('verify-review', { job_id: jobId });
+    } catch (e) {
+      console.error('Verify review failed:', e);
+    }
     setSubmitted(true);
     setSubmitting(false);
   };

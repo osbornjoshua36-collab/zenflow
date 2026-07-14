@@ -85,11 +85,14 @@ export default function SellerSubscription() {
 
   const handleCancel = async () => {
     setCanceling(true);
-    await base44.entities.Business.update(business.id, {
-      subscription_status: 'canceled',
-      subscription_plan: 'starter',
-    });
-    setBusiness(prev => ({ ...prev, subscription_status: 'canceled', subscription_plan: 'starter' }));
+    try {
+      const res = await base44.functions.invoke('cancel-subscription', { business_id: business.id });
+      if (res.data?.ok) {
+        setBusiness(prev => ({ ...prev, subscription_status: 'canceled', subscription_plan: 'starter' }));
+      }
+    } catch (e) {
+      console.error('Cancel failed:', e);
+    }
     setCanceling(false);
     setShowCancel(false);
   };

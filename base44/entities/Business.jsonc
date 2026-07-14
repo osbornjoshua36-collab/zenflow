@@ -134,7 +134,14 @@
     "is_verified": {
       "type": "boolean",
       "default": false,
-      "description": "Set by admin only \u2014 unlocks phone display and verified badge"
+      "description": "Set by admin only \u2014 unlocks phone display and verified badge",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "verification_status": {
       "type": "string",
@@ -145,7 +152,14 @@
         "rejected"
       ],
       "default": "unsubmitted",
-      "description": "Credential verification state"
+      "description": "Credential verification state",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "verified_at": {
       "type": "string",
@@ -256,6 +270,17 @@
       ],
       "default": "none"
     },
+    "subscription_plan": {
+      "type": "string",
+      "description": "Current active subscription plan (starter, pro, business) \u2014 set by payment processor or admin only",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "subscription_start_date": {
       "type": "string",
       "format": "date"
@@ -275,15 +300,36 @@
         "trial",
         "expired"
       ],
-      "default": "inactive"
+      "default": "inactive",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "subscription_plan_id": {
       "type": "string",
-      "description": "Base44 Payments plan identifier"
+      "description": "Base44 Payments plan identifier",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "base44_subscription_id": {
       "type": "string",
-      "description": "Unique subscription contract ID from Base44 Payments"
+      "description": "Unique subscription contract ID from Base44 Payments",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "trial_plan_tier": {
       "type": "string",
@@ -309,11 +355,25 @@
     "is_founding_member": {
       "type": "boolean",
       "default": false,
-      "description": "Set to true permanently when seller goes live while active seller count is below 200. Locks in founding member pricing forever."
+      "description": "Set to true permanently when seller goes live while active seller count is below 200. Locks in founding member pricing forever.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "locked_subscription_price": {
       "type": "number",
-      "description": "The monthly price locked in at time of founding member activation. Never changes once set."
+      "description": "The monthly price locked in at time of founding member activation. Never changes once set.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [

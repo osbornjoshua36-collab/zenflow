@@ -90,17 +90,17 @@ export default function SellerOnboarding() {
   };
 
   const handlePlanSelected = async (planTier) => {
-   const now = new Date();
-   const trialEnds = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
-   const updates = {
-     trial_plan_tier: planTier,
-     trial_started_at: now.toISOString(),
-     trial_ends_at: trialEnds.toISOString(),
-     subscription_tier: planTier,
-     subscription_status: 'trial',
-   };
-   await base44.entities.Business.update(seller.id, updates);
-   setSeller(s => ({ ...s, ...updates }));
+   const res = await base44.functions.invoke('start-trial', { business_id: seller.id, plan_tier: planTier });
+   if (res.data?.ok) {
+     setSeller(s => ({
+       ...s,
+       trial_plan_tier: res.data.trial_plan_tier,
+       trial_started_at: res.data.trial_started_at,
+       trial_ends_at: res.data.trial_ends_at,
+       subscription_tier: res.data.subscription_tier,
+       subscription_status: res.data.subscription_status,
+     }));
+   }
    base44.analytics.track({ eventName: 'plan_selected', properties: { seller_id: seller.id, intent: seller.onboarding_intent, plan_tier: planTier } });
    setCurrentStep(2);
    setScreen('step');
@@ -165,19 +165,8 @@ export default function SellerOnboarding() {
   };
 
   const handleGoLive = async () => {
-    const now = new Date().toISOString();
-    // Check founding member eligibility
-    const activesellers = await base44.entities.Business.filter({ onboarding_status: 'active' });
-    const foundingCount = activesellers.filter(b => b.is_founding_member).length;
-    const isFoundingMember = foundingCount < 200;
-    const TIER_PRICES = { starter: 0, pro: 29, business: 59, none: 0 };
-    const lockedPrice = TIER_PRICES[seller.trial_plan_tier] ?? 0;
-    await base44.entities.Business.update(seller.id, {
-      onboarding_status: 'active',
-      go_live_date: now,
-      onboarding_completed_at: now,
-      ...(isFoundingMember ? { is_founding_member: true, locked_subscription_price: lockedPrice } : {}),
-    });
+    const res = await base44.functions.invoke('activate-business', { business_id: seller.id });
+    const isFoundingMember = res.data?.is_founding_member || false;
     base44.analytics.track({ eventName: 'onboarding_completed', properties: { seller_id: seller.id, intent: seller.onboarding_intent, plan_tier: seller.trial_plan_tier || 'none', profile_completeness_pct: seller.profile_completeness_pct || 0, is_founding_member: isFoundingMember } });
     navigate('/?onboarding_complete=1');
   };

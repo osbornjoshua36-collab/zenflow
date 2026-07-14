@@ -52,7 +52,14 @@
     "verified": {
       "type": "boolean",
       "default": false,
-      "description": "Whether this review is from a verified completed job"
+      "description": "Whether this review is from a verified completed job with a matching completed Transaction \u2014 only settable by backend functions",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [
