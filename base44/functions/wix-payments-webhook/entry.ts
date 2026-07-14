@@ -69,6 +69,26 @@ async function verifyJWT(token) {
   return JSON.parse(payloadStr);
 }
 
+const COMMISSION_DEFAULTS = {
+  services: { starter: 8, pro: 5, business: 3 },
+  products: { starter: 6, pro: 4, business: 2 },
+};
+
+// Resolve the commission % for a transaction by looking up the seller's Business:
+// business_type (services | products) × subscription_plan (starter | pro | business).
+// Individual sellers with no Business get the Products-Starter rate (free goods tier).
+async function getCommissionRate(base44, sellerBusinessId) {
+  if (!sellerBusinessId) return COMMISSION_DEFAULTS.products.starter;
+  const businesses = await base44.asServiceRole.entities.Business.filter({ id: sellerBusinessId });
+  const business = businesses[0];
+  if (!business) return COMMISSION_DEFAULTS.products.starter;
+  const businessType = business.business_type || 'services';
+  const plan = (business.subscription_plan || 'starter').toLowerCase();
+  const cfg = await base44.asServiceRole.entities.PlatformConfig.filter({ key: `commission_rate_${businessType}_${plan}` });
+  if (cfg.length > 0) return parseFloat(cfg[0].value) || 0;
+  return COMMISSION_DEFAULTS[businessType]?.[plan] ?? 0;
+}
+
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
@@ -100,10 +120,8 @@ Deno.serve(async (req) => {
         const buyerEmail = order.buyerInfo?.email || null;
         const grossAmount = parseFloat(order.priceSummary?.total?.amount || jobPaymentItem.price?.amount || 0);
 
-        // Fetch commission rate from PlatformConfig
-        let commissionRate = 0;
-        const configs = await base44.asServiceRole.entities.PlatformConfig.filter({ key: 'commission_rate' });
-        if (configs.length > 0) commissionRate = parseFloat(configs[0].value) || 0;
+        // Tier-based commission: services ladder by subscription plan
+        const commissionRate = await getCommissionRate(base44, sellerBusinessId);
 
         const commissionAmount = parseFloat((grossAmount * commissionRate / 100).toFixed(2));
         const netAmount = parseFloat((grossAmount - commissionAmount).toFixed(2));
@@ -159,10 +177,8 @@ Deno.serve(async (req) => {
         const sellerBusinessId = product?.business_id || null;
         const sellerEmail = product?.seller_email || null;
 
-        // Fetch commission rate from PlatformConfig
-        let commissionRate = 0;
-        const configs = await base44.asServiceRole.entities.PlatformConfig.filter({ key: 'commission_rate' });
-        if (configs.length > 0) commissionRate = parseFloat(configs[0].value) || 0;
+        // Tier-based commission: products ladder by subscription plan (or Products-Starter for individuals)
+        const commissionRate = await getCommissionRate(base44, sellerBusinessId);
 
         const commissionAmount = parseFloat((grossAmount * commissionRate / 100).toFixed(2));
         const netAmount = parseFloat((grossAmount - commissionAmount).toFixed(2));

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Plus, Package } from 'lucide-react';
+import { Plus, Package, Store } from 'lucide-react';
 import ProductCard from '@/components/products/ProductCard';
 import ProductFormDialog from '@/components/products/ProductFormDialog';
+import TurnIntoStoreDialog from '@/components/products/TurnIntoStoreDialog';
 
 export default function MyListings() {
   const [products, setProducts] = useState([]);
@@ -11,6 +12,7 @@ export default function MyListings() {
   const [showForm, setShowForm] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
+  const [showStoreDialog, setShowStoreDialog] = useState(false);
 
   const loadData = async () => {
     const me = await base44.auth.me();
@@ -36,9 +38,16 @@ export default function MyListings() {
           <h2 className="text-xl font-bold" style={{ fontFamily: 'var(--font-fraunces)' }}>My Listings</h2>
           <p className="text-sm text-muted-foreground">sell items you've made or no longer need</p>
         </div>
-        <Button className="gap-2" style={{ background: '#E8945A', color: '#fff' }} onClick={() => { setEditProduct(null); setShowForm(true); }}>
-          <Plus className="w-4 h-4" /> New Product
-        </Button>
+        <div className="flex items-center gap-2">
+          {products.length > 0 && (
+            <Button variant="outline" className="gap-2" onClick={() => setShowStoreDialog(true)}>
+              <Store className="w-4 h-4" /> Turn into a store
+            </Button>
+          )}
+          <Button className="gap-2" style={{ background: '#E8945A', color: '#fff' }} onClick={() => { setEditProduct(null); setShowForm(true); }}>
+            <Plus className="w-4 h-4" /> New Product
+          </Button>
+        </div>
       </div>
 
       {loading ? (
@@ -60,6 +69,7 @@ export default function MyListings() {
       )}
 
       <ProductFormDialog open={showForm} onClose={() => { setShowForm(false); setEditProduct(null); }} onSaved={loadData} sellerEmail={userEmail} existing={editProduct} />
+      <TurnIntoStoreDialog open={showStoreDialog} onClose={() => setShowStoreDialog(false)} onDone={loadData} />
     </div>
   );
 }
