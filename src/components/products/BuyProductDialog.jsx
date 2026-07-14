@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ShoppingCart, MapPin } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 
 export default function BuyProductDialog({ product, onClose, buyerEmail }) {
   const [quantity, setQuantity] = useState(1);
@@ -24,7 +24,7 @@ export default function BuyProductDialog({ product, onClose, buyerEmail }) {
   const handleBuy = async () => {
     if (fulfillment === 'Shipping' && !shippingAddress) return;
     setLoading(true);
-    await base44.entities.Order.create({
+    const order = await base44.entities.Order.create({
       product_id: product.id,
       buyer_email: buyerEmail,
       buyer_name: '',
@@ -36,6 +36,20 @@ export default function BuyProductDialog({ product, onClose, buyerEmail }) {
       shipping_address: fulfillment === 'Shipping' ? shippingAddress : null,
       status: 'Pending Payment',
     });
+    try {
+      const res = await base44.functions.invoke('create-checkout', {
+        checkout_type: 'order_payment',
+        order_id: order.id,
+        product_id: product.id,
+        amount: total,
+      });
+      if (res.data?.redirectUrl) {
+        window.location.href = res.data.redirectUrl;
+        return;
+      }
+    } catch (e) {
+      console.error('Checkout redirect failed:', e);
+    }
     setLoading(false);
     setDone(true);
   };

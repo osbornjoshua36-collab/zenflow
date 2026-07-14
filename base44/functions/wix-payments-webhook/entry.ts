@@ -142,6 +142,59 @@ Deno.serve(async (req) => {
         return new Response('OK', { status: 200 });
       }
 
+      // Check for product order payment (name format: OrderPayment|orderId|productId)
+      const orderPaymentItem = order.lineItems.find(item =>
+        item.productName?.original?.startsWith('OrderPayment|')
+      );
+      if (orderPaymentItem) {
+        const parts = orderPaymentItem.productName.original.split('|');
+        const orderId = parts[1];
+        const productId = parts[2];
+        const buyerEmail = order.buyerInfo?.email || null;
+        const grossAmount = parseFloat(order.priceSummary?.total?.amount || orderPaymentItem.price?.amount || 0);
+
+        // Look up the product to find the seller
+        const products = await base44.asServiceRole.entities.Product.filter({ id: productId });
+        const product = products[0];
+        const sellerBusinessId = product?.business_id || null;
+        const sellerEmail = product?.seller_email || null;
+
+        // Fetch commission rate from PlatformConfig
+        let commissionRate = 0;
+        const configs = await base44.asServiceRole.entities.PlatformConfig.filter({ key: 'commission_rate' });
+        if (configs.length > 0) commissionRate = parseFloat(configs[0].value) || 0;
+
+        const commissionAmount = parseFloat((grossAmount * commissionRate / 100).toFixed(2));
+        const netAmount = parseFloat((grossAmount - commissionAmount).toFixed(2));
+
+        // Hold period (default 2 business days)
+        const holdConfigs = await base44.asServiceRole.entities.PlatformConfig.filter({ key: 'payout_hold_days' });
+        const holdDays = holdConfigs.length > 0 ? parseInt(holdConfigs[0].value) || 2 : 2;
+        const holdUntil = new Date();
+        holdUntil.setDate(holdUntil.getDate() + holdDays);
+
+        // Create Transaction record linked to the order
+        await base44.asServiceRole.entities.Transaction.create({
+          order_id: orderId,
+          buyer_email: buyerEmail,
+          seller_business_id: sellerBusinessId,
+          seller_email: sellerEmail,
+          gross_amount: grossAmount,
+          commission_rate: commissionRate,
+          commission_amount: commissionAmount,
+          net_amount: netAmount,
+          status: 'completed',
+          wix_order_id: order.id,
+          payout_hold_until: holdUntil.toISOString(),
+        });
+
+        // Mark the Order as Paid
+        await base44.asServiceRole.entities.Order.update(orderId, { status: 'Paid' });
+
+        console.log(`Order payment processed: order=${orderId} product=${productId} gross=${grossAmount} commission=${commissionAmount} net=${netAmount}`);
+        return new Response('OK', { status: 200 });
+      }
+
       // Check if this is a SaaS plan purchase (Pro/Business)
       const saasItem = order.lineItems.find(item =>
         item.productName?.original?.includes('Plan Monthly')

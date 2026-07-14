@@ -44,6 +44,50 @@ Deno.serve(async (req) => {
       return Response.json({ redirectUrl: data.checkoutSession.redirectUrl });
     }
 
+    // ── Order (product) payment checkout path ────────────────────────────────
+    if (checkout_type === 'order_payment') {
+      const { order_id, product_id, amount } = body;
+      if (!order_id || !product_id || !amount) {
+        return Response.json({ error: 'Missing order_id, product_id or amount' }, { status: 400 });
+      }
+      if (parseFloat(amount) < 0.50) {
+        return Response.json({ error: 'Amount must be at least $0.50' }, { status: 400 });
+      }
+      const origin = req.headers.get('origin') || 'https://sphere.base44.app';
+      const checkoutResponse = await fetch(
+        'https://www.wixapis.com/payments/platform/v1/checkout-sessions/construct',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': Deno.env.get('WIX_PAYMENTS_API_KEY'),
+            'wix-site-id': Deno.env.get('WIX_PAYMENTS_SITE_ID'),
+          },
+          body: JSON.stringify({
+            cart: {
+              items: [{
+                name: `OrderPayment|${order_id}|${product_id}`,
+                quantity: 1,
+                price: parseFloat(amount).toFixed(2),
+              }],
+            },
+            callbackUrls: {
+              postFlowUrl: `${origin}/`,
+              thankYouPageUrl: `${origin}/payment-success?plan_type=order&order_id=${order_id}&amount=${amount}`,
+              errorUrl: `${origin}/payment-failure?reason=declined`,
+            },
+          }),
+        }
+      );
+      if (!checkoutResponse.ok) {
+        const err = await checkoutResponse.json();
+        console.error('Order payment checkout error:', err);
+        return Response.json({ error: 'Checkout creation failed' }, { status: 500 });
+      }
+      const data = await checkoutResponse.json();
+      return Response.json({ redirectUrl: data.checkoutSession.redirectUrl });
+    }
+
     // ── Subscription checkout path ──────────────────────────────────────────
     if (checkout_type === 'subscription') {
       const SUBSCRIPTION_PLANS = {
