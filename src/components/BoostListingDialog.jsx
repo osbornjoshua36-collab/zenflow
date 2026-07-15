@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Zap, X } from 'lucide-react';
+import { Zap, X, AlertTriangle } from 'lucide-react';
 
 const TIERS = [
   { id: '7day',  label: '7 days',  price: '$15', desc: 'Appear at the top of search results for 7 days.' },
@@ -11,17 +11,29 @@ const TIERS = [
 export default function BoostListingDialog({ listing, onClose }) {
   const [tier, setTier] = useState('7day');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleBoost = async () => {
     setLoading(true);
-    const res = await base44.functions.invoke('createCheckout', {
-      checkout_type: 'boost',
-      listing_id: listing.id,
-      boost_tier: tier,
-    });
-    if (res.data?.redirectUrl) {
-      window.location.href = res.data.redirectUrl;
-    } else {
+    setError(null);
+    try {
+      const res = await base44.functions.invoke('create-checkout', {
+        checkout_type: 'boost',
+        listing_id: listing.id,
+        boost_tier: tier,
+      });
+      if (res.data?.redirectUrl) {
+        window.location.href = res.data.redirectUrl;
+      } else if (res.data?.error === 'payout_setup_required') {
+        setError(res.data.message || 'You must finish payout setup before boosting a listing.');
+        setLoading(false);
+      } else {
+        setError('Failed to start checkout. Please try again.');
+        setLoading(false);
+      }
+    } catch (e) {
+      console.error('Boost checkout failed:', e);
+      setError('Failed to start checkout. Please try again.');
       setLoading(false);
     }
   };
@@ -64,6 +76,13 @@ export default function BoostListingDialog({ listing, onClose }) {
             </label>
           ))}
         </div>
+
+        {error && (
+          <div className="flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
 
         <div className="flex gap-3 pt-1">
           <Button

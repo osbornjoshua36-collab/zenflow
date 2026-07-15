@@ -57,9 +57,13 @@
       "type": "string",
       "description": "Card / etc"
     },
-    "wix_order_id": {
+    "stripe_charge_id": {
       "type": "string",
-      "description": "External payment order ID"
+      "description": "Stripe charge / payment intent ID for the buyer's payment (lands on the platform account first)."
+    },
+    "stripe_transfer_id": {
+      "type": "string",
+      "description": "Stripe Transfer ID of the net payout to the seller's Connect account \u2014 set when the payout runner transfers funds after the hold period."
     },
     "payout_initiated_at": {
       "type": "string",

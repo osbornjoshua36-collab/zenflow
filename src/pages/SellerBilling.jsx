@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CreditCard, Eye, MousePointer, CheckCircle } from 'lucide-react';
+import PayoutSetupCard from '@/components/PayoutSetupCard';
 
 const TIERS = [
   { value: 'Banner',   label: 'Banner',   price: '$49', monthly: 49, accentColor: '#E8945A', badge: 'Most Visible' },
@@ -57,6 +58,7 @@ export default function SellerBilling() {
       clicks: 0,
     });
     const res = await base44.functions.invoke('create-checkout', {
+      checkout_type: 'ad',
       tier: tier.value,
       business_id: business.id,
       headline: newAd.headline,
@@ -88,6 +90,7 @@ export default function SellerBilling() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-10">
+      <PayoutSetupCard />
 
       {/* SECTION 1 — Current Plan */}
       <section>

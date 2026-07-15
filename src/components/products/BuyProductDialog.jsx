@@ -14,6 +14,7 @@ export default function BuyProductDialog({ product, onClose, buyerEmail }) {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [pendingOrder, setPendingOrder] = useState(null);
+  const [payoutBlocked, setPayoutBlocked] = useState(false);
 
   if (!product) return null;
 
@@ -33,6 +34,7 @@ export default function BuyProductDialog({ product, onClose, buyerEmail }) {
       window.location.href = res.data.redirectUrl;
       return true;
     }
+    if (res.data?.error === 'payout_setup_required') setPayoutBlocked(true);
     return false;
   };
 
@@ -80,6 +82,11 @@ export default function BuyProductDialog({ product, onClose, buyerEmail }) {
             <ShoppingCart className="w-5 h-5" /> Buy Now
           </DialogTitle>
         </DialogHeader>
+        {payoutBlocked && (
+          <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+            This seller hasn't finished payout setup, so this item can't be purchased yet. Please check back soon.
+          </div>
+        )}
         {done ? (
           <div className="text-center py-6 space-y-3">
             <div className="w-12 h-12 rounded-full bg-amber-100 mx-auto flex items-center justify-center">

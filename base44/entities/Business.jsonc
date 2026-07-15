@@ -320,7 +320,7 @@
     },
     "subscription_plan_id": {
       "type": "string",
-      "description": "Base44 Payments plan identifier",
+      "description": "Stripe price ID or internal plan identifier",
       "rls": {
         "write": {
           "user_condition": {
@@ -331,7 +331,7 @@
     },
     "base44_subscription_id": {
       "type": "string",
-      "description": "Unique subscription contract ID from Base44 Payments",
+      "description": "Stripe subscription contract ID",
       "rls": {
         "write": {
           "user_condition": {
@@ -383,6 +383,21 @@
           }
         }
       }
+    },
+    "stripe_connect_account_id": {
+      "type": "string",
+      "description": "Stripe Connect Standard account ID (acct_...) created for this seller to receive payouts."
+    },
+    "stripe_connect_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "pending",
+        "active",
+        "restricted"
+      ],
+      "default": "not_started",
+      "description": "State of the seller's Stripe Connect payout account. 'active' = fully onboarded and able to receive transfers."
     }
   },
   "required": [

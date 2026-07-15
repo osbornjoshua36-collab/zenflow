@@ -72,7 +72,7 @@ export default function SellerSubscription() {
 
   const handleUpgrade = async (planId) => {
     setUpgrading(planId);
-    const res = await base44.functions.invoke('createCheckout', {
+    const res = await base44.functions.invoke('create-checkout', {
       checkout_type: 'subscription',
       subscription_plan_id: planId,
       business_id: business.id,

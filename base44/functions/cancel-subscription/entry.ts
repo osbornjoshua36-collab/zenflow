@@ -1,5 +1,36 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
+function formEncode(obj, prefix) {
+  const parts = [];
+  for (const [k, v] of Object.entries(obj)) {
+    const key = prefix ? `${prefix}[${k}]` : k;
+    if (v === null || v === undefined) continue;
+    if (typeof v === 'object' && !Array.isArray(v)) {
+      parts.push(formEncode(v, key));
+    } else {
+      parts.push(`${key}=${encodeURIComponent(v)}`);
+    }
+  }
+  return parts.filter(Boolean).join('&');
+}
+
+async function stripePost(path, params) {
+  const res = await fetch('https://api.stripe.com/v1' + path, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + Deno.env.get('STRIPE_SECRET_KEY'),
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: formEncode(params),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    console.error('Stripe POST', path, JSON.stringify(data));
+    throw new Error(data.error?.message || 'Stripe request failed');
+  }
+  return data;
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -11,7 +42,7 @@ Deno.serve(async (req) => {
     try { body = await req.json(); } catch (_) {}
     const { business_id } = body;
 
-    // Find the user's business and verify ownership
+    // Verify ownership.
     const businesses = await base44.entities.Business.filter({ owner_email: user.email });
     const business = businesses[0];
     if (!business) return Response.json({ error: 'Business not found' }, { status: 404 });
@@ -21,61 +52,17 @@ Deno.serve(async (req) => {
 
     const subscriptionId = business.base44_subscription_id;
 
-    // Cancel with the payment processor first (if a subscription exists)
+    // Cancel at period end so the seller keeps access through the paid cycle.
     if (subscriptionId) {
-      let cancelled = false;
-      // Try soft cancel first (keeps access until end of billing cycle)
-      const softResponse = await fetch(
-        `https://www.wixapis.com/payments/base44/v1/subscriptions/${subscriptionId}/cancel`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': Deno.env.get('WIX_PAYMENTS_API_KEY'),
-            'wix-site-id': Deno.env.get('WIX_PAYMENTS_SITE_ID'),
-          },
-          body: JSON.stringify({
-            subscription_id: subscriptionId,
-            reason: 'User requested cancellation',
-            immediate: false,
-          }),
-        }
-      );
-
-      if (softResponse.ok) {
-        cancelled = true;
-      } else {
-        const errText = await softResponse.text();
-        console.error('Soft cancel failed, trying immediate:', errText);
-        // Fall back to immediate cancellation
-        const immediateResponse = await fetch(
-          `https://www.wixapis.com/payments/base44/v1/subscriptions/${subscriptionId}/cancel`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': Deno.env.get('WIX_PAYMENTS_API_KEY'),
-              'wix-site-id': Deno.env.get('WIX_PAYMENTS_SITE_ID'),
-            },
-            body: JSON.stringify({
-              subscription_id: subscriptionId,
-              reason: 'User requested cancellation',
-              immediate: true,
-            }),
-          }
-        );
-        if (immediateResponse.ok) {
-          cancelled = true;
-        } else {
-          const errText2 = await immediateResponse.text();
-          console.error('Immediate cancel also failed:', errText2);
-          return Response.json({ error: 'Failed to cancel subscription with payment processor' }, { status: 500 });
-        }
+      try {
+        await stripePost(`/subscriptions/${subscriptionId}`, { cancel_at_period_end: true });
+      } catch (e) {
+        console.error('Stripe cancel failed:', e.message);
+        return Response.json({ error: 'Failed to cancel subscription with Stripe' }, { status: 500 });
       }
     }
 
-    // Only update the Business record after the processor cancellation succeeds
-    // (or if there was no subscription to cancel — e.g. trial-only)
+    // Mirror the previous behaviour: mark cancelled + revert plan to starter.
     await base44.asServiceRole.entities.Business.update(business.id, {
       subscription_status: 'cancelled',
       subscription_plan: 'starter',

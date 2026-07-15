@@ -5,6 +5,7 @@ import { Plus, Package, Store } from 'lucide-react';
 import ProductCard from '@/components/products/ProductCard';
 import ProductFormDialog from '@/components/products/ProductFormDialog';
 import TurnIntoStoreDialog from '@/components/products/TurnIntoStoreDialog';
+import PayoutSetupCard from '@/components/PayoutSetupCard';
 
 export default function MyListings() {
   const [products, setProducts] = useState([]);
@@ -49,6 +50,8 @@ export default function MyListings() {
           </Button>
         </div>
       </div>
+
+      <PayoutSetupCard />
 
       {loading ? (
         <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-slate-200 border-t-terracotta rounded-full animate-spin" /></div>

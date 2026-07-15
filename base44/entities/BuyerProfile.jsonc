@@ -21,6 +21,21 @@
     "zip_code": {
       "type": "string",
       "description": "Default location for local search"
+    },
+    "stripe_connect_account_id": {
+      "type": "string",
+      "description": "Stripe Connect Standard account ID (acct_...) created for this individual seller to receive payouts."
+    },
+    "stripe_connect_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "pending",
+        "active",
+        "restricted"
+      ],
+      "default": "not_started",
+      "description": "State of this individual seller's Stripe Connect payout account."
     }
   },
   "required": [
