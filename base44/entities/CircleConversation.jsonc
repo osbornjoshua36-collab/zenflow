@@ -1,0 +1,28 @@
+{
+  "name": "CircleConversation",
+  "type": "object",
+  "properties": {
+    "connection_id": {
+      "type": "string",
+      "description": "FK to CircleConnection \u2014 links this conversation to its connection"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active",
+      "description": "archived = conversation ended (e.g. after an unmatch)"
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the most recent message in this conversation"
+    }
+  },
+  "required": [
+    "connection_id",
+    "status"
+  ]
+}

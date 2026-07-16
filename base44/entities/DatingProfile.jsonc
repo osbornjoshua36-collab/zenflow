@@ -1,0 +1,106 @@
+{
+  "name": "DatingProfile",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "The Sphere account this dating profile belongs to"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Display name shown to other daters"
+    },
+    "birthdate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth \u2014 used to enforce a minimum age of 18"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "non_binary",
+        "other"
+      ],
+      "description": "The user's gender identity"
+    },
+    "seeking": {
+      "type": "string",
+      "enum": [
+        "men",
+        "women",
+        "everyone"
+      ],
+      "description": "Who the user is looking to match with"
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 6,
+      "default": [],
+      "description": "Profile photo URLs, up to 6"
+    },
+    "prompts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          }
+        }
+      },
+      "maxItems": 3,
+      "default": [],
+      "description": "Up to 3 prompt pairs ({question, answer})"
+    },
+    "zip_code": {
+      "type": "string",
+      "description": "Location used for distance-based matching"
+    },
+    "max_distance_miles": {
+      "type": "number",
+      "default": 25,
+      "description": "Maximum matching distance from the user's zip code"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "unsubmitted",
+        "pending",
+        "selfie_verified",
+        "id_verified"
+      ],
+      "default": "unsubmitted",
+      "description": "Identity verification state. Writable only by admins or backend functions, never the client.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this profile is discoverable in the dating pool"
+    },
+    "last_active_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the user's most recent dating activity"
+    }
+  },
+  "required": [
+    "user_email",
+    "display_name",
+    "birthdate"
+  ]
+}

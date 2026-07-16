@@ -1,0 +1,32 @@
+{
+  "name": "DatingLike",
+  "type": "object",
+  "properties": {
+    "from_user_email": {
+      "type": "string",
+      "description": "Email of the user performing the like/pass action"
+    },
+    "to_user_email": {
+      "type": "string",
+      "description": "Email of the user being liked or passed on"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "liked",
+        "passed"
+      ],
+      "description": "Whether the user liked or passed on the profile"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the action was recorded (auto-set by backend; also reflected in built-in created_date)"
+    }
+  },
+  "required": [
+    "from_user_email",
+    "to_user_email",
+    "action"
+  ]
+}

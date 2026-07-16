@@ -1,0 +1,56 @@
+{
+  "name": "CircleMessage",
+  "type": "object",
+  "properties": {
+    "conversation_id": {
+      "type": "string",
+      "description": "FK to CircleConversation"
+    },
+    "sender_email": {
+      "type": "string",
+      "description": "Email of the user who sent the message"
+    },
+    "content": {
+      "type": "string",
+      "description": "Message body text"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "meetup_proposal"
+      ],
+      "default": "text",
+      "description": "Plain message vs a meetup proposal"
+    },
+    "proposed_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Only used when message_type is meetup_proposal"
+    },
+    "location_note": {
+      "type": "string",
+      "description": "Optional location description for a meetup proposal"
+    },
+    "proposal_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "declined"
+      ],
+      "description": "Only used when message_type is meetup_proposal"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the recipient has read the message"
+    }
+  },
+  "required": [
+    "conversation_id",
+    "sender_email",
+    "content",
+    "message_type"
+  ]
+}

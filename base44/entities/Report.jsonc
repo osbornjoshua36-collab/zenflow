@@ -10,13 +10,14 @@
       "type": "string",
       "enum": [
         "listing",
-        "seller"
+        "seller",
+        "dating_profile"
       ],
       "description": "What is being reported"
     },
     "target_id": {
       "type": "string",
-      "description": "The listing id or business id being reported"
+      "description": "The listing id, business id, or dating profile id being reported"
     },
     "reason": {
       "type": "string",

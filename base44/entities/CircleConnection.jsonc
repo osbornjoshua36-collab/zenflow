@@ -1,0 +1,48 @@
+{
+  "name": "CircleConnection",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "The Sphere user who owns this side of the connection"
+    },
+    "contact_email": {
+      "type": "string",
+      "description": "The other person in this connection"
+    },
+    "relationship_type": {
+      "type": "string",
+      "enum": [
+        "partner",
+        "family",
+        "friend",
+        "dating_match",
+        "other"
+      ],
+      "default": "other",
+      "description": "Nature of the relationship"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "dating_match"
+      ],
+      "default": "manual",
+      "description": "Whether this connection was added manually or created by a dating match"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "removed"
+      ],
+      "default": "active",
+      "description": "removed = connection ended (an unmatch affects both sides)"
+    }
+  },
+  "required": [
+    "user_email",
+    "contact_email"
+  ]
+}
