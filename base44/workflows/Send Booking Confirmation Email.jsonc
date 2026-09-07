@@ -1,0 +1,38 @@
+{
+  "name": "Send Booking Confirmation Email",
+  "description": "Emails the customer a confirmation whenever a job is created or updated to Scheduled status.",
+  "trigger": {
+    "condition": "${ (.trigger.data.status == \"Scheduled\") }",
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create",
+        "update"
+      ],
+      "entity_name": "Job"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "send_booking_confirmation_email",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "sendBookingConfirmation",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "sendBookingConfirmation"
+  }
+}
